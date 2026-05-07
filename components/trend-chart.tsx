@@ -3,8 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { monthlyTrend, weeklyTrend } from '@/lib/mock-data'
-import type { FilterPeriod } from '@/lib/mock-data'
+import type { FilterPeriod, TimeSeriesData, EfficiencyFormula } from '@/lib/mock-data'
+import { getEfficiencyFormulaLabel } from '@/lib/mock-data'
 import {
   LineChart,
   Line,
@@ -21,6 +21,9 @@ import {
 interface TrendChartProps {
   period: FilterPeriod
   isLoading: boolean
+  data: TimeSeriesData[]
+  formula: EfficiencyFormula
+  canViewFinancial: boolean
 }
 
 const formatValue = (value: number) => {
@@ -49,9 +52,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   return null
 }
 
-export function TrendChart({ period, isLoading }: TrendChartProps) {
-  const data = period === 'week' ? weeklyTrend : monthlyTrend
-
+export function TrendChart({ period, isLoading, data, formula, canViewFinancial }: TrendChartProps) {
   if (isLoading) {
     return (
       <Card>
@@ -79,7 +80,7 @@ export function TrendChart({ period, isLoading }: TrendChartProps) {
           <TabsList className="mb-4">
             <TabsTrigger value="combined">Tổng hợp</TabsTrigger>
             <TabsTrigger value="sanluong">Sản lượng</TabsTrigger>
-            <TabsTrigger value="revenue">Doanh thu & Chi phí</TabsTrigger>
+            {canViewFinancial && <TabsTrigger value="revenue">Doanh thu & Chi phí</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="combined">
@@ -93,8 +94,12 @@ export function TrendChart({ period, isLoading }: TrendChartProps) {
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Bar yAxisId="right" dataKey="sanLuong" name="Sản lượng (công)" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="doanhThu" name="Doanh thu (VNĐ)" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="chiPhi" name="Chi phí (VNĐ)" fill="var(--chart-3)" radius={[4, 4, 0, 0]} />
+                  {canViewFinancial && (
+                    <>
+                      <Bar yAxisId="left" dataKey="doanhThu" name="Doanh thu (VNĐ)" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+                      <Bar yAxisId="left" dataKey="chiPhi" name="Chi phí (VNĐ)" fill="var(--chart-3)" radius={[4, 4, 0, 0]} />
+                    </>
+                  )}
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -151,7 +156,7 @@ export function TrendChart({ period, isLoading }: TrendChartProps) {
                   <Line 
                     type="monotone" 
                     dataKey="hieuQua" 
-                    name="Hiệu quả (VNĐ)" 
+                    name={formula === 'ratio' ? 'Hiệu quả (x)' : 'Hiệu quả (VNĐ)'} 
                     stroke="var(--chart-4)" 
                     strokeWidth={2}
                     strokeDasharray="5 5"
@@ -160,6 +165,9 @@ export function TrendChart({ period, isLoading }: TrendChartProps) {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Công thức hiệu quả hiện tại: {getEfficiencyFormulaLabel(formula)}
+            </p>
           </TabsContent>
         </Tabs>
       </CardContent>

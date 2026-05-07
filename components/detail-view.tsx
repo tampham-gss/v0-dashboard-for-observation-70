@@ -14,12 +14,14 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
-  orderDetails, 
   formatCurrency, 
   formatNumber,
+  formatEfficiency,
   getStatusLabel,
   getStatusVariant,
-  weeklyTrend,
+  hubs,
+  type OrderDetail,
+  type EfficiencyFormula,
 } from '@/lib/mock-data'
 import type { RegionData, HubData, CustomerData, FilterPeriod } from '@/lib/mock-data'
 import {
@@ -39,6 +41,9 @@ interface DetailViewProps {
   type: 'region' | 'hub' | 'customer'
   item: RegionData | HubData | CustomerData
   period: FilterPeriod
+  formula: EfficiencyFormula
+  canViewFinancial: boolean
+  orders: OrderDetail[]
   onBack: () => void
 }
 
@@ -58,20 +63,36 @@ const typeLabels = {
   customer: 'Khách hàng',
 }
 
-export function DetailView({ type, item, period, onBack }: DetailViewProps) {
-  // Filter order details based on type (simplified for mock)
-  const filteredOrders = orderDetails.slice(0, 6)
+export function DetailView({ type, item, period, formula, canViewFinancial, orders, onBack }: DetailViewProps) {
+  const scopedOrders = orders.filter((order) => {
+    if (type === 'hub') return order.hub === item.name
+    if (type === 'customer') return order.khachHang === item.name
+    if (type === 'region') return hubs.find((h) => h.name === order.hub)?.regionId === item.id
+    return false
+  })
 
-  // Mock comparison data for this specific item
-  const comparisonData = weeklyTrend.map((d, i) => ({
-    ...d,
-    sanLuong: Math.round(d.sanLuong * (0.15 + Math.random() * 0.1)),
-    doanhThu: item.hasDoanhThuData ? Math.round(d.doanhThu! * (0.15 + Math.random() * 0.1)) : null,
-    chiPhi: Math.round(d.chiPhi * (0.15 + Math.random() * 0.1)),
-    hieuQua: item.hasDoanhThuData 
-      ? Math.round((d.doanhThu! - d.chiPhi) * (0.15 + Math.random() * 0.1)) 
-      : null,
-  }))
+  const comparisonMap = new Map<string, { sanLuong: number; doanhThu: number; chiPhi: number; hasMissingRevenue: boolean }>()
+  scopedOrders.forEach((order) => {
+    const key = period === 'week' ? order.ngay : order.ngay.slice(3)
+    const current = comparisonMap.get(key) || { sanLuong: 0, doanhThu: 0, chiPhi: 0, hasMissingRevenue: false }
+    current.sanLuong += order.sanLuong
+    current.chiPhi += order.chiPhi
+    if (order.doanhThu === null) current.hasMissingRevenue = true
+    else current.doanhThu += order.doanhThu
+    comparisonMap.set(key, current)
+  })
+
+  const comparisonData = Array.from(comparisonMap.entries()).map(([periodKey, values]) => {
+    const doanhThu = values.hasMissingRevenue ? null : values.doanhThu
+    const hieuQua = doanhThu === null ? null : (formula === 'ratio' ? (values.chiPhi === 0 ? null : doanhThu / values.chiPhi) : doanhThu - values.chiPhi)
+    return {
+      period: periodKey,
+      sanLuong: values.sanLuong,
+      doanhThu,
+      chiPhi: values.chiPhi,
+      hieuQua,
+    }
+  })
 
   return (
     <div className="space-y-6">
@@ -103,7 +124,8 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        {canViewFinancial && (
+          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Doanh Thu</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -124,9 +146,11 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        )}
 
-        <Card>
+        {canViewFinancial && (
+          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Chi Phí</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -135,9 +159,11 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
             <div className="text-2xl font-bold">{formatCurrency(item.chiPhi)}</div>
             <p className="text-xs text-muted-foreground">chi phí vận hành</p>
           </CardContent>
-        </Card>
+          </Card>
+        )}
 
-        <Card>
+        {canViewFinancial && (
+          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Hiệu Quả</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +172,7 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
             {item.hieuQua !== null ? (
               <>
                 <div className={`text-2xl font-bold ${item.hieuQua >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {formatCurrency(item.hieuQua)}
+                  {formatEfficiency(item.hieuQua, formula)}
                 </div>
                 <p className="text-xs text-muted-foreground">doanh thu - chi phí</p>
               </>
@@ -160,7 +186,8 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        )}
       </div>
 
       {/* Comparison Charts */}
@@ -196,13 +223,13 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
                     />
                     <Legend />
                     <Bar yAxisId="right" dataKey="sanLuong" name="Sản lượng" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-                    {item.hasDoanhThuData && (
+                    {item.hasDoanhThuData && canViewFinancial && (
                       <Bar yAxisId="left" dataKey="hieuQua" name="Hiệu quả (VNĐ)" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
                     )}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              {!item.hasDoanhThuData && (
+              {canViewFinancial && !item.hasDoanhThuData && (
                 <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded-lg flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-warning mt-0.5" />
                   <p className="text-sm text-muted-foreground">
@@ -229,7 +256,7 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
                     />
                     <Legend />
                     <Line type="monotone" dataKey="sanLuong" name="Sản lượng" stroke="var(--chart-1)" strokeWidth={2} />
-                    {item.hasDoanhThuData && (
+                    {item.hasDoanhThuData && canViewFinancial && (
                       <>
                         <Line type="monotone" dataKey="doanhThu" name="Doanh thu" stroke="var(--chart-2)" strokeWidth={2} />
                         <Line type="monotone" dataKey="chiPhi" name="Chi phí" stroke="var(--chart-3)" strokeWidth={2} />
@@ -262,14 +289,14 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
                 <TableHead>Nhân sự</TableHead>
                 <TableHead>Container</TableHead>
                 <TableHead className="text-right">Sản lượng</TableHead>
-                <TableHead className="text-right">Doanh thu</TableHead>
-                <TableHead className="text-right">Chi phí</TableHead>
+                {canViewFinancial && <TableHead className="text-right">Doanh thu</TableHead>}
+                {canViewFinancial && <TableHead className="text-right">Chi phí</TableHead>}
                 <TableHead>Trạng thái</TableHead>
                 <TableHead>CS/OPS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => (
+              {scopedOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-sm">{order.maLenh}</TableCell>
                   <TableCell>{order.ngay}</TableCell>
@@ -285,14 +312,24 @@ export function DetailView({ type, item, period, onBack }: DetailViewProps) {
                   <TableCell>{order.nhanSu}</TableCell>
                   <TableCell className="font-mono text-xs">{order.container}</TableCell>
                   <TableCell className="text-right font-medium">{order.sanLuong}</TableCell>
-                  <TableCell className="text-right">
-                    {order.doanhThu !== null ? (
-                      formatCurrency(order.doanhThu)
-                    ) : (
-                      <span className="text-xs text-warning">Chưa có</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">{formatCurrency(order.chiPhi)}</TableCell>
+                  {canViewFinancial && (
+                    <TableCell className="text-right">
+                      {order.doanhThu !== null ? (
+                        <span className={(order.doanhThu < 0) ? 'text-warning font-medium' : ''}>
+                          {formatCurrency(order.doanhThu)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-warning">Chưa có</span>
+                      )}
+                    </TableCell>
+                  )}
+                  {canViewFinancial && (
+                    <TableCell className="text-right">
+                      <span className={order.chiPhi < 0 ? 'text-warning font-medium' : ''}>
+                        {formatCurrency(order.chiPhi)}
+                      </span>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Badge variant={getStatusVariant(order.trangThai)}>
                       {getStatusLabel(order.trangThai)}

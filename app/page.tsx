@@ -8,7 +8,8 @@ import { TrendChart } from '@/components/trend-chart'
 import { RankingTable } from '@/components/ranking-table'
 import { DetailView } from '@/components/detail-view'
 import { ExportDialog } from '@/components/export-dialog'
-import type { FilterPeriod, ViewMode, RegionData, HubData, CustomerData } from '@/lib/mock-data'
+import { computeDashboardData } from '@/lib/mock-data'
+import type { FilterPeriod, ViewMode, RegionData, HubData, CustomerData, EfficiencyFormula } from '@/lib/mock-data'
 
 export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('overview')
@@ -17,6 +18,12 @@ export default function DashboardPage() {
   const [selectedHub, setSelectedHub] = useState<string>('all')
   const [selectedCustomer, setSelectedCustomer] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all')
+  const [selectedRoute, setSelectedRoute] = useState<string>('all')
+  const [selectedPersonnel, setSelectedPersonnel] = useState<string>('all')
+  const [selectedCsOps, setSelectedCsOps] = useState<string>('all')
+  const [formula, setFormula] = useState<EfficiencyFormula>('profit')
+  const [canViewFinancial] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState(false)
   const [showExport, setShowExport] = useState(false)
 
@@ -38,13 +45,55 @@ export default function DashboardPage() {
 
   const handleFilterChange = () => {
     setIsLoading(true)
-    // Simulate loading
-    setTimeout(() => setIsLoading(false), 500)
+    setTimeout(() => setIsLoading(false), 150)
   }
+
+  const handleResetFilters = () => {
+    setPeriod('month')
+    setSelectedRegion('all')
+    setSelectedHub('all')
+    setSelectedCustomer('all')
+    setSelectedStatus('all')
+    setSelectedWarehouse('all')
+    setSelectedRoute('all')
+    setSelectedPersonnel('all')
+    setSelectedCsOps('all')
+    handleFilterChange()
+  }
+
+  const filters = {
+    period,
+    region: selectedRegion,
+    hub: selectedHub,
+    customer: selectedCustomer,
+    status: selectedStatus,
+    warehouse: selectedWarehouse,
+    route: selectedRoute,
+    personnel: selectedPersonnel,
+    csOps: selectedCsOps,
+  }
+  const canResetFilters =
+    period !== 'month' ||
+    selectedRegion !== 'all' ||
+    selectedHub !== 'all' ||
+    selectedCustomer !== 'all' ||
+    selectedStatus !== 'all' ||
+    selectedWarehouse !== 'all' ||
+    selectedRoute !== 'all' ||
+    selectedPersonnel !== 'all' ||
+    selectedCsOps !== 'all'
+
+  const computed = computeDashboardData(filters, formula)
+  const rankingData = computed.rankings
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader onExport={() => setShowExport(true)} />
+      <DashboardHeader
+        onExport={() => setShowExport(true)}
+        formula={formula}
+        setFormula={setFormula}
+        canViewFinancial={canViewFinancial}
+      />
       
       <main className="container mx-auto px-4 py-6">
         <FilterBar
@@ -58,20 +107,42 @@ export default function DashboardPage() {
           setSelectedCustomer={(c) => { setSelectedCustomer(c); handleFilterChange() }}
           selectedStatus={selectedStatus}
           setSelectedStatus={(s) => { setSelectedStatus(s); handleFilterChange() }}
+          selectedWarehouse={selectedWarehouse}
+          setSelectedWarehouse={(w) => { setSelectedWarehouse(w); handleFilterChange() }}
+          selectedRoute={selectedRoute}
+          setSelectedRoute={(r) => { setSelectedRoute(r); handleFilterChange() }}
+          selectedPersonnel={selectedPersonnel}
+          setSelectedPersonnel={(p) => { setSelectedPersonnel(p); handleFilterChange() }}
+          selectedCsOps={selectedCsOps}
+          setSelectedCsOps={(c) => { setSelectedCsOps(c); handleFilterChange() }}
+          canResetFilters={canResetFilters}
+          onResetFilters={handleResetFilters}
         />
 
         {viewMode === 'overview' ? (
           <div className="space-y-6">
-            <KPICards isLoading={isLoading} />
+            <KPICards
+              isLoading={isLoading}
+              kpi={computed.kpi}
+              formula={formula}
+              canViewFinancial={canViewFinancial}
+              hasNegativeData={computed.anomalies.negativeCostCount > 0 || computed.anomalies.negativeRevenueCount > 0}
+            />
             
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <TrendChart 
                 period={period} 
                 isLoading={isLoading}
+                data={computed.trend}
+                formula={formula}
+                canViewFinancial={canViewFinancial}
               />
               <RankingTable
                 type="region"
                 isLoading={isLoading}
+                data={rankingData.region}
+                formula={formula}
+                canViewFinancial={canViewFinancial}
                 onDrillDown={(item) => handleDrillDown('region', item)}
               />
             </div>
@@ -80,11 +151,17 @@ export default function DashboardPage() {
               <RankingTable
                 type="hub"
                 isLoading={isLoading}
+                data={rankingData.hub}
+                formula={formula}
+                canViewFinancial={canViewFinancial}
                 onDrillDown={(item) => handleDrillDown('hub', item)}
               />
               <RankingTable
                 type="customer"
                 isLoading={isLoading}
+                data={rankingData.customer}
+                formula={formula}
+                canViewFinancial={canViewFinancial}
                 onDrillDown={(item) => handleDrillDown('customer', item)}
               />
             </div>
@@ -94,6 +171,9 @@ export default function DashboardPage() {
             type={detailType!}
             item={detailItem!}
             period={period}
+            formula={formula}
+            canViewFinancial={canViewFinancial}
+            orders={computed.orders}
             onBack={handleBackToOverview}
           />
         )}
@@ -103,12 +183,11 @@ export default function DashboardPage() {
         open={showExport}
         onOpenChange={setShowExport}
         filters={{
-          period,
-          region: selectedRegion,
-          hub: selectedHub,
-          customer: selectedCustomer,
-          status: selectedStatus,
+          ...filters,
         }}
+        orders={computed.orders}
+        formula={formula}
+        canViewFinancial={canViewFinancial}
       />
     </div>
   )

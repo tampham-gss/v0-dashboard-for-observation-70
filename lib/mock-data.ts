@@ -188,3 +188,238 @@ export function calculateTotalKPI(): KPIData {
     hasHieuQuaFormula: true,
   }
 }
+
+export type EfficiencyFormula = 'profit' | 'ratio' | 'none'
+
+export interface DashboardFilters {
+  period: FilterPeriod
+  region: string
+  hub: string
+  customer: string
+  status: string
+  warehouse: string
+  route: string
+  personnel: string
+  csOps: string
+}
+
+export interface DashboardComputedData {
+  kpi: KPIData
+  trend: TimeSeriesData[]
+  rankings: {
+    region: RegionData[]
+    hub: HubData[]
+    customer: CustomerData[]
+  }
+  orders: OrderDetail[]
+  anomalies: {
+    negativeRevenueCount: number
+    negativeCostCount: number
+  }
+}
+
+const getRegionNameByHub = (hubName: string): string => {
+  const matchedHub = hubs.find((h) => h.name === hubName)
+  return matchedHub?.regionName || 'Không xác định'
+}
+
+const getRegionIdByHub = (hubName: string): string => {
+  const matchedHub = hubs.find((h) => h.name === hubName)
+  return matchedHub?.regionId || 'unknown'
+}
+
+const parseVNDate = (date: string): Date => {
+  const [day, month, year] = date.split('/').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+const getWeekNumber = (date: Date): number => {
+  const start = new Date(date.getFullYear(), 0, 1)
+  const diff = (date.getTime() - start.getTime()) / 86400000
+  return Math.ceil((diff + start.getDay() + 1) / 7)
+}
+
+const getPeriodKey = (date: Date, period: FilterPeriod): string => {
+  const month = date.getMonth() + 1
+  const year = date.getFullYear()
+  if (period === 'day') return `${String(date.getDate()).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
+  if (period === 'week') return `Tuần ${getWeekNumber(date)}`
+  if (period === 'month') return `T${String(month).padStart(2, '0')}/${year}`
+  if (period === 'quarter') return `Q${Math.ceil(month / 3)}/${year}`
+  return `${year}`
+}
+
+const computeEfficiency = (
+  doanhThu: number | null,
+  chiPhi: number,
+  formula: EfficiencyFormula,
+): number | null => {
+  if (formula === 'none' || doanhThu === null) return null
+  if (formula === 'profit') return doanhThu - chiPhi
+  if (chiPhi === 0) return null
+  return doanhThu / chiPhi
+}
+
+export function formatEfficiency(value: number | null, formula: EfficiencyFormula): string {
+  if (value === null) return 'Chưa có dữ liệu'
+  if (formula === 'ratio') return `${value.toFixed(2)}x`
+  return formatCurrency(value)
+}
+
+export function getEfficiencyFormulaLabel(formula: EfficiencyFormula): string {
+  if (formula === 'profit') return 'Doanh thu - Chi phí'
+  if (formula === 'ratio') return 'Doanh thu / Chi phí'
+  return 'Chưa cấu hình'
+}
+
+export function getDashboardFilterOptions() {
+  const warehouses = Array.from(new Set(orderDetails.map((o) => o.kho))).sort()
+  const routes = Array.from(new Set(orderDetails.map((o) => o.tuyen))).sort()
+  const personnel = Array.from(new Set(orderDetails.map((o) => o.nhanSu))).sort()
+  const csOps = Array.from(new Set(orderDetails.map((o) => o.csOps))).sort()
+  const customerNames = Array.from(new Set(orderDetails.map((o) => o.khachHang))).sort()
+  const hubNames = Array.from(new Set(orderDetails.map((o) => o.hub))).sort()
+
+  return { warehouses, routes, personnel, csOps, customerNames, hubNames }
+}
+
+export function getFilteredOrders(filters: DashboardFilters): OrderDetail[] {
+  return orderDetails.filter((order) => {
+    const regionId = getRegionIdByHub(order.hub)
+    return (
+      (filters.region === 'all' || regionId === filters.region) &&
+      (filters.hub === 'all' || order.hub === filters.hub) &&
+      (filters.customer === 'all' || order.khachHang === filters.customer) &&
+      (filters.status === 'all' || order.trangThai === filters.status) &&
+      (filters.warehouse === 'all' || order.kho === filters.warehouse) &&
+      (filters.route === 'all' || order.tuyen === filters.route) &&
+      (filters.personnel === 'all' || order.nhanSu === filters.personnel) &&
+      (filters.csOps === 'all' || order.csOps === filters.csOps)
+    )
+  })
+}
+
+export function computeDashboardData(
+  filters: DashboardFilters,
+  formula: EfficiencyFormula,
+): DashboardComputedData {
+  const filtered = getFilteredOrders(filters)
+
+  const totalSanLuong = filtered.reduce((sum, o) => sum + o.sanLuong, 0)
+  const hasAllDoanhThu = filtered.every((o) => o.doanhThu !== null)
+  const totalDoanhThu = hasAllDoanhThu ? filtered.reduce((sum, o) => sum + (o.doanhThu || 0), 0) : null
+  const totalChiPhi = filtered.reduce((sum, o) => sum + o.chiPhi, 0)
+  const hieuQua = totalDoanhThu !== null ? computeEfficiency(totalDoanhThu, totalChiPhi, formula) : null
+
+  const trendMap = new Map<
+    string,
+    { sanLuong: number; chiPhi: number; doanhThu: number; hasMissingRevenue: boolean }
+  >()
+  filtered.forEach((order) => {
+    const key = getPeriodKey(parseVNDate(order.ngay), filters.period)
+    const current = trendMap.get(key) || { sanLuong: 0, chiPhi: 0, doanhThu: 0, hasMissingRevenue: false }
+    current.sanLuong += order.sanLuong
+    current.chiPhi += order.chiPhi
+    if (order.doanhThu === null) current.hasMissingRevenue = true
+    else current.doanhThu += order.doanhThu
+    trendMap.set(key, current)
+  })
+
+  const trend = Array.from(trendMap.entries()).map(([period, values]) => {
+    const doanhThu = values.hasMissingRevenue ? null : values.doanhThu
+    return {
+      period,
+      sanLuong: values.sanLuong,
+      doanhThu,
+      chiPhi: values.chiPhi,
+      hieuQua: doanhThu !== null ? computeEfficiency(doanhThu, values.chiPhi, formula) : null,
+    }
+  })
+
+  const aggregateBy = <T extends 'region' | 'hub' | 'customer'>(type: T) => {
+    const map = new Map<string, { sanLuong: number; chiPhi: number; doanhThu: number; hasMissingRevenue: boolean }>()
+    filtered.forEach((order) => {
+      const key =
+        type === 'region' ? getRegionIdByHub(order.hub) : type === 'hub' ? order.hub : order.khachHang
+      const current = map.get(key) || { sanLuong: 0, chiPhi: 0, doanhThu: 0, hasMissingRevenue: false }
+      current.sanLuong += order.sanLuong
+      current.chiPhi += order.chiPhi
+      if (order.doanhThu === null) current.hasMissingRevenue = true
+      else current.doanhThu += order.doanhThu
+      map.set(key, current)
+    })
+    return map
+  }
+
+  const regionRanking: RegionData[] = Array.from(aggregateBy('region').entries()).map(([id, values]) => {
+    const name = regions.find((r) => r.id === id)?.name || 'Không xác định'
+    const doanhThu = values.hasMissingRevenue ? null : values.doanhThu
+    return {
+      id,
+      name,
+      sanLuong: values.sanLuong,
+      doanhThu,
+      chiPhi: values.chiPhi,
+      hieuQua: doanhThu !== null ? computeEfficiency(doanhThu, values.chiPhi, formula) : null,
+      trend: 'stable',
+      hasDoanhThuData: !values.hasMissingRevenue,
+    }
+  })
+
+  const hubRanking: HubData[] = Array.from(aggregateBy('hub').entries()).map(([name, values]) => {
+    const hubInfo = hubs.find((h) => h.name === name)
+    const doanhThu = values.hasMissingRevenue ? null : values.doanhThu
+    return {
+      id: name,
+      name,
+      regionId: hubInfo?.regionId || 'unknown',
+      regionName: hubInfo?.regionName || 'Không xác định',
+      sanLuong: values.sanLuong,
+      doanhThu,
+      chiPhi: values.chiPhi,
+      hieuQua: doanhThu !== null ? computeEfficiency(doanhThu, values.chiPhi, formula) : null,
+      hasDoanhThuData: !values.hasMissingRevenue,
+    }
+  })
+
+  const customerRanking: CustomerData[] = Array.from(aggregateBy('customer').entries()).map(([name, values]) => {
+    const matchedOrder = filtered.find((o) => o.khachHang === name)
+    const doanhThu = values.hasMissingRevenue ? null : values.doanhThu
+    return {
+      id: name,
+      name,
+      regionId: matchedOrder ? getRegionIdByHub(matchedOrder.hub) : 'unknown',
+      sanLuong: values.sanLuong,
+      doanhThu,
+      chiPhi: values.chiPhi,
+      hieuQua: doanhThu !== null ? computeEfficiency(doanhThu, values.chiPhi, formula) : null,
+      hasDoanhThuData: !values.hasMissingRevenue,
+    }
+  })
+
+  regionRanking.sort((a, b) => b.sanLuong - a.sanLuong)
+  hubRanking.sort((a, b) => b.sanLuong - a.sanLuong)
+  customerRanking.sort((a, b) => b.sanLuong - a.sanLuong)
+
+  return {
+    kpi: {
+      sanLuong: totalSanLuong,
+      doanhThu: totalDoanhThu,
+      chiPhi: totalChiPhi,
+      hieuQua,
+      hasDoanhThuData: hasAllDoanhThu,
+      hasHieuQuaFormula: formula !== 'none',
+    },
+    trend,
+    rankings: {
+      region: regionRanking,
+      hub: hubRanking,
+      customer: customerRanking,
+    },
+    orders: filtered,
+    anomalies: {
+      negativeRevenueCount: filtered.filter((o) => (o.doanhThu || 0) < 0).length,
+      negativeCostCount: filtered.filter((o) => o.chiPhi < 0).length,
+    },
+  }
+}

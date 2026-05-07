@@ -13,21 +13,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import type { FilterPeriod } from '@/lib/mock-data'
+import type { DashboardFilters, EfficiencyFormula, OrderDetail } from '@/lib/mock-data'
+import { getEfficiencyFormulaLabel } from '@/lib/mock-data'
 
 interface ExportDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  filters: {
-    period: FilterPeriod
-    region: string
-    hub: string
-    customer: string
-    status: string
-  }
+  filters: DashboardFilters
+  orders: OrderDetail[]
+  formula: EfficiencyFormula
+  canViewFinancial: boolean
 }
 
-const periodLabels: Record<FilterPeriod, string> = {
+const periodLabels: Record<DashboardFilters['period'], string> = {
   day: 'Theo ngày',
   week: 'Theo tuần',
   month: 'Theo tháng',
@@ -35,7 +33,7 @@ const periodLabels: Record<FilterPeriod, string> = {
   year: 'Theo năm',
 }
 
-export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps) {
+export function ExportDialog({ open, onOpenChange, filters, orders, formula, canViewFinancial }: ExportDialogProps) {
   const [exportOptions, setExportOptions] = useState({
     sanLuong: true,
     doanhThu: true,
@@ -48,8 +46,69 @@ export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps)
 
   const handleExport = async () => {
     setIsExporting(true)
-    // Simulate export process
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    const headers = [
+      'MaLenh',
+      'Ngay',
+      'Hub',
+      'Kho',
+      'Tuyen',
+      'KhachHang',
+      'NhanSu',
+      'Container',
+      'SanLuong',
+      'TrangThai',
+      'CsOps',
+      'NguonDoanhThu',
+      'TrangThaiChot',
+      'CongThucHieuQua',
+    ]
+
+    if (canViewFinancial && exportOptions.doanhThu) headers.push('DoanhThu')
+    if (canViewFinancial && exportOptions.chiPhi) headers.push('ChiPhi')
+    if (canViewFinancial && exportOptions.hieuQua) headers.push('HieuQua')
+
+    const rows = orders.map((order) => {
+      const revenue = order.doanhThu
+      const efficiency =
+        revenue === null || formula === 'none'
+          ? ''
+          : formula === 'ratio'
+            ? (order.chiPhi === 0 ? '' : (revenue / order.chiPhi).toFixed(2))
+            : String(revenue - order.chiPhi)
+      const base = [
+        order.maLenh,
+        order.ngay,
+        order.hub,
+        order.kho,
+        order.tuyen,
+        order.khachHang,
+        order.nhanSu,
+        order.container,
+        String(order.sanLuong),
+        order.trangThai,
+        order.csOps,
+        revenue === null ? 'Chua co du lieu doanh thu' : 'Van hanh/Tai chinh',
+        order.trangThai === 'da_chot' ? 'Da chot' : 'Chua chot',
+        getEfficiencyFormulaLabel(formula),
+      ]
+      if (canViewFinancial && exportOptions.doanhThu) base.push(revenue === null ? '' : String(revenue))
+      if (canViewFinancial && exportOptions.chiPhi) base.push(String(order.chiPhi))
+      if (canViewFinancial && exportOptions.hieuQua) base.push(efficiency)
+      return base
+    })
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `stt70-export-${Date.now()}.csv`
+    link.click()
+    window.URL.revokeObjectURL(url)
+
+    await new Promise((resolve) => setTimeout(resolve, 600))
     setIsExporting(false)
     setExportComplete(true)
     
@@ -112,6 +171,22 @@ export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps)
                   <span className="text-muted-foreground">Khách hàng:</span>{' '}
                   <span className="font-medium">{filters.customer === 'all' ? 'Tất cả' : filters.customer}</span>
                 </div>
+                <div>
+                  <span className="text-muted-foreground">Kho:</span>{' '}
+                  <span className="font-medium">{filters.warehouse === 'all' ? 'Tất cả' : filters.warehouse}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Tuyến:</span>{' '}
+                  <span className="font-medium">{filters.route === 'all' ? 'Tất cả' : filters.route}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Nhân sự:</span>{' '}
+                  <span className="font-medium">{filters.personnel === 'all' ? 'Tất cả' : filters.personnel}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">CS/OPS:</span>{' '}
+                  <span className="font-medium">{filters.csOps === 'all' ? 'Tất cả' : filters.csOps}</span>
+                </div>
               </div>
             </div>
 
@@ -137,6 +212,7 @@ export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps)
                   <Checkbox
                     id="doanhThu"
                     checked={exportOptions.doanhThu}
+                    disabled={!canViewFinancial}
                     onCheckedChange={(checked) => 
                       setExportOptions(prev => ({ ...prev, doanhThu: !!checked }))
                     }
@@ -150,6 +226,7 @@ export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps)
                   <Checkbox
                     id="chiPhi"
                     checked={exportOptions.chiPhi}
+                    disabled={!canViewFinancial}
                     onCheckedChange={(checked) => 
                       setExportOptions(prev => ({ ...prev, chiPhi: !!checked }))
                     }
@@ -163,6 +240,7 @@ export function ExportDialog({ open, onOpenChange, filters }: ExportDialogProps)
                   <Checkbox
                     id="hieuQua"
                     checked={exportOptions.hieuQua}
+                    disabled={!canViewFinancial}
                     onCheckedChange={(checked) => 
                       setExportOptions(prev => ({ ...prev, hieuQua: !!checked }))
                     }
