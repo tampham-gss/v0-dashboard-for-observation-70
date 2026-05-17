@@ -4,14 +4,13 @@ import { ArrowLeft, Package, DollarSign, Wallet, TrendingUp, AlertCircle } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState, Table } from '@heroui/react'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  TABLE_COL_STATUS,
+  TABLE_NUM_COL,
+  TABLE_TEXT_COL,
+} from '@/components/report/report-table-chrome'
+import { ReportDataTable } from '@/components/report/report-data-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   formatCurrency, 
@@ -279,67 +278,75 @@ export function DetailView({ type, item, period, formula, canViewFinancial, orde
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mã lệnh</TableHead>
-                <TableHead>Ngày</TableHead>
-                <TableHead>Hub / Kho</TableHead>
-                <TableHead>Khách hàng</TableHead>
-                <TableHead>Nhân sự</TableHead>
-                <TableHead>Container</TableHead>
-                <TableHead className="text-right">Sản lượng</TableHead>
-                {canViewFinancial && <TableHead className="text-right">Doanh thu</TableHead>}
-                {canViewFinancial && <TableHead className="text-right">Chi phí</TableHead>}
-                <TableHead>Trạng thái</TableHead>
-                <TableHead>CS/OPS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {scopedOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-mono text-sm">{order.maLenh}</TableCell>
-                  <TableCell>{order.ngay}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm">{order.hub}</span>
-                      <span className="text-xs text-muted-foreground">{order.kho}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-[150px] truncate" title={order.khachHang}>
-                    {order.khachHang}
-                  </TableCell>
-                  <TableCell>{order.nhanSu}</TableCell>
-                  <TableCell className="font-mono text-xs">{order.container}</TableCell>
-                  <TableCell className="text-right font-medium">{order.sanLuong}</TableCell>
-                  {canViewFinancial && (
-                    <TableCell className="text-right">
-                      {order.doanhThu !== null ? (
-                        <span className={(order.doanhThu < 0) ? 'text-warning font-medium' : ''}>
-                          {formatCurrency(order.doanhThu)}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-warning">Chưa có</span>
-                      )}
-                    </TableCell>
-                  )}
-                  {canViewFinancial && (
-                    <TableCell className="text-right">
-                      <span className={order.chiPhi < 0 ? 'text-warning font-medium' : ''}>
-                        {formatCurrency(order.chiPhi)}
-                      </span>
-                    </TableCell>
-                  )}
-                  <TableCell>
-                    <Badge variant={getStatusVariant(order.trangThai)}>
-                      {getStatusLabel(order.trangThai)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm">{order.csOps}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {scopedOrders.length === 0 ? (
+            <EmptyState className="border-0 bg-transparent py-12">
+              <p className="text-sm text-gray-600">Không có lệnh kiểm đếm trong phạm vi đã chọn.</p>
+            </EmptyState>
+          ) : (
+            <ReportDataTable aria-label="Danh sách lệnh kiểm đếm">
+                  <Table.Header>
+                    <Table.Column className={`${TABLE_TEXT_COL} font-mono`}>Mã lệnh</Table.Column>
+                    <Table.Column className={TABLE_TEXT_COL}>Ngày</Table.Column>
+                    <Table.Column className={TABLE_TEXT_COL}>Hub / Kho</Table.Column>
+                    <Table.Column className={TABLE_TEXT_COL}>Khách hàng</Table.Column>
+                    <Table.Column className={TABLE_TEXT_COL}>Nhân sự</Table.Column>
+                    <Table.Column className={`${TABLE_TEXT_COL} font-mono`}>Container</Table.Column>
+                    <Table.Column className={TABLE_NUM_COL}>Sản lượng</Table.Column>
+                    {canViewFinancial && <Table.Column className={TABLE_NUM_COL}>Doanh thu</Table.Column>}
+                    {canViewFinancial && <Table.Column className={TABLE_NUM_COL}>Chi phí</Table.Column>}
+                    <Table.Column className={TABLE_CENTER_COL}>Trạng thái</Table.Column>
+                    <Table.Column className={TABLE_TEXT_COL}>CS/OPS</Table.Column>
+                  </Table.Header>
+                  <Table.Body items={scopedOrders}>
+                    {(order) => (
+                      <Table.Row id={order.id}>
+                        <Table.Cell className={`${TABLE_TEXT_COL} font-mono text-sm`}>{order.maLenh}</Table.Cell>
+                        <Table.Cell className={TABLE_TEXT_COL}>{order.ngay}</Table.Cell>
+                        <Table.Cell className={TABLE_TEXT_COL}>
+                          <div className="flex flex-col">
+                            <span className="text-sm">{order.hub}</span>
+                            <span className="text-xs text-gray-500">{order.kho}</span>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell className={`${TABLE_TEXT_COL} max-w-[150px]`}>
+                          <span className="block truncate" title={order.khachHang}>
+                            {order.khachHang}
+                          </span>
+                        </Table.Cell>
+                        <Table.Cell className={TABLE_TEXT_COL}>{order.nhanSu}</Table.Cell>
+                        <Table.Cell className={`${TABLE_TEXT_COL} font-mono text-xs`}>{order.container}</Table.Cell>
+                        <Table.Cell className={`${TABLE_NUM_COL} font-medium`}>{order.sanLuong}</Table.Cell>
+                        {canViewFinancial && (
+                          <Table.Cell className={TABLE_NUM_COL}>
+                            {order.doanhThu !== null ? (
+                              <span className={order.doanhThu < 0 ? 'font-medium text-warning' : ''}>
+                                {formatCurrency(order.doanhThu)}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-warning">Chưa có</span>
+                            )}
+                          </Table.Cell>
+                        )}
+                        {canViewFinancial && (
+                          <Table.Cell className={TABLE_NUM_COL}>
+                            <span className={order.chiPhi < 0 ? 'font-medium text-warning' : ''}>
+                              {formatCurrency(order.chiPhi)}
+                            </span>
+                          </Table.Cell>
+                        )}
+                        <Table.Cell className={TABLE_COL_STATUS}>
+                          <div className="flex justify-center">
+                            <Badge variant={getStatusVariant(order.trangThai)}>
+                              {getStatusLabel(order.trangThai)}
+                            </Badge>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell className={`${TABLE_TEXT_COL} text-sm`}>{order.csOps}</Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+            </ReportDataTable>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import type { DashboardFilters, EfficiencyFormula, OrderDetail } from '@/lib/mock-data'
-import { getEfficiencyFormulaLabel } from '@/lib/mock-data'
+import { getEfficiencyFormulaLabel, regions } from '@/lib/mock-data'
 
 interface ExportDialogProps {
   open: boolean
@@ -23,6 +23,27 @@ interface ExportDialogProps {
   orders: OrderDetail[]
   formula: EfficiencyFormula
   canViewFinancial: boolean
+}
+
+const statusLabels: Record<string, string> = {
+  da_chot: 'Đã chốt',
+  cho_duyet: 'Chờ duyệt',
+  dang_xu_ly: 'Đang xử lý',
+}
+
+function formatList(values: string[], allLabel: string): string {
+  return values.length === 0 ? allLabel : values.join('; ')
+}
+
+function formatRegionIds(ids: string[]): string {
+  if (ids.length === 0) return 'Tất cả'
+  const map = new Map(regions.map((r) => [r.id, r.name]))
+  return ids.map((id) => map.get(id) ?? id).join('; ')
+}
+
+function formatStatusIds(ids: string[]): string {
+  if (ids.length === 0) return 'Tất cả'
+  return ids.map((s) => statusLabels[s] ?? s).join('; ')
 }
 
 const periodLabels: Record<DashboardFilters['period'], string> = {
@@ -161,31 +182,35 @@ export function ExportDialog({ open, onOpenChange, filters, orders, formula, can
                 </div>
                 <div>
                   <span className="text-muted-foreground">Khu vực:</span>{' '}
-                  <span className="font-medium">{filters.region === 'all' ? 'Tất cả' : filters.region}</span>
+                  <span className="font-medium">{formatRegionIds(filters.region)}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Hub:</span>{' '}
-                  <span className="font-medium">{filters.hub === 'all' ? 'Tất cả' : filters.hub}</span>
+                  <span className="font-medium">{formatList(filters.hub, 'Tất cả')}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Khách hàng:</span>{' '}
-                  <span className="font-medium">{filters.customer === 'all' ? 'Tất cả' : filters.customer}</span>
+                  <span className="font-medium">{formatList(filters.customer, 'Tất cả')}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Trạng thái:</span>{' '}
+                  <span className="font-medium">{formatStatusIds(filters.status)}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Kho:</span>{' '}
-                  <span className="font-medium">{filters.warehouse === 'all' ? 'Tất cả' : filters.warehouse}</span>
+                  <span className="font-medium">{formatList(filters.warehouse, 'Tất cả')}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Tuyến:</span>{' '}
-                  <span className="font-medium">{filters.route === 'all' ? 'Tất cả' : filters.route}</span>
+                  <span className="font-medium">{formatList(filters.route, 'Tất cả')}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Nhân sự:</span>{' '}
-                  <span className="font-medium">{filters.personnel === 'all' ? 'Tất cả' : filters.personnel}</span>
+                  <span className="font-medium">{formatList(filters.personnel, 'Tất cả')}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">CS/OPS:</span>{' '}
-                  <span className="font-medium">{filters.csOps === 'all' ? 'Tất cả' : filters.csOps}</span>
+                  <span className="font-medium">{formatList(filters.csOps, 'Tất cả')}</span>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@heroui/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { FilterPeriod, TimeSeriesData, EfficiencyFormula } from '@/lib/mock-data'
 import { getEfficiencyFormulaLabel } from '@/lib/mock-data'
@@ -39,7 +39,7 @@ const formatValue = (value: number) => {
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ color: string; name: string; value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-card border rounded-lg shadow-lg p-3">
+      <div className="bg-card rounded-lg border p-3 shadow-sm">
         <p className="font-medium text-sm mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
@@ -56,12 +56,12 @@ export function TrendChart({ period, isLoading, data, formula, canViewFinancial 
   if (isLoading) {
     return (
       <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-60" />
+        <CardHeader className="gap-2 pb-2">
+          <Skeleton className="h-6 w-48 max-w-full rounded-md" />
+          <Skeleton className="h-4 w-64 max-w-full rounded-md" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[300px] w-full rounded-lg" />
         </CardContent>
       </Card>
     )
@@ -88,9 +88,9 @@ export function TrendChart({ period, isLoading, data, formula, canViewFinancial 
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="period" className="text-xs" tick={{ fill: 'var(--muted-foreground)' }} />
-                  <YAxis yAxisId="left" className="text-xs" tickFormatter={formatValue} tick={{ fill: 'var(--muted-foreground)' }} />
-                  <YAxis yAxisId="right" orientation="right" className="text-xs" tick={{ fill: 'var(--muted-foreground)' }} />
+                  <XAxis dataKey="period" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                  <YAxis yAxisId="left" tickFormatter={formatValue} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Bar yAxisId="right" dataKey="sanLuong" name="Sản lượng (công)" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
@@ -110,8 +110,8 @@ export function TrendChart({ period, isLoading, data, formula, canViewFinancial 
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="period" className="text-xs" tick={{ fill: 'var(--muted-foreground)' }} />
-                  <YAxis className="text-xs" tick={{ fill: 'var(--muted-foreground)' }} />
+                  <XAxis dataKey="period" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Line 
@@ -133,8 +133,8 @@ export function TrendChart({ period, isLoading, data, formula, canViewFinancial 
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="period" className="text-xs" tick={{ fill: 'var(--muted-foreground)' }} />
-                  <YAxis className="text-xs" tickFormatter={formatValue} tick={{ fill: 'var(--muted-foreground)' }} />
+                  <XAxis dataKey="period" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                  <YAxis tickFormatter={formatValue} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Line 
@@ -165,7 +165,7 @@ export function TrendChart({ period, isLoading, data, formula, canViewFinancial 
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               Công thức hiệu quả hiện tại: {getEfficiencyFormulaLabel(formula)}
             </p>
           </TabsContent>

@@ -193,14 +193,20 @@ export type EfficiencyFormula = 'profit' | 'ratio' | 'none'
 
 export interface DashboardFilters {
   period: FilterPeriod
-  region: string
-  hub: string
-  customer: string
-  status: string
-  warehouse: string
-  route: string
-  personnel: string
-  csOps: string
+  /** Rỗng = không giới hạn (tất cả). Khác rỗng = OR các giá trị đã chọn. Áp dụng cho các chiều còn lại. */
+  region: string[]
+  hub: string[]
+  customer: string[]
+  status: string[]
+  warehouse: string[]
+  route: string[]
+  personnel: string[]
+  csOps: string[]
+}
+
+function dimensionMatches(selection: string[], actual: string): boolean {
+  if (selection.length === 0) return true
+  return selection.includes(actual)
 }
 
 export interface DashboardComputedData {
@@ -287,14 +293,14 @@ export function getFilteredOrders(filters: DashboardFilters): OrderDetail[] {
   return orderDetails.filter((order) => {
     const regionId = getRegionIdByHub(order.hub)
     return (
-      (filters.region === 'all' || regionId === filters.region) &&
-      (filters.hub === 'all' || order.hub === filters.hub) &&
-      (filters.customer === 'all' || order.khachHang === filters.customer) &&
-      (filters.status === 'all' || order.trangThai === filters.status) &&
-      (filters.warehouse === 'all' || order.kho === filters.warehouse) &&
-      (filters.route === 'all' || order.tuyen === filters.route) &&
-      (filters.personnel === 'all' || order.nhanSu === filters.personnel) &&
-      (filters.csOps === 'all' || order.csOps === filters.csOps)
+      dimensionMatches(filters.region, regionId) &&
+      dimensionMatches(filters.hub, order.hub) &&
+      dimensionMatches(filters.customer, order.khachHang) &&
+      dimensionMatches(filters.status, order.trangThai) &&
+      dimensionMatches(filters.warehouse, order.kho) &&
+      dimensionMatches(filters.route, order.tuyen) &&
+      dimensionMatches(filters.personnel, order.nhanSu) &&
+      dimensionMatches(filters.csOps, order.csOps)
     )
   })
 }

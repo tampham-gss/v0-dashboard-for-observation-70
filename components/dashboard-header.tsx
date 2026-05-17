@@ -1,7 +1,7 @@
 'use client'
 
 import { BarChart3, Download, Settings } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@heroui/react'
 import {
   Select,
   SelectContent,
@@ -29,18 +29,16 @@ export function DashboardHeader({ onExport, formula, setFormula, canViewFinancia
               <BarChart3 className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold leading-tight text-foreground">
+              <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
                 Quan Sát Sản Lượng - Doanh Thu - Hiệu Quả
               </h1>
-              <p className="text-xs text-muted-foreground">
-                STT 70 - Phân hệ Web Kiểm Đếm
-              </p>
+        
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <Select value={formula} onValueChange={(value) => setFormula(value as EfficiencyFormula)}>
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="min-h-11 w-[min(100%,220px)]">
                 <SelectValue placeholder="Cấu hình hiệu quả" />
               </SelectTrigger>
               <SelectContent>
@@ -49,13 +47,20 @@ export function DashboardHeader({ onExport, formula, setFormula, canViewFinancia
                 <SelectItem value="ratio">{getEfficiencyFormulaLabel('ratio')}</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" onClick={onExport}>
-              <Download className="mr-2 h-4 w-4" />
+            <Button type="button" variant="primary" size="lg" className="min-h-11" onPress={onExport}>
+              <Download className="size-4" />
               Xuất dữ liệu
             </Button>
-            <Button variant="ghost" size="icon-sm" disabled={!canViewFinancial} title={canViewFinancial ? 'Có quyền tài chính' : 'Không có quyền tài chính'}>
-              <Settings className="h-4 w-4" />
-              <span className="sr-only">Cài đặt</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              isIconOnly
+              className="min-h-11 min-w-11"
+              isDisabled={!canViewFinancial}
+              aria-label={canViewFinancial ? 'Có quyền tài chính' : 'Không có quyền tài chính'}
+            >
+              <Settings className="size-4" aria-hidden />
             </Button>
           </div>
         </div>

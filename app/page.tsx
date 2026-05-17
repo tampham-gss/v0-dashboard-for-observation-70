@@ -1,194 +1,180 @@
 'use client'
 
-import { useState } from 'react'
-import { DashboardHeader } from '@/components/dashboard-header'
-import { FilterBar } from '@/components/filter-bar'
-import { KPICards } from '@/components/kpi-cards'
-import { TrendChart } from '@/components/trend-chart'
-import { RankingTable } from '@/components/ranking-table'
-import { DetailView } from '@/components/detail-view'
-import { ExportDialog } from '@/components/export-dialog'
-import { computeDashboardData } from '@/lib/mock-data'
-import type { FilterPeriod, ViewMode, RegionData, HubData, CustomerData, EfficiencyFormula } from '@/lib/mock-data'
+import { useMemo, useState } from 'react'
+import { toast, useOverlayState } from '@heroui/react'
+import { ReportFilterPanel } from '@/components/report/report-filter-panel'
+import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
+import { ReportLayout } from '@/components/report/report-layout'
+import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
+import { ReportSectionTabBar } from '@/components/report/report-section-tab-bar'
+import { OverviewTab } from '@/components/report/overview-tab'
+import { SLTab } from '@/components/report/sl-tab'
+import { CPTab } from '@/components/report/cp-tab'
+import { EfficiencyTab } from '@/components/report/efficiency-tab'
+import { SLDetailModal } from '@/components/report/sl-detail-modal'
+import { CPDetailModal } from '@/components/report/cp-detail-modal'
+import { OperationalDetailModal } from '@/components/report/operational-detail-modal'
+import { ReportExportDialog } from '@/components/report/report-export-dialog'
+import {
+  filterOperationalRows,
+  getScopedData,
+  type EfficiencyRow,
+  type OperationalRow,
+} from '@/lib/report-dashboard-mock'
+import {
+  DEFAULT_FILTERS,
+  appliedFiltersCaption,
+  type CPRecord,
+  type ReportFilters,
+  type SLRecord,
+} from '@/lib/report-mock-data'
+import { sanitizeFiltersForTab } from '@/lib/report-filter-config'
 
-export default function DashboardPage() {
-  const [viewMode, setViewMode] = useState<ViewMode>('overview')
-  const [period, setPeriod] = useState<FilterPeriod>('month')
-  const [selectedRegion, setSelectedRegion] = useState<string>('all')
-  const [selectedHub, setSelectedHub] = useState<string>('all')
-  const [selectedCustomer, setSelectedCustomer] = useState<string>('all')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all')
-  const [selectedRoute, setSelectedRoute] = useState<string>('all')
-  const [selectedPersonnel, setSelectedPersonnel] = useState<string>('all')
-  const [selectedCsOps, setSelectedCsOps] = useState<string>('all')
-  const [formula, setFormula] = useState<EfficiencyFormula>('profit')
-  const [canViewFinancial] = useState<boolean>(true)
+const EFFICIENCY_CONFIGURED = true
+
+export default function ReportPage() {
+  const [draftFilters, setDraftFilters] = useState<ReportFilters>(DEFAULT_FILTERS)
+  const [appliedFilters, setAppliedFilters] = useState<ReportFilters>(DEFAULT_FILTERS)
+  const [activeTab, setActiveTab] = useState<ReportSectionTabId>('overview')
   const [isLoading, setIsLoading] = useState(false)
-  const [showExport, setShowExport] = useState(false)
+  const [slDetail, setSlDetail] = useState<SLRecord | null>(null)
+  const [cpDetail, setCpDetail] = useState<CPRecord | null>(null)
+  const [opDetail, setOpDetail] = useState<OperationalRow | null>(null)
 
-  // Detail view state
-  const [detailType, setDetailType] = useState<'region' | 'hub' | 'customer' | null>(null)
-  const [detailItem, setDetailItem] = useState<RegionData | HubData | CustomerData | null>(null)
+  const slModalState = useOverlayState()
+  const cpModalState = useOverlayState()
+  const opModalState = useOverlayState()
+  const exportModalState = useOverlayState()
 
-  const handleDrillDown = (type: 'region' | 'hub' | 'customer', item: RegionData | HubData | CustomerData) => {
-    setDetailType(type)
-    setDetailItem(item)
-    setViewMode('detail')
-  }
+  const { slRows, cpRows } = useMemo(() => getScopedData(appliedFilters), [appliedFilters])
+  const opRows = useMemo(() => filterOperationalRows(appliedFilters), [appliedFilters])
 
-  const handleBackToOverview = () => {
-    setViewMode('overview')
-    setDetailType(null)
-    setDetailItem(null)
-  }
-
-  const handleFilterChange = () => {
+  const runLoading = (fn: () => void) => {
     setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 150)
+    fn()
+    window.setTimeout(() => setIsLoading(false), 200)
   }
 
-  const handleResetFilters = () => {
-    setPeriod('month')
-    setSelectedRegion('all')
-    setSelectedHub('all')
-    setSelectedCustomer('all')
-    setSelectedStatus('all')
-    setSelectedWarehouse('all')
-    setSelectedRoute('all')
-    setSelectedPersonnel('all')
-    setSelectedCsOps('all')
-    handleFilterChange()
+  const handleSearch = () => {
+    runLoading(() => setAppliedFilters({ ...draftFilters }))
   }
 
-  const filters = {
-    period,
-    region: selectedRegion,
-    hub: selectedHub,
-    customer: selectedCustomer,
-    status: selectedStatus,
-    warehouse: selectedWarehouse,
-    route: selectedRoute,
-    personnel: selectedPersonnel,
-    csOps: selectedCsOps,
+  const handleRefresh = () => {
+    runLoading(() => {
+      setDraftFilters({ ...DEFAULT_FILTERS })
+      setAppliedFilters({ ...DEFAULT_FILTERS })
+    })
   }
-  const canResetFilters =
-    period !== 'month' ||
-    selectedRegion !== 'all' ||
-    selectedHub !== 'all' ||
-    selectedCustomer !== 'all' ||
-    selectedStatus !== 'all' ||
-    selectedWarehouse !== 'all' ||
-    selectedRoute !== 'all' ||
-    selectedPersonnel !== 'all' ||
-    selectedCsOps !== 'all'
 
-  const computed = computeDashboardData(filters, formula)
-  const rankingData = computed.rankings
+  const handleExportConfirm = (type: 'week' | 'month') => {
+    toast.success(
+      `Đã mô phỏng xuất báo cáo ${type === 'week' ? 'tuần' : 'tháng'} (sheet SL + CP) theo bộ lọc.`,
+    )
+  }
+
+  const openSLDetail = (row: SLRecord) => {
+    setSlDetail(row)
+    slModalState.open()
+  }
+
+  const openCPDetail = (row: CPRecord) => {
+    setCpDetail(row)
+    cpModalState.open()
+  }
+
+  const openOperationalDetail = (row: OperationalRow | EfficiencyRow) => {
+    const op = opRows.find((r) => r.id === row.id) ?? null
+    setOpDetail(op)
+    if (op) opModalState.open()
+  }
+
+  const subtitle = appliedFiltersCaption(appliedFilters)
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader
-        onExport={() => setShowExport(true)}
-        formula={formula}
-        setFormula={setFormula}
-        canViewFinancial={canViewFinancial}
-      />
-      
-      <main className="container mx-auto px-4 py-6">
-        <FilterBar
-          period={period}
-          setPeriod={(p) => { setPeriod(p); handleFilterChange() }}
-          selectedRegion={selectedRegion}
-          setSelectedRegion={(r) => { setSelectedRegion(r); handleFilterChange() }}
-          selectedHub={selectedHub}
-          setSelectedHub={(h) => { setSelectedHub(h); handleFilterChange() }}
-          selectedCustomer={selectedCustomer}
-          setSelectedCustomer={(c) => { setSelectedCustomer(c); handleFilterChange() }}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={(s) => { setSelectedStatus(s); handleFilterChange() }}
-          selectedWarehouse={selectedWarehouse}
-          setSelectedWarehouse={(w) => { setSelectedWarehouse(w); handleFilterChange() }}
-          selectedRoute={selectedRoute}
-          setSelectedRoute={(r) => { setSelectedRoute(r); handleFilterChange() }}
-          selectedPersonnel={selectedPersonnel}
-          setSelectedPersonnel={(p) => { setSelectedPersonnel(p); handleFilterChange() }}
-          selectedCsOps={selectedCsOps}
-          setSelectedCsOps={(c) => { setSelectedCsOps(c); handleFilterChange() }}
-          canResetFilters={canResetFilters}
-          onResetFilters={handleResetFilters}
-        />
-
-        {viewMode === 'overview' ? (
-          <div className="space-y-6">
-            <KPICards
-              isLoading={isLoading}
-              kpi={computed.kpi}
-              formula={formula}
-              canViewFinancial={canViewFinancial}
-              hasNegativeData={computed.anomalies.negativeCostCount > 0 || computed.anomalies.negativeRevenueCount > 0}
-            />
-            
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <TrendChart 
-                period={period} 
-                isLoading={isLoading}
-                data={computed.trend}
-                formula={formula}
-                canViewFinancial={canViewFinancial}
-              />
-              <RankingTable
-                type="region"
-                isLoading={isLoading}
-                data={rankingData.region}
-                formula={formula}
-                canViewFinancial={canViewFinancial}
-                onDrillDown={(item) => handleDrillDown('region', item)}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <RankingTable
-                type="hub"
-                isLoading={isLoading}
-                data={rankingData.hub}
-                formula={formula}
-                canViewFinancial={canViewFinancial}
-                onDrillDown={(item) => handleDrillDown('hub', item)}
-              />
-              <RankingTable
-                type="customer"
-                isLoading={isLoading}
-                data={rankingData.customer}
-                formula={formula}
-                canViewFinancial={canViewFinancial}
-                onDrillDown={(item) => handleDrillDown('customer', item)}
-              />
-            </div>
-          </div>
-        ) : (
-          <DetailView
-            type={detailType!}
-            item={detailItem!}
-            period={period}
-            formula={formula}
-            canViewFinancial={canViewFinancial}
-            orders={computed.orders}
-            onBack={handleBackToOverview}
+    <ReportLayout>
+      <ReportPageHeader
+        title="Quan sát sản lượng, doanh thu, hiệu quả"
+        subtitle={subtitle}
+        actions={
+          <ReportHeaderActions
+            onRefresh={handleRefresh}
+            onExport={() => exportModalState.open()}
           />
-        )}
-      </main>
-
-      <ExportDialog
-        open={showExport}
-        onOpenChange={setShowExport}
-        filters={{
-          ...filters,
-        }}
-        orders={computed.orders}
-        formula={formula}
-        canViewFinancial={canViewFinancial}
+        }
       />
-    </div>
+
+      <ReportSectionTabBar
+        value={activeTab}
+        onValueChange={(tab) => {
+          setActiveTab(tab)
+          const nextDraft = sanitizeFiltersForTab(draftFilters, tab)
+          const nextApplied = sanitizeFiltersForTab(appliedFilters, tab)
+          setDraftFilters(nextDraft)
+          setAppliedFilters(nextApplied)
+        }}
+      />
+
+      <ReportFilterPanel
+        activeTab={activeTab}
+        filters={draftFilters}
+        onChange={setDraftFilters}
+        onSearch={handleSearch}
+        onRefresh={handleRefresh}
+        onExport={() => exportModalState.open()}
+      />
+
+      {activeTab === 'overview' && (
+        <OverviewTab
+          slRows={slRows}
+          cpRows={cpRows}
+          opRows={opRows}
+          isLoading={isLoading}
+          appliedFilters={appliedFilters}
+          canViewFinancial
+          efficiencyConfigured={EFFICIENCY_CONFIGURED}
+        />
+      )}
+      {activeTab === 'sl' && (
+        <SLTab
+          rows={slRows}
+          opRows={opRows}
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+          onViewDetail={openSLDetail}
+          onViewOperational={openOperationalDetail}
+        />
+      )}
+      {activeTab === 'cp' && (
+        <CPTab
+          rows={cpRows}
+          slRows={slRows}
+          opRows={opRows}
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+          canViewFinancial
+          onViewDetail={openCPDetail}
+          onViewOperational={openOperationalDetail}
+        />
+      )}
+      {activeTab === 'efficiency' && (
+        <EfficiencyTab
+          opRows={opRows}
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+          canViewFinancial
+          efficiencyConfigured={EFFICIENCY_CONFIGURED}
+          onViewDetail={openOperationalDetail}
+        />
+      )}
+
+      <SLDetailModal state={slModalState} record={slDetail} />
+      <CPDetailModal state={cpModalState} record={cpDetail} />
+      <OperationalDetailModal state={opModalState} row={opDetail} />
+      <ReportExportDialog
+        state={exportModalState}
+        filters={appliedFilters}
+        onConfirm={handleExportConfirm}
+      />
+    </ReportLayout>
   )
 }

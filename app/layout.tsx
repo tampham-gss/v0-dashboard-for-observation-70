@@ -1,14 +1,33 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AppProviders } from '@/components/app-providers'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+/** Chỉ subset cần cho UI tiếng Việt — bớt file preload so với latin-ext thừa. */
+const interSans = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-ui-sans',
+  adjustFontFallback: true,
+  display: 'swap',
+})
+
+/**
+ * Mono chỉ dùng chỗ ít (mã lệnh, v.v.) — `preload: false` tránh cảnh báo
+ * “preloaded but not used” vì trình duyệt preload trước khi có node `font-mono`.
+ */
+const jbMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-ui-mono',
+  adjustFontFallback: true,
+  display: 'swap',
+  preload: false,
+})
 
 export const metadata: Metadata = {
-  title: 'Quan Sát Sản Lượng - Doanh Thu - Hiệu Quả | Hệ thống Kiểm Đếm',
-  description: 'Dashboard tổng hợp sản lượng, doanh thu và hiệu quả kiểm đếm theo thời gian, khu vực, khách hàng và Hub',
+  title: 'Báo cáo sản lượng & chi phí kiểm đếm | Hệ thống Kiểm Đếm',
+  description:
+    'Báo cáo sản lượng (SL) và chi phí (CP) theo tuần/tháng, chi nhánh — tổng hợp từ BC Tuần / BC Tháng',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -35,9 +54,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" className="bg-background">
-      <body className="font-sans antialiased">
-        {children}
+    <html lang="vi" className={`${interSans.variable} ${jbMono.variable} bg-background`}>
+      <body className="font-sans font-normal antialiased">
+        <AppProviders>{children}</AppProviders>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
