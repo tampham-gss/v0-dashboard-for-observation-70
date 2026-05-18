@@ -73,3 +73,31 @@
     --muted-foreground: var(--muted);
   }
 }
+
+/* Bảng báo cáo: tắt hoàn toàn shadow (HeroUI / Tailwind) */
+@layer components {
+  .report-table-panel,
+  .report-table-panel *,
+  .report-data-table,
+  .report-data-table * {
+    --tw-shadow: 0 0 #0000 !important;
+    --tw-shadow-colored: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  .report-data-table[data-slot='table'],
+  .report-data-table [data-slot='table-scroll-container'],
+  .report-data-table [data-slot='table-content'],
+  .report-data-table .table-root,
+  .report-data-table .table-root--primary {
+    background-color: #fff !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  .report-data-table [data-slot='table-scroll-container'] {
+    border: 0 !important;
+  }
+}

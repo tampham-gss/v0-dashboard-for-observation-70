@@ -285,7 +285,9 @@ export function DetailView({ type, item, period, formula, canViewFinancial, orde
           ) : (
             <ReportDataTable aria-label="Danh sách lệnh kiểm đếm">
                   <Table.Header>
-                    <Table.Column className={`${TABLE_TEXT_COL} font-mono`}>Mã lệnh</Table.Column>
+                    <Table.Column isRowHeader className={`${TABLE_TEXT_COL} font-mono`}>
+                      Mã lệnh
+                    </Table.Column>
                     <Table.Column className={TABLE_TEXT_COL}>Ngày</Table.Column>
                     <Table.Column className={TABLE_TEXT_COL}>Hub / Kho</Table.Column>
                     <Table.Column className={TABLE_TEXT_COL}>Khách hàng</Table.Column>

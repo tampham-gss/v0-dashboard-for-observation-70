@@ -7,6 +7,12 @@ import { cn } from '@/lib/utils'
 export const FILTER_CONTROL_SURFACE_CLASS =
   '!bg-white bg-white border border-gray-200 text-gray-900 shadow-none'
 
+/** Trigger/input bộ lọc — chiều cao gọn */
+export const FILTER_CONTROL_TRIGGER_CLASS = cn(
+  FILTER_CONTROL_SURFACE_CLASS,
+  'min-h-8 h-8 text-sm',
+)
+
 export function FilterSelect<T extends string>({
   label,
   value,
@@ -31,7 +37,7 @@ export function FilterSelect<T extends string>({
         if (next != null && !Array.isArray(next)) onChange(String(next) as T)
       }}
     >
-      <Select.Trigger className={cn('min-h-10 w-full min-w-0', FILTER_CONTROL_SURFACE_CLASS)}>
+      <Select.Trigger className={cn('w-full min-w-0', FILTER_CONTROL_TRIGGER_CLASS)}>
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>

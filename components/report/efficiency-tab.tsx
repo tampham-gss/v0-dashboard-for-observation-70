@@ -65,19 +65,19 @@ export function EfficiencyTab({
       title: 'Tỷ lệ HQ TB',
       value: efficiencyConfigured && canViewFinancial ? formatPercent(avgTyLe) : 'Chưa cấu hình',
       icon: Gauge,
-      iconBgClassName: 'bg-violet-500',
+      tone: 'primary',
     },
     {
       title: 'Dòng có DT',
       value: String(rows.filter((r) => r.hasDoanhThu).length),
       icon: Percent,
-      iconBgClassName: 'bg-emerald-500',
+      tone: 'success',
     },
     {
       title: 'Cảnh báo',
       value: String(rows.filter((r) => r.anomaly).length),
       icon: Scale,
-      iconBgClassName: 'bg-red-500',
+      tone: 'danger',
     },
   ]
 
@@ -108,7 +108,9 @@ export function EfficiencyTab({
         ) : (
           <ReportDataTable aria-label="Bảng hiệu quả">
             <Table.Header>
-              <Table.Column className={TABLE_COL_WIDE}>Thời gian</Table.Column>
+              <Table.Column isRowHeader className={TABLE_COL_WIDE}>
+                Thời gian
+              </Table.Column>
               <Table.Column className={TABLE_COL_WIDE}>Khu vực</Table.Column>
               <Table.Column className={TABLE_COL_WIDE}>Tuyến</Table.Column>
               <Table.Column className={TABLE_COL_WIDE}>Kho</Table.Column>

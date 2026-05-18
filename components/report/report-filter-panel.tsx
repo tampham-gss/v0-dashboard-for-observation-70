@@ -1,6 +1,7 @@
 'use client'
 
-import { Button, Card } from '@heroui/react'
+import { Button } from '@heroui/react'
+import { ReportSurfaceCard } from './report-card'
 import {
   BRANCHES,
   MONTHS,
@@ -67,11 +68,13 @@ export function ReportFilterPanel({
       : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
 
   return (
-    <Card className="mb-6 border border-gray-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-4 px-4 py-4">
-        <p className="text-sm font-semibold text-gray-900">{getFilterPanelTitle(activeTab)}</p>
-        <div className="flex flex-col gap-4">
-          <div className={`grid min-w-0 grid-cols-1 gap-x-4 gap-y-4 ${gridCols}`}>
+    <ReportSurfaceCard className="mb-4 !p-0 shadow-none">
+      <div className="flex flex-col gap-2 px-3 py-2.5">
+        <p className="text-xs font-semibold leading-none text-gray-900">
+          {getFilterPanelTitle(activeTab)}
+        </p>
+        <div className="flex flex-col gap-2">
+          <div className={`grid min-w-0 grid-cols-1 gap-x-3 gap-y-2 ${gridCols}`}>
             {has('dateFrom') && (
               <FilterDateInput
                 label="Từ ngày"
@@ -187,7 +190,7 @@ export function ReportFilterPanel({
               </FilterField>
             )}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:gap-2">
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-end sm:gap-1.5">
             {has('keyword') && (
               <FilterKeywordSearch
                 value={filters.keyword}
@@ -196,20 +199,20 @@ export function ReportFilterPanel({
                 className="min-w-0 w-full sm:max-w-md sm:flex-1 lg:max-w-lg"
               />
             )}
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <Button variant="primary" size="md" className="min-h-10 px-5" onPress={onSearch}>
+            <div className="flex shrink-0 flex-wrap gap-1.5">
+              <Button variant="primary" className="h-8 min-h-8 px-3 text-sm" onPress={onSearch}>
                 Tìm kiếm
               </Button>
-              <Button variant="outline" size="md" className="min-h-10" onPress={onRefresh}>
+              <Button variant="outline" className="h-8 min-h-8 px-3 text-sm" onPress={onRefresh}>
                 Đặt lại
               </Button>
-              <Button variant="outline" size="md" className="min-h-10" onPress={onExport}>
+              <Button variant="outline" className="h-8 min-h-8 px-3 text-sm" onPress={onExport}>
                 Xuất Excel
               </Button>
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </ReportSurfaceCard>
   )
 }

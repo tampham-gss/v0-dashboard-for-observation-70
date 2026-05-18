@@ -2,7 +2,9 @@
 
 import type { ReactNode } from 'react'
 import { Input, Label, SearchField } from '@heroui/react'
-import { FILTER_CONTROL_SURFACE_CLASS } from './filter-select'
+import { FILTER_CONTROL_SURFACE_CLASS, FILTER_CONTROL_TRIGGER_CLASS } from './filter-select'
+
+export const FILTER_LABEL_CLASS = 'mb-1 text-[11px] font-medium leading-none text-gray-600'
 
 export function FilterField({
   label,
@@ -15,7 +17,7 @@ export function FilterField({
 }) {
   return (
     <div className={className}>
-      <Label className="mb-1.5 text-xs font-medium text-gray-600">{label}</Label>
+      <Label className={FILTER_LABEL_CLASS}>{label}</Label>
       {children}
     </div>
   )
@@ -37,7 +39,7 @@ export function FilterDateInput({
         aria-label={label}
         fullWidth
         variant="secondary"
-        className={FILTER_CONTROL_SURFACE_CLASS}
+        className={FILTER_CONTROL_TRIGGER_CLASS}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -66,10 +68,10 @@ export function FilterKeywordSearch({
         value={value}
         onChange={onChange}
       >
-        <SearchField.Group className={FILTER_CONTROL_SURFACE_CLASS}>
+        <SearchField.Group className={FILTER_CONTROL_TRIGGER_CLASS}>
           <SearchField.SearchIcon />
           <SearchField.Input className="bg-white" placeholder={placeholder} />
-          <SearchField.ClearButton />
+          {value.trim().length > 0 ? <SearchField.ClearButton /> : null}
         </SearchField.Group>
       </SearchField>
     </FilterField>

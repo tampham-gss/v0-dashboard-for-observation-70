@@ -1,6 +1,7 @@
 'use client'
 
-import { Button, Card } from '@heroui/react'
+import { Button } from '@heroui/react'
+import { ReportSurfaceCard } from './report-card'
 import { Gauge, LayoutDashboard, Package, Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ReportSectionTabId } from './report-section-tabs'
@@ -20,7 +21,7 @@ export function ReportSectionTabBar({
   onValueChange: (next: ReportSectionTabId) => void
 }) {
   return (
-    <Card className="mb-6 border border-gray-200 bg-white p-1.5 shadow-sm">
+    <ReportSurfaceCard className="mb-6 p-1.5">
       <div
         role="tablist"
         aria-label="Tab báo cáo"
@@ -48,6 +49,6 @@ export function ReportSectionTabBar({
           )
         })}
       </div>
-    </Card>
+    </ReportSurfaceCard>
   )
 }

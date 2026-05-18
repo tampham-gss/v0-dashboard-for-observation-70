@@ -20,8 +20,13 @@ export function ReportDataTable({
 }) {
   return (
     <Table
-      variant="primary"
-      className={cn(REPORT_TABLE_ROOT_CLASS, REPORT_TABLE_SHELL_CLASS, className)}
+      className={cn(
+        'report-data-table !shadow-none',
+        REPORT_TABLE_ROOT_CLASS,
+        REPORT_TABLE_SHELL_CLASS,
+        className,
+      )}
+      style={{ boxShadow: 'none' }}
     >
       <Table.ScrollContainer className={REPORT_TABLE_SCROLL_CLASS}>
         <Table.Content aria-label={ariaLabel} className="w-full">

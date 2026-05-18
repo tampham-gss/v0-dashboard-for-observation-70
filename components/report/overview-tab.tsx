@@ -44,9 +44,9 @@ export function OverviewTab({
   const kpi = computeDashboardKpis(opRows, slRows, cpRows, efficiencyConfigured)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
           KPI sản lượng
         </h2>
         <MetricKpiStrip
@@ -57,19 +57,19 @@ export function OverviewTab({
               title: 'Tổng sản lượng',
               value: formatNumber(kpi.sanLuong.total),
               icon: Package,
-              iconBgClassName: 'bg-blue-500',
+              tone: 'primary',
             },
             {
               title: 'Tổng số đơn',
               value: formatNumber(kpi.sanLuong.soDon),
               icon: ShoppingCart,
-              iconBgClassName: 'bg-blue-600',
+              tone: 'primary',
             },
             {
               title: 'Tổng số chuyến',
               value: formatNumber(kpi.sanLuong.soChuyen),
               icon: Truck,
-              iconBgClassName: 'bg-indigo-500',
+              tone: 'primary',
             },
             {
               title: 'Tăng trưởng SL',
@@ -79,7 +79,8 @@ export function OverviewTab({
                   : '—',
               description: 'So với kế hoạch (TH/KH)',
               icon: TrendingUp,
-              iconBgClassName: 'bg-cyan-600',
+              tone:
+                kpi.sanLuong.growthPct != null && kpi.sanLuong.growthPct >= 0 ? 'success' : 'warning',
             },
           ]}
         />
@@ -87,7 +88,7 @@ export function OverviewTab({
 
       {canViewFinancial ? (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
             KPI doanh thu
           </h2>
           <MetricKpiStrip
@@ -97,22 +98,22 @@ export function OverviewTab({
               {
                 title: 'Tổng doanh thu',
                 value: kpi.doanhThu.missing ? 'Chưa có dữ liệu' : formatCurrency(kpi.doanhThu.total),
-                valueClassName: kpi.doanhThu.missing ? '!text-lg font-bold text-amber-600' : undefined,
+                tone: kpi.doanhThu.missing ? 'warning' : 'success',
+                valueClassName: kpi.doanhThu.missing ? '!text-base font-bold' : undefined,
                 icon: DollarSign,
-                iconBgClassName: 'bg-emerald-500',
               },
               {
                 title: 'Doanh thu TB',
                 value: kpi.doanhThu.missing ? '—' : formatCurrency(kpi.doanhThu.avg),
                 icon: Receipt,
-                iconBgClassName: 'bg-green-600',
+                tone: 'success',
               },
               {
                 title: 'Tăng trưởng DT',
                 value: '—',
                 description: 'Chờ nguồn dữ liệu chính thức',
                 icon: TrendingUp,
-                iconBgClassName: 'bg-teal-600',
+                tone: 'warning',
               },
             ]}
           />
@@ -124,7 +125,7 @@ export function OverviewTab({
       )}
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
           KPI chi phí
         </h2>
         <MetricKpiStrip
@@ -136,32 +137,32 @@ export function OverviewTab({
               title: 'Tổng chi phí',
               value: canViewFinancial ? formatCurrency(kpi.chiPhi.total) : '—',
               icon: Wallet,
-              iconBgClassName: 'bg-orange-500',
+              tone: 'warning',
             },
             {
               title: 'Chi phí vận hành',
               value: canViewFinancial ? formatCurrency(kpi.chiPhi.vanHanh) : '—',
               icon: Package,
-              iconBgClassName: 'bg-amber-500',
+              tone: 'warning',
             },
             {
               title: 'Chi phí tăng ca',
               value: canViewFinancial ? formatCurrency(kpi.chiPhi.tangCa) : '—',
               icon: Receipt,
-              iconBgClassName: 'bg-orange-600',
+              tone: 'warning',
             },
             {
               title: 'Chi phí hỗ trợ',
               value: canViewFinancial ? formatCurrency(kpi.chiPhi.hoTro) : '—',
               icon: CircleAlert,
-              iconBgClassName: 'bg-slate-600',
+              tone: 'primary',
             },
           ]}
         />
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
           KPI hiệu quả
         </h2>
         <MetricKpiStrip
@@ -174,10 +175,10 @@ export function OverviewTab({
                 !efficiencyConfigured || !canViewFinancial
                   ? 'Chưa cấu hình'
                   : formatPercent(kpi.hieuQua.tyLe),
+              tone: !efficiencyConfigured || !canViewFinancial ? 'danger' : 'success',
               valueClassName:
-                !efficiencyConfigured || !canViewFinancial ? '!text-lg font-bold text-red-600' : undefined,
+                !efficiencyConfigured || !canViewFinancial ? '!text-base font-bold' : undefined,
               icon: Gauge,
-              iconBgClassName: 'bg-violet-500',
             },
             {
               title: 'Chi phí / sản lượng',
@@ -186,7 +187,7 @@ export function OverviewTab({
                   ? formatCurrency(kpi.hieuQua.chiPhiPerSl)
                   : '—',
               icon: Percent,
-              iconBgClassName: 'bg-indigo-500',
+              tone: 'primary',
             },
             {
               title: 'Doanh thu / chi phí',
@@ -196,7 +197,7 @@ export function OverviewTab({
                   : '—',
               description: 'Công thức configurable AMR',
               icon: TrendingUp,
-              iconBgClassName: 'bg-purple-500',
+              tone: 'primary',
             },
           ]}
         />

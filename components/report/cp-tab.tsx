@@ -146,7 +146,9 @@ export function CPTab({
     ) : (
       <ReportDataTable aria-label="Bảng chi phí chi tiết">
         <Table.Header>
-          <Table.Column className={TABLE_COL_WIDE}>Thời gian</Table.Column>
+          <Table.Column isRowHeader className={TABLE_COL_WIDE}>
+            Thời gian
+          </Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Khu vực</Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Kho</Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Tuyến</Table.Column>
@@ -197,7 +199,9 @@ export function CPTab({
     ) : (
       <ReportDataTable aria-label="Bảng chi phí CP">
             <Table.Header>
-              <Table.Column className={TABLE_COL_WIDE}>Kỳ báo cáo</Table.Column>
+              <Table.Column isRowHeader className={TABLE_COL_WIDE}>
+                Kỳ báo cáo
+              </Table.Column>
               <Table.Column className={TABLE_COL_WIDE}>Chi nhánh</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>Nhân công</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>CP GN / cont</Table.Column>

@@ -17,7 +17,7 @@ export function ReportPageHeader({
     <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
       <div className="min-w-0">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{title}</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-gray-600">{subtitle}</p>
+        <p className="mt-2 text-sm leading-relaxed text-gray-600">{subtitle}</p>
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div> : null}
     </div>

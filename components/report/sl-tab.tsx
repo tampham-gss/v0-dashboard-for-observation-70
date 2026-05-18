@@ -117,7 +117,9 @@ export function SLTab({
     ) : (
       <ReportDataTable aria-label="Bảng sản lượng chi tiết">
         <Table.Header>
-          <Table.Column className={TABLE_COL_WIDE}>Thời gian</Table.Column>
+          <Table.Column isRowHeader className={TABLE_COL_WIDE}>
+            Thời gian
+          </Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Khu vực</Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Kho</Table.Column>
           <Table.Column className={TABLE_COL_WIDE}>Tuyến</Table.Column>
@@ -168,7 +170,9 @@ export function SLTab({
     ) : (
       <ReportDataTable aria-label="Bảng sản lượng SL">
             <Table.Header>
-              <Table.Column className={TABLE_COL_WIDE}>Kỳ báo cáo</Table.Column>
+              <Table.Column isRowHeader className={TABLE_COL_WIDE}>
+                Kỳ báo cáo
+              </Table.Column>
               <Table.Column className={TABLE_COL_WIDE}>Chi nhánh</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>NS GN</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>SL KH</Table.Column>

@@ -71,7 +71,9 @@ export function RankingTable({ type, isLoading, data, formula, canViewFinancial,
         ) : (
         <ReportDataTable aria-label={title}>
               <Table.Header>
-                <Table.Column className={`${TABLE_TEXT_COL} w-[40px]`}>#</Table.Column>
+                <Table.Column isRowHeader className={`${TABLE_TEXT_COL} w-[40px]`}>
+                  #
+                </Table.Column>
                 <Table.Column className={TABLE_TEXT_COL}>
                   {type === 'region' ? 'Khu vực' : type === 'hub' ? 'Hub' : 'Khách hàng'}
                 </Table.Column>
