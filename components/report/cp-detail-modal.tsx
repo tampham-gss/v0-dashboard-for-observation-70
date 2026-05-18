@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { Button, Modal } from '@heroui/react'
+import { reportButtonClass } from './report-button-chrome'
 import type { UseOverlayStateReturn } from '@heroui/react'
 import {
   TARGET_CP_PER_CONT,
@@ -65,7 +66,7 @@ export function CPDetailModal({
               </DetailSection>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="outline" onPress={() => state.close()}>
+              <Button variant="outline" className={reportButtonClass()} onPress={() => state.close()}>
                 Đóng
               </Button>
             </Modal.Footer>

@@ -7,11 +7,16 @@ import { cn } from '@/lib/utils'
 export const FILTER_CONTROL_SURFACE_CLASS =
   '!bg-white bg-white border border-gray-200 text-gray-900 shadow-none'
 
-/** Trigger/input bộ lọc — chiều cao gọn */
+/** Trigger/input bộ lọc — căn giữa chữ theo chiều dọc */
 export const FILTER_CONTROL_TRIGGER_CLASS = cn(
   FILTER_CONTROL_SURFACE_CLASS,
-  'min-h-8 h-8 text-sm',
+  '!rounded-md !flex !h-8 !min-h-8 !w-full !items-center !justify-between gap-2 !px-2.5 !py-0 text-sm !leading-normal',
 )
+
+export const FILTER_CONTROL_VALUE_CLASS =
+  'min-w-0 flex-1 truncate text-left leading-normal [&_[data-slot=value]]:leading-normal'
+
+export const FILTER_CONTROL_INDICATOR_CLASS = 'flex shrink-0 items-center self-center text-gray-500'
 
 export function FilterSelect<T extends string>({
   label,
@@ -38,8 +43,8 @@ export function FilterSelect<T extends string>({
       }}
     >
       <Select.Trigger className={cn('w-full min-w-0', FILTER_CONTROL_TRIGGER_CLASS)}>
-        <Select.Value />
-        <Select.Indicator />
+        <Select.Value className={FILTER_CONTROL_VALUE_CLASS} />
+        <Select.Indicator className={FILTER_CONTROL_INDICATOR_CLASS} />
       </Select.Trigger>
       <Select.Popover>
         <ListBox aria-label={label} className="p-1">

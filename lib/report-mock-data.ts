@@ -149,7 +149,7 @@ export function appliedFiltersCaption(filters: ReportFilters): string {
   if (filters.warehouse !== 'all') extras.push(filters.warehouse)
   if (filters.route !== 'all') extras.push(filters.route)
   if (filters.staff !== 'all') extras.push(filters.staff)
-  if (filters.opsCs !== 'all') extras.push(`OPS ${filters.opsCs}`)
+  if (filters.opsCs !== 'all') extras.push(`CS/OPS ${filters.opsCs}`)
   const extra = extras.length ? ` · ${extras.join(' · ')}` : ''
   return `${period} · ${branch}${extra}`
 }

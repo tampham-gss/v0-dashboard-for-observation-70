@@ -23,7 +23,7 @@ import {
 } from '@/lib/report-dashboard-mock'
 import type { ReportFilters } from '@/lib/report-mock-data'
 import { FilterSelect } from './filter-select'
-import { cn } from '@/lib/utils'
+import { cn, formatChartAxisValue } from '@/lib/utils'
 
 const COMPARE_OPTIONS: { id: ComparisonDimension; label: string }[] = [
   { id: 'region', label: 'Khu vực' },
@@ -37,6 +37,13 @@ const CHART_COLORS = {
   chiPhi: '#ea580c',
   doanhThu: '#16a34a',
 }
+
+const CHART_MARGIN = { top: 8, right: 16, left: 8, bottom: 4 }
+const CHART_Y_AXIS = {
+  width: 56,
+  tick: { fontSize: 11, fill: '#6b7280' },
+  tickFormatter: formatChartAxisValue,
+} as const
 
 function ChartCard({
   title,
@@ -80,18 +87,18 @@ export function ReportChartsSection({
   const heatmap = buildEfficiencyHeatmap(opRows)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <ChartCard
         title="Biểu đồ xu hướng"
         description={`Sản lượng, chi phí${canViewFinancial ? ', doanh thu' : ''} theo ${filters.periodType === 'week' ? 'tuần' : 'tháng'}`}
         isLoading={isLoading}
       >
-        <div className="h-[300px] w-full">
+        <div className="h-[300px] w-full min-w-0 overflow-visible pl-1">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <LineChart data={trend} margin={CHART_MARGIN}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} />
+              <YAxis {...CHART_Y_AXIS} />
               <Tooltip />
               <Legend />
               <Line
@@ -142,12 +149,12 @@ export function ReportChartsSection({
             </div>
           }
         >
-          <div className="h-[280px] w-full">
+          <div className="h-[280px] w-full min-w-0 overflow-visible pl-1">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparison} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={comparison} margin={CHART_MARGIN}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6b7280' }} />
+                <YAxis {...CHART_Y_AXIS} />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="sanLuong" name="Sản lượng" fill={CHART_COLORS.sanLuong} radius={[4, 4, 0, 0]} />
@@ -167,7 +174,7 @@ export function ReportChartsSection({
               <div
                 key={cell.region}
                 className={cn(
-                  'rounded-lg border border-gray-200 px-3 py-4 text-center',
+                  'rounded-lg border border-gray-200 px-3 py-3 text-center',
                   cell.score >= 70
                     ? 'bg-emerald-50 text-emerald-900'
                     : cell.score >= 45

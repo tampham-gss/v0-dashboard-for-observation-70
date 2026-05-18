@@ -21,11 +21,14 @@ export function MetricKpiStrip({
   isLoading,
   columnsClassName = 'sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5',
   valueSize = 'md',
+  compact = true,
 }: {
   items: MetricKpiItem[]
   isLoading?: boolean
   columnsClassName?: string
   valueSize?: 'md' | 'sm'
+  /** Padding dọc gọn hơn (mặc định bật cho summary KPI). */
+  compact?: boolean
 }) {
   return (
     <div className={cn('grid grid-cols-1 gap-3', columnsClassName)}>
@@ -40,6 +43,7 @@ export function MetricKpiStrip({
           valueClassName={item.valueClassName}
           valueSize={valueSize}
           isLoading={isLoading}
+          compact={compact}
         />
       ))}
     </div>

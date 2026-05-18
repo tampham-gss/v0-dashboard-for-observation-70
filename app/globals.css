@@ -100,4 +100,18 @@
   .report-data-table [data-slot='table-scroll-container'] {
     border: 0 !important;
   }
+
+  /* Căn giữa chữ theo chiều dọc trong ô lọc báo cáo */
+  .report-filter-panel button[data-slot='select-trigger'],
+  .report-filter-panel [data-slot='input'] {
+    display: flex;
+    align-items: center;
+    line-height: 1.25rem;
+  }
+
+  /* Bo góc nút báo cáo — khớp ô lọc (rounded-md) */
+  .report-page button:not([data-slot='select-trigger']),
+  [data-slot='modal'] button:not([data-slot='select-trigger']) {
+    border-radius: 0.375rem !important;
+  }
 }

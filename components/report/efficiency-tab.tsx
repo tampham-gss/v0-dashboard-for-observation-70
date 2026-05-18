@@ -18,6 +18,7 @@ import {
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
 } from './report-table-chrome'
+import { reportButtonClass } from './report-button-chrome'
 import { ReportDataTable } from './report-data-table'
 import { MetricKpiStrip } from './metric-kpi-strip'
 import { ReportPaginationFooter } from './report-pagination-footer'
@@ -157,7 +158,7 @@ export function EfficiencyTab({
                         size="sm"
                         isIconOnly
                         aria-label="Chi tiết"
-                        className="h-8 w-8 min-w-8 text-gray-600"
+                        className={reportButtonClass('h-8 w-8 min-w-8 text-gray-600')}
                         onPress={() => onViewDetail(row)}
                       >
                         <Eye className="size-4" strokeWidth={1.75} />

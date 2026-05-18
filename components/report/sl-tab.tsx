@@ -24,6 +24,7 @@ import {
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
 } from './report-table-chrome'
+import { reportButtonClass } from './report-button-chrome'
 import { ReportDataTable } from './report-data-table'
 import { MetricKpiStrip } from './metric-kpi-strip'
 import { ReportPaginationFooter } from './report-pagination-footer'
@@ -147,7 +148,7 @@ export function SLTab({
                     size="sm"
                     isIconOnly
                     aria-label="Drill-down"
-                    className="h-8 w-8 min-w-8 text-gray-600"
+                    className={reportButtonClass('h-8 w-8 min-w-8 text-gray-600')}
                     onPress={() => onViewOperational(row)}
                   >
                     <Eye className="size-4 shrink-0" strokeWidth={1.75} />
@@ -230,7 +231,7 @@ export function SLTab({
                         size="sm"
                         isIconOnly
                         aria-label="Chi tiết"
-                        className="h-8 w-8 min-w-8 text-gray-600"
+                        className={reportButtonClass('h-8 w-8 min-w-8 text-gray-600')}
                         onPress={() => onViewDetail(row)}
                       >
                         <Eye className="size-4 shrink-0" strokeWidth={1.75} />

@@ -18,11 +18,13 @@ export function SummaryCardGrid({
   isLoading,
   columns = 'sm:grid-cols-2 lg:grid-cols-4',
   valueSize = 'md',
+  compact = true,
 }: {
   items: SummaryCardItem[]
   isLoading?: boolean
   columns?: string
   valueSize?: 'md' | 'sm'
+  compact?: boolean
 }) {
   return (
     <div className={cn('grid grid-cols-1 gap-4', columns)}>
@@ -37,6 +39,7 @@ export function SummaryCardGrid({
           valueClassName={item.valueClassName}
           valueSize={valueSize}
           isLoading={isLoading}
+          compact={compact}
         />
       ))}
     </div>

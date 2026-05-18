@@ -19,6 +19,8 @@ import {
   getStatusOptionsForTab,
 } from '@/lib/report-filter-config'
 import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
+import { cn } from '@/lib/utils'
+import { reportButtonClass } from './report-button-chrome'
 import { FilterSelect } from './filter-select'
 import { FilterDateInput, FilterField, FilterKeywordSearch } from './filter-fields'
 
@@ -67,14 +69,18 @@ export function ReportFilterPanel({
       ? 'sm:grid-cols-2 lg:grid-cols-3'
       : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
 
+  const keywordColSpan = 'sm:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2'
+  const actionsColSpan = has('keyword')
+    ? 'sm:col-span-2 lg:col-span-1 xl:col-span-2 2xl:col-span-3'
+    : 'col-span-full sm:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5'
+
   return (
     <ReportSurfaceCard className="mb-4 !p-0 shadow-none">
-      <div className="flex flex-col gap-2 px-3 py-2.5">
+      <div className="report-filter-panel flex flex-col gap-3.5 px-5 pt-5 pb-6">
         <p className="text-xs font-semibold leading-none text-gray-900">
           {getFilterPanelTitle(activeTab)}
         </p>
-        <div className="flex flex-col gap-2">
-          <div className={`grid min-w-0 grid-cols-1 gap-x-3 gap-y-2 ${gridCols}`}>
+        <div className={`grid min-w-0 grid-cols-1 items-end gap-3 ${gridCols}`}>
             {has('dateFrom') && (
               <FilterDateInput
                 label="Từ ngày"
@@ -111,18 +117,18 @@ export function ReportFilterPanel({
             )}
             {has('periodValue') &&
               (filters.periodType === 'week' ? (
-                <FilterField label="Tuần">
+                <FilterField label="Kỳ">
                   <FilterSelect
-                    label="Tuần"
+                    label="Kỳ"
                     value={filters.week}
                     options={WEEK_OPTIONS}
                     onChange={(v) => patch({ week: v })}
                   />
                 </FilterField>
               ) : (
-                <FilterField label="Tháng">
+                <FilterField label="Kỳ">
                   <FilterSelect
-                    label="Tháng"
+                    label="Kỳ"
                     value={filters.month}
                     options={MONTH_OPTIONS}
                     onChange={(v) => patch({ month: v })}
@@ -160,22 +166,12 @@ export function ReportFilterPanel({
               </FilterField>
             )}
             {has('staff') && (
-              <FilterField label="Nhân sự">
+              <FilterField label="Nhân sự giao nhận">
                 <FilterSelect
-                  label="Nhân sự"
+                  label="Nhân sự giao nhận"
                   value={filters.staff}
                   options={STAFF_OPTIONS}
                   onChange={(v) => patch({ staff: v })}
-                />
-              </FilterField>
-            )}
-            {has('opsCs') && (
-              <FilterField label="OPS/CS">
-                <FilterSelect
-                  label="OPS/CS"
-                  value={filters.opsCs}
-                  options={OPS_OPTIONS}
-                  onChange={(v) => patch({ opsCs: v })}
                 />
               </FilterField>
             )}
@@ -189,27 +185,46 @@ export function ReportFilterPanel({
                 />
               </FilterField>
             )}
-          </div>
-          <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-end sm:gap-1.5">
-            {has('keyword') && (
-              <FilterKeywordSearch
-                value={filters.keyword}
-                placeholder={getSearchPlaceholder(activeTab)}
-                onChange={(v) => patch({ keyword: v })}
-                className="min-w-0 w-full sm:max-w-md sm:flex-1 lg:max-w-lg"
-              />
+            {has('opsCs') && (
+              <FilterField label="CS/OPS phụ trách">
+                <FilterSelect
+                  label="CS/OPS phụ trách"
+                  value={filters.opsCs}
+                  options={OPS_OPTIONS}
+                  onChange={(v) => patch({ opsCs: v })}
+                />
+              </FilterField>
             )}
-            <div className="flex shrink-0 flex-wrap gap-1.5">
-              <Button variant="primary" className="h-8 min-h-8 px-3 text-sm" onPress={onSearch}>
-                Tìm kiếm
-              </Button>
-              <Button variant="outline" className="h-8 min-h-8 px-3 text-sm" onPress={onRefresh}>
-                Đặt lại
-              </Button>
-              <Button variant="outline" className="h-8 min-h-8 px-3 text-sm" onPress={onExport}>
-                Xuất Excel
-              </Button>
-            </div>
+          {has('keyword') && (
+            <FilterKeywordSearch
+              value={filters.keyword}
+              placeholder={getSearchPlaceholder(activeTab)}
+              onChange={(v) => patch({ keyword: v })}
+              className={cn('min-w-0 w-full', keywordColSpan)}
+            />
+          )}
+          <div className={cn('flex min-w-0 flex-wrap items-end gap-3', actionsColSpan)}>
+            <Button
+              variant="primary"
+              className={reportButtonClass('h-8 min-h-8 px-3 text-sm')}
+              onPress={onSearch}
+            >
+              Tìm kiếm
+            </Button>
+            <Button
+              variant="outline"
+              className={reportButtonClass('h-8 min-h-8 px-3 text-sm')}
+              onPress={onRefresh}
+            >
+              Đặt lại
+            </Button>
+            <Button
+              variant="outline"
+              className={reportButtonClass('h-8 min-h-8 px-3 text-sm')}
+              onPress={onExport}
+            >
+              Xuất Excel
+            </Button>
           </div>
         </div>
       </div>

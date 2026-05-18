@@ -3,9 +3,11 @@
 import { Button } from '@heroui/react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { reportButtonClass } from './report-button-chrome'
 
-const PAGE_BTN =
-  'min-h-9 min-w-9 gap-1 rounded-md border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 data-[disabled]:opacity-40'
+const PAGE_BTN = reportButtonClass(
+  'min-h-9 min-w-9 gap-1 border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 data-[disabled]:opacity-40',
+)
 
 export function ReportPaginationFooter({
   page,

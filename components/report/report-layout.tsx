@@ -15,7 +15,7 @@ export function ReportLayout({ children }: { children: ReactNode }) {
         </nav>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <main className="w-full max-w-none flex-1 px-3 py-4 sm:px-4 lg:px-5 xl:px-6">
+        <main className="report-page w-full max-w-none flex-1 px-3 py-4 sm:px-4 lg:px-5 xl:px-6">
           {children}
         </main>
       </div>

@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 import { Button } from '@heroui/react'
 import { FileSpreadsheet, RefreshCw } from 'lucide-react'
+import { reportButtonClass } from './report-button-chrome'
 
 export function ReportPageHeader({
   title,
@@ -36,7 +37,9 @@ export function ReportHeaderActions({
       <Button
         variant="outline"
         size="md"
-        className="min-h-10 gap-2 border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50"
+        className={reportButtonClass(
+          'min-h-10 gap-2 border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50',
+        )}
         onPress={onRefresh}
       >
         <RefreshCw className="size-4 shrink-0 text-gray-500" aria-hidden />
@@ -45,7 +48,9 @@ export function ReportHeaderActions({
       <Button
         variant="outline"
         size="md"
-        className="min-h-10 gap-2 border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50"
+        className={reportButtonClass(
+          'min-h-10 gap-2 border-gray-300 bg-white px-4 text-gray-700 hover:bg-gray-50',
+        )}
         onPress={onExport}
       >
         <FileSpreadsheet className="size-4 shrink-0 text-gray-500" aria-hidden />

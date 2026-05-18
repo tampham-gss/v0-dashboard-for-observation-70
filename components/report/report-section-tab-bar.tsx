@@ -4,6 +4,7 @@ import { Button } from '@heroui/react'
 import { ReportSurfaceCard } from './report-card'
 import { Gauge, LayoutDashboard, Package, Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { reportButtonClass } from './report-button-chrome'
 import type { ReportSectionTabId } from './report-section-tabs'
 
 const TABS: { id: ReportSectionTabId; label: string; icon: typeof LayoutDashboard }[] = [
@@ -21,11 +22,11 @@ export function ReportSectionTabBar({
   onValueChange: (next: ReportSectionTabId) => void
 }) {
   return (
-    <ReportSurfaceCard className="mb-6 p-1.5">
+    <ReportSurfaceCard className="mb-4 p-0.5">
       <div
         role="tablist"
         aria-label="Tab báo cáo"
-        className="flex w-full max-w-full flex-wrap gap-1 sm:flex-nowrap"
+        className="flex w-full max-w-full flex-wrap gap-0.5 sm:flex-nowrap"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
           const active = value === id
@@ -36,14 +37,20 @@ export function ReportSectionTabBar({
               role="tab"
               aria-selected={active}
               variant={active ? 'primary' : 'ghost'}
-              size="md"
-              className={cn(
-                'min-h-10 flex-1 gap-2 px-4 sm:flex-none',
+              size="sm"
+              className={reportButtonClass(
+                'min-h-5 min-w-[5.75rem] flex-1 gap-1.5 px-3.5 py-0 text-xs sm:min-w-[6.25rem] sm:flex-none',
+                active &&
+                  'border-blue-600 bg-blue-600 text-white shadow-none hover:bg-blue-700 data-[hover=true]:bg-blue-700',
                 !active && 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
               )}
               onPress={() => onValueChange(id)}
             >
-              <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              <Icon
+                className={cn('size-3.5 shrink-0', active ? 'text-white' : 'text-current')}
+                strokeWidth={1.75}
+                aria-hidden
+              />
               {label}
             </Button>
           )

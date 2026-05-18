@@ -4,7 +4,12 @@ import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Card, Skeleton } from '@heroui/react'
 import { cn } from '@/lib/utils'
-import { KPI_CARD_INNER_CLASS, MasterDataKpiCard } from './master-data-kpi-card'
+import {
+  KPI_CARD_INNER_X,
+  KPI_CARD_INNER_Y,
+  KPI_CARD_INNER_Y_COMPACT,
+  MasterDataKpiCard,
+} from './master-data-kpi-card'
 
 /** Viền + nền thống nhất cho card báo cáo (filter, chart, bảng). */
 export const REPORT_CARD_CLASS =
@@ -57,6 +62,7 @@ export function KpiStatCard({
   iconClassName,
   valueSize = 'md',
   isLoading,
+  compact = false,
 }: {
   title: string
   value: string
@@ -67,6 +73,7 @@ export function KpiStatCard({
   iconClassName?: string
   valueSize?: 'md' | 'sm'
   isLoading?: boolean
+  compact?: boolean
 }) {
   const styles = KPI_TONE_STYLES[tone]
   const valueClass = cn(
@@ -79,7 +86,13 @@ export function KpiStatCard({
     return (
       <Card className="rounded-lg border border-gray-200 bg-white shadow-none">
         <Card.Content className="!gap-0 !p-0">
-          <div className={cn('flex items-center justify-between gap-2', KPI_CARD_INNER_CLASS)}>
+          <div
+            className={cn(
+              'flex items-center justify-between gap-2',
+              KPI_CARD_INNER_X,
+              compact ? KPI_CARD_INNER_Y_COMPACT : KPI_CARD_INNER_Y,
+            )}
+          >
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <Skeleton className="h-2.5 w-20 max-w-full rounded-md" />
               <Skeleton className="h-5 w-24 max-w-full rounded-md" />
@@ -99,6 +112,7 @@ export function KpiStatCard({
       icon={Icon}
       valueClass={valueClass}
       iconClass={iconClass}
+      compact={compact}
     />
   )
 }
@@ -120,14 +134,14 @@ export function ReportSectionCard({
 }) {
   return (
     <Card className={REPORT_CARD_CLASS}>
-      <div className="flex flex-col gap-1 px-5 pt-4 pb-0 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-0.5 px-5 pt-2 pb-0 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-          {description ? <p className="mt-1 text-sm text-gray-500">{description}</p> : null}
+          <h3 className="text-base font-semibold leading-tight text-gray-900">{title}</h3>
+          {description ? <p className="mt-0.5 text-sm leading-snug text-gray-500">{description}</p> : null}
         </div>
         {action}
       </div>
-      <div className={cn('px-5 pb-4 pt-3 sm:pb-5', bodyClassName)}>
+      <div className={cn('px-5 pb-2 pt-1 sm:pb-2.5', bodyClassName)}>
         {isLoading ? <Skeleton className="h-[280px] w-full rounded-lg" /> : children}
       </div>
     </Card>

@@ -1,6 +1,7 @@
 'use client'
 
 import { Button, Modal } from '@heroui/react'
+import { reportButtonClass } from './report-button-chrome'
 import type { UseOverlayStateReturn } from '@heroui/react'
 import { formatCurrency, formatNumber, type OperationalRow } from '@/lib/report-dashboard-mock'
 import { periodLabel } from '@/lib/report-mock-data'
@@ -62,7 +63,7 @@ export function OperationalDetailModal({
               </section>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="outline" onPress={() => state.close()}>
+              <Button variant="outline" className={reportButtonClass()} onPress={() => state.close()}>
                 Đóng
               </Button>
             </Modal.Footer>

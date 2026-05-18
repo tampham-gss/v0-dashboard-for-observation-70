@@ -3,6 +3,7 @@
 import { Button, Modal } from '@heroui/react'
 import type { UseOverlayStateReturn } from '@heroui/react'
 import { appliedFiltersCaption, type ReportFilters } from '@/lib/report-mock-data'
+import { reportButtonClass } from './report-button-chrome'
 
 export function ReportExportDialog({
   state,
@@ -32,11 +33,12 @@ export function ReportExportDialog({
               </p>
             </Modal.Body>
             <Modal.Footer className="flex flex-wrap gap-2">
-              <Button variant="outline" onPress={() => state.close()}>
+              <Button variant="outline" className={reportButtonClass()} onPress={() => state.close()}>
                 Hủy
               </Button>
               <Button
                 variant="primary"
+                className={reportButtonClass()}
                 onPress={() => {
                   onConfirm(filters.periodType)
                   state.close()

@@ -26,59 +26,24 @@ const CP_STATUSES: CPStatus[] = [
 
 export type EfficiencyFilterStatus = 'has_revenue' | 'no_revenue' | 'anomaly'
 
+/** Bộ lọc mặc định: kỳ, khu vực, kho, tuyến, nhân sự giao nhận, trạng thái, CS/OPS phụ trách. */
+export const DEFAULT_FILTER_FIELD_KEYS: FilterFieldKey[] = [
+  'periodType',
+  'year',
+  'periodValue',
+  'branch',
+  'warehouse',
+  'route',
+  'staff',
+  'status',
+  'opsCs',
+]
+
 const TAB_FIELDS: Record<ReportSectionTabId, FilterFieldKey[]> = {
-  overview: [
-    'dateFrom',
-    'dateTo',
-    'periodType',
-    'year',
-    'periodValue',
-    'branch',
-    'warehouse',
-    'route',
-    'staff',
-    'opsCs',
-    'keyword',
-  ],
-  sl: [
-    'dateFrom',
-    'dateTo',
-    'periodType',
-    'year',
-    'periodValue',
-    'branch',
-    'warehouse',
-    'route',
-    'staff',
-    'status',
-    'keyword',
-  ],
-  cp: [
-    'dateFrom',
-    'dateTo',
-    'periodType',
-    'year',
-    'periodValue',
-    'branch',
-    'warehouse',
-    'route',
-    'staff',
-    'status',
-    'keyword',
-  ],
-  efficiency: [
-    'dateFrom',
-    'dateTo',
-    'periodType',
-    'year',
-    'periodValue',
-    'branch',
-    'warehouse',
-    'route',
-    'staff',
-    'status',
-    'keyword',
-  ],
+  overview: DEFAULT_FILTER_FIELD_KEYS,
+  sl: DEFAULT_FILTER_FIELD_KEYS,
+  cp: DEFAULT_FILTER_FIELD_KEYS,
+  efficiency: DEFAULT_FILTER_FIELD_KEYS,
 }
 
 const TAB_LABELS: Record<ReportSectionTabId, string> = {
@@ -89,10 +54,10 @@ const TAB_LABELS: Record<ReportSectionTabId, string> = {
 }
 
 const TAB_SEARCH_PLACEHOLDER: Record<ReportSectionTabId, string> = {
-  overview: 'Kỳ, khu vực, kho, tuyến, nhân sự…',
-  sl: 'Kỳ, khu vực, kho, tuyến, nhân sự…',
-  cp: 'Kỳ, khu vực, chi nhánh…',
-  efficiency: 'Kỳ, khu vực, nhân sự…',
+  overview: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
+  sl: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
+  cp: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
+  efficiency: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
 }
 
 export function getFilterFieldsForTab(tab: ReportSectionTabId): FilterFieldKey[] {
@@ -117,6 +82,7 @@ export function getStatusOptionsForTab(
     case 'cp':
       return [all, ...CP_STATUSES.map((s) => ({ id: s, label: s }))]
     case 'efficiency':
+    case 'overview':
       return [
         all,
         { id: 'has_revenue' as FilterStatus, label: 'Có doanh thu' },
@@ -136,33 +102,31 @@ export function isCpStatus(status: FilterStatus): status is CPStatus {
   return status === 'all' || CP_STATUSES.includes(status as CPStatus)
 }
 
-export function isEfficiencyStatus(
+export function isOperationalFilterStatus(
   status: FilterStatus,
 ): status is EfficiencyFilterStatus | 'all' {
   return status === 'all' || status === 'has_revenue' || status === 'no_revenue' || status === 'anomaly'
 }
 
+export function isEfficiencyStatus(status: FilterStatus): status is EfficiencyFilterStatus | 'all' {
+  return isOperationalFilterStatus(status)
+}
+
 export function sanitizeFiltersForTab(filters: ReportFilters, tab: ReportSectionTabId): ReportFilters {
-  const next = { ...filters, status: 'all' as FilterStatus }
+  const resetStatus = { ...filters, status: 'all' as FilterStatus }
 
   if (tab === 'sl' && filters.status !== 'all' && !SL_STATUSES.includes(filters.status as SLStatus)) {
-    return next
+    return resetStatus
   }
   if (tab === 'cp' && filters.status !== 'all' && !CP_STATUSES.includes(filters.status as CPStatus)) {
-    return next
+    return resetStatus
   }
   if (
-    tab === 'efficiency' &&
+    (tab === 'efficiency' || tab === 'overview') &&
     filters.status !== 'all' &&
-    filters.status !== 'has_revenue' &&
-    filters.status !== 'no_revenue' &&
-    filters.status !== 'anomaly'
+    !isOperationalFilterStatus(filters.status)
   ) {
-    return next
-  }
-
-  if (tab === 'overview') {
-    return { ...filters, status: 'all' }
+    return resetStatus
   }
 
   return filters
