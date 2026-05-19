@@ -33,8 +33,9 @@ export function ReportTablePanel({
         <div
           className={cn(
             REPORT_TABLE_BORDER_CLASS,
-            'h-fit min-w-0 w-full overflow-x-auto overscroll-x-contain',
+            'h-fit min-w-0 w-full overflow-x-auto overscroll-x-contain shadow-none',
           )}
+          style={{ boxShadow: 'none' }}
         >
           {children}
         </div>

@@ -7,7 +7,7 @@ export const REPORT_TABLE_CARD_INSET_X = 'px-4'
 
 /** Viền bao quanh bảng */
 export const REPORT_TABLE_BORDER_CLASS =
-  'overflow-hidden rounded-md border border-gray-200 bg-white'
+  'overflow-hidden rounded-lg border border-gray-200 bg-white shadow-none ring-0'
 
 /** Bảng báo cáo HeroUI — full width, nền trắng */
 export const REPORT_TABLE_SHELL_CLASS = [
@@ -15,7 +15,7 @@ export const REPORT_TABLE_SHELL_CLASS = [
   '[&_.table-root]:!m-0 [&_.table-root]:!rounded-none [&_.table-root]:!border-0 [&_.table-root]:!bg-white [&_.table-root]:!p-0 [&_.table-root]:!shadow-none [&_.table-root]:!ring-0',
   '[&_[data-slot=table]]:!bg-white [&_[data-slot=table]]:!p-0 [&_[data-slot=table]]:!shadow-none [&_[data-slot=table]]:!ring-0',
   '[&_[data-slot=table-scroll-container]]:w-full [&_[data-slot=table-scroll-container]]:!bg-white [&_[data-slot=table-scroll-container]]:!p-0 [&_[data-slot=table-scroll-container]]:!shadow-none [&_[data-slot=table-scroll-container]]:!ring-0',
-  '[&_[data-slot=table-content]]:w-full [&_[data-slot=table-content]]:!bg-white [&_[data-slot=table-content]]:!p-0',
+  '[&_[data-slot=table-content]]:w-full [&_[data-slot=table-content]]:!bg-white [&_[data-slot=table-content]]:!p-0 [&_[data-slot=table-content]]:!shadow-none [&_[data-slot=table-content]]:!ring-0',
   '[&_[data-slot=table-header]]:!border-b [&_[data-slot=table-header]]:!border-gray-200',
   '[&_[data-slot=table-header]]:!bg-gray-50',
   '[&_[data-slot=table-column]]:!border-0 [&_[data-slot=table-cell]]:!border-0',

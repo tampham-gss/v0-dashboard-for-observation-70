@@ -36,10 +36,11 @@ export function ReportDataTable({
         className={cn(
           REPORT_TABLE_SCROLL_CLASS,
           framed && REPORT_TABLE_BORDER_CLASS,
-          !framed && 'rounded-none border-0',
+          !framed && 'rounded-none border-0 shadow-none ring-0',
         )}
+        style={{ boxShadow: 'none' }}
       >
-        <Table.Content aria-label={ariaLabel} className="w-full">
+        <Table.Content aria-label={ariaLabel} className="w-full !shadow-none ring-0">
           {children}
         </Table.Content>
       </Table.ScrollContainer>

@@ -21,7 +21,9 @@ import {
   type SLRecord,
 } from '@/lib/report-mock-data'
 import type { BcSourceSheet } from '@/lib/bc-report'
+import { REPORT_CARD_CLASS } from './report-card'
 import { SummaryCardGrid } from './summary-card-grid'
+import { cn } from '@/lib/utils'
 
 export function OverviewTab({
   slRows,
@@ -107,7 +109,10 @@ export function OverviewTab({
         columns="sm:grid-cols-2 lg:grid-cols-4"
       />
 
-      <div className="rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm">
+      <div
+        className={cn(REPORT_CARD_CLASS, 'px-5 py-4')}
+        style={{ boxShadow: 'none' }}
+      >
         <p className="text-sm leading-relaxed text-gray-600">
           Doanh thu và hiệu quả chưa được tính do chưa có nguồn doanh thu chính thức hoặc công thức
          phê duyệt. Hệ thống không tự tính các chỉ tiêu này.

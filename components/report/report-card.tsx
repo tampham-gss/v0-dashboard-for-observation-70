@@ -11,9 +11,11 @@ import {
   MasterDataKpiCard,
 } from './master-data-kpi-card'
 
+/** Bo góc card / panel báo cáo */
+export const REPORT_CARD_RADIUS_CLASS = 'rounded-lg'
+
 /** Viền + nền thống nhất cho card báo cáo (filter, chart, bảng). */
-export const REPORT_CARD_CLASS =
-  'overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm'
+export const REPORT_CARD_CLASS = `overflow-hidden ${REPORT_CARD_RADIUS_CLASS} border border-gray-200 bg-white shadow-none ring-0`
 
 export type KpiStatTone = 'default' | 'primary' | 'success' | 'danger' | 'warning'
 
@@ -86,7 +88,7 @@ export function KpiStatCard({
 
   if (isLoading) {
     return (
-      <Card className="rounded-lg border border-gray-200 bg-white shadow-none">
+      <Card className={cn('!rounded-lg border border-gray-200 bg-white !shadow-none ring-0', REPORT_CARD_RADIUS_CLASS)}>
         <Card.Content className="!gap-0 !p-0">
           <div
             className={cn(

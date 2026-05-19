@@ -86,7 +86,7 @@ export function MasterDataKpiCard({
   compact?: boolean
 }) {
   return (
-    <Card className={cn('rounded-lg border border-gray-200 bg-white shadow-none', className)}>
+    <Card className={cn('!rounded-lg border border-gray-200 bg-white !shadow-none ring-0', className)}>
       <Card.Content className="!gap-0 !p-0">
         <div
           className={cn(

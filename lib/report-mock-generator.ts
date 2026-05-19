@@ -1,4 +1,4 @@
-export const MOCK_DATA_ROW_COUNT = 5000
+export const MOCK_DATA_ROW_COUNT = 500
 
 type PeriodType = 'week' | 'month'
 type BranchCode = 'HCM' | 'HPH' | 'CLO' | 'DAN' | 'GLS'
@@ -53,13 +53,10 @@ interface CPRecord {
 }
 
 const BRANCHES: BranchCode[] = ['HCM', 'HPH', 'CLO', 'DAN', 'GLS']
-const YEARS = [2025, 2026] as const
-const MONTHS = [
-  '08/25', '09/25', '10/25', '11/25', '12/25',
-  '01/26', '02/26', '03/26', '04/26', '05/26',
-  '06/26', '07/26', '08/26', '09/26', '10/26',
-  '11/26', '12/26',
-] as const
+const WEEKS_26 = Array.from({ length: 52 }, (_, i) => `Tuần ${String(i + 1).padStart(2, '0')}/26`)
+const WEEKS_25 = Array.from({ length: 52 }, (_, i) => `Tuần ${String(i + 1).padStart(2, '0')}/25`)
+/** 104 tuần — khớp `WEEKS` trong report-mock-data */
+const ALL_WEEKS = [...WEEKS_26, ...WEEKS_25] as const
 
 const TARGET_CP_PER_CONT = 150_000
 
@@ -89,14 +86,8 @@ function seededUnit(index: number, salt: number): number {
   return x - Math.floor(x)
 }
 
-function weekLabel(weekIndex: number, year: number): string {
-  const yy = String(year).slice(-2)
-  const n = (weekIndex % 52) + 1
-  return `Tuần ${String(n).padStart(2, '0')}/${yy}`
-}
-
-function monthLabel(monthIndex: number): string {
-  return MONTHS[monthIndex % MONTHS.length]
+function yearFromWeekLabel(week: string): number {
+  return 2000 + Number(week.slice(-2))
 }
 
 function formatCpDate(year: number, monthIndex: number, day: number): string {
@@ -236,7 +227,7 @@ function pinDefaultFilterSamples(slRecords: SLRecord[], cpRecords: CPRecord[]) {
   })
 }
 
-/** Sinh `count` cặp SL + CP (mỗi cặp = một dòng BC). */
+/** Sinh `count` cặp SL + CP, phân bổ đều theo tuần (và luân phiên chi nhánh). */
 export function createMockRecords(count: number): {
   slRecords: SLRecord[]
   cpRecords: CPRecord[]
@@ -244,18 +235,23 @@ export function createMockRecords(count: number): {
   const slRecords: SLRecord[] = []
   const cpRecords: CPRecord[] = []
 
-  for (let i = 0; i < count; i++) {
-    const branch = BRANCHES[i % BRANCHES.length]
-    const year = YEARS[Math.floor(i / (count / YEARS.length)) % YEARS.length]
-    const periodType: PeriodType = i % 4 === 0 ? 'month' : 'week'
-    const periodKey =
-      periodType === 'week'
-        ? weekLabel(Math.floor(i / BRANCHES.length), year)
-        : monthLabel(Math.floor(i / (BRANCHES.length * 3)))
+  const weekCount = ALL_WEEKS.length
+  const basePerWeek = Math.floor(count / weekCount)
+  const extraWeekSlots = count % weekCount
 
-    const sl = buildSlRecord(i, periodType, year, branch, periodKey)
-    slRecords.push(sl)
-    cpRecords.push(buildCpRecord(i, sl))
+  let index = 0
+  for (let w = 0; w < weekCount; w++) {
+    const week = ALL_WEEKS[w]
+    const year = yearFromWeekLabel(week)
+    const rowsThisWeek = basePerWeek + (w < extraWeekSlots ? 1 : 0)
+
+    for (let j = 0; j < rowsThisWeek; j++) {
+      const branch = BRANCHES[j % BRANCHES.length]
+      const sl = buildSlRecord(index, 'week', year, branch, week)
+      slRecords.push(sl)
+      cpRecords.push(buildCpRecord(index, sl))
+      index++
+    }
   }
 
   pinDefaultFilterSamples(slRecords, cpRecords)

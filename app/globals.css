@@ -79,10 +79,20 @@
   .report-table-panel,
   .report-table-panel *,
   .report-data-table,
-  .report-data-table * {
+  .report-data-table *,
+  .report-page [data-slot='table'],
+  .report-page [data-slot='table'] *,
+  .report-page [data-slot='table-scroll-container'],
+  .report-page [data-slot='table-content'],
+  .report-page [data-slot='table-header'],
+  .report-page [data-slot='table-body'],
+  .report-page [data-slot='table-row'],
+  .report-page [data-slot='table-column'],
+  .report-page [data-slot='table-cell'] {
     --tw-shadow: 0 0 #0000 !important;
     --tw-shadow-colored: 0 0 #0000 !important;
     --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-drop-shadow: 0 0 #0000 !important;
     box-shadow: none !important;
     filter: none !important;
   }
@@ -99,6 +109,27 @@
 
   .report-data-table [data-slot='table-scroll-container'] {
     border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .report-data-table .table-root,
+  .report-data-table .table-root--primary,
+  .report-data-table [class*='table-root'] {
+    box-shadow: none !important;
+    --tw-shadow: 0 0 #0000 !important;
+  }
+
+  /* Card báo cáo: không shadow, bo góc lg */
+  .report-page [data-slot='card'],
+  .report-page .report-table-panel {
+    border-radius: 0.5rem !important;
+  }
+
+  .report-page [data-slot='card'],
+  .report-page [data-slot='card'] * {
+    --tw-shadow: 0 0 #0000 !important;
+    --tw-shadow-colored: 0 0 #0000 !important;
+    box-shadow: none !important;
   }
 
   /* Căn giữa chữ theo chiều dọc trong ô lọc báo cáo */
