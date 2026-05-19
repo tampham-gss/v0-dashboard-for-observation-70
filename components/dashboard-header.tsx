@@ -29,7 +29,7 @@ export function DashboardHeader({ onExport, formula, setFormula, canViewFinancia
               <BarChart3 className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
+              <h1 className="text-lg font-medium leading-tight tracking-tight text-foreground">
                 Quan Sát Sản Lượng - Doanh Thu - Hiệu Quả
               </h1>
         

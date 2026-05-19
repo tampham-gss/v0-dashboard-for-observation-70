@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Button } from '@heroui/react'
 import { ReportSurfaceCard } from './report-card'
 import {
@@ -16,7 +17,10 @@ import {
   getFilterPanelTitle,
   getSearchPlaceholder,
   getStatusOptionsForTab,
+  patchMonthForBcWeek,
+  patchYearForBcTab,
 } from '@/lib/report-filter-config'
+import { bcWeekOptionsForMonth, monthsForYear, weeksForYear } from '@/lib/report-mock-data'
 import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
 import { reportButtonClass } from './report-button-chrome'
 import { FilterSelect } from './filter-select'
@@ -28,8 +32,6 @@ const PERIOD_OPTIONS: { id: PeriodType; label: string }[] = [
 ]
 
 const YEAR_OPTIONS = YEARS.map((y) => ({ id: String(y), label: String(y) }))
-const WEEK_OPTIONS = WEEKS.map((w) => ({ id: w, label: w }))
-const MONTH_OPTIONS = MONTHS.map((m) => ({ id: m, label: m }))
 const BRANCH_OPTIONS: { id: BranchCode | 'all'; label: string }[] = [
   { id: 'all', label: 'Tất cả' },
   ...BRANCHES.map((b) => ({ id: b, label: b })),
@@ -57,10 +59,38 @@ export function ReportFilterPanel({
   const statusOptions = getStatusOptionsForTab(activeTab)
   const has = (key: (typeof fields)[number]) => fields.includes(key)
 
+  const weekOptions = useMemo(() => {
+    const weeks =
+      activeTab === 'bcWeek'
+        ? bcWeekOptionsForMonth(filters.year, filters.month)
+        : weeksForYear(filters.year)
+    return weeks.map((w) => ({ id: w, label: w }))
+  }, [activeTab, filters.year, filters.month])
+
+  const monthOptions = useMemo(
+    () => monthsForYear(filters.year).map((m) => ({ id: m, label: m })),
+    [filters.year],
+  )
+
+  const periodWeekOptions = useMemo(
+    () => WEEKS.filter((w) => w.endsWith(`/${String(filters.year).slice(-2)}`)).map((w) => ({ id: w, label: w })),
+    [filters.year],
+  )
+
+  const periodMonthOptions = useMemo(
+    () => MONTHS.filter((m) => m.endsWith(`/${String(filters.year).slice(-2)}`)).map((m) => ({ id: m, label: m })),
+    [filters.year],
+  )
+
+  const handleYearChange = (v: string) => {
+    const year = Number(v)
+    patch({ year, ...patchYearForBcTab(filters, year, activeTab) })
+  }
+
   return (
     <ReportSurfaceCard className="mb-4 !p-0 shadow-none">
       <div className="report-filter-panel flex flex-col gap-3.5 px-5 pt-5 pb-6">
-        <p className="text-xs font-semibold leading-none text-gray-900">
+        <p className="text-xs font-medium leading-none text-gray-900">
           {getFilterPanelTitle(activeTab)}
         </p>
         <div className="flex flex-col gap-3">
@@ -81,7 +111,7 @@ export function ReportFilterPanel({
                 label="Năm"
                 value={String(filters.year)}
                 options={YEAR_OPTIONS}
-                onChange={(v) => patch({ year: Number(v) })}
+                onChange={handleYearChange}
               />
             </FilterField>
           )}
@@ -91,7 +121,7 @@ export function ReportFilterPanel({
                 <FilterSelect
                   label="Tuần"
                   value={filters.week}
-                  options={WEEK_OPTIONS}
+                  options={periodWeekOptions}
                   onChange={(v) => patch({ week: v })}
                 />
               </FilterField>
@@ -100,28 +130,34 @@ export function ReportFilterPanel({
                 <FilterSelect
                   label="Tháng"
                   value={filters.month}
-                  options={MONTH_OPTIONS}
+                  options={periodMonthOptions}
                   onChange={(v) => patch({ month: v })}
                 />
               </FilterField>
             ))}
-          {has('week') && (
-            <FilterField label="Tuần (BC tuần)">
-              <FilterSelect
-                label="Tuần"
-                value={filters.week}
-                options={WEEK_OPTIONS}
-                onChange={(v) => patch({ week: v })}
-              />
-            </FilterField>
-          )}
           {has('month') && (
-            <FilterField label="Tháng (BC tháng)">
+            <FilterField label="Tháng">
               <FilterSelect
                 label="Tháng"
                 value={filters.month}
-                options={MONTH_OPTIONS}
-                onChange={(v) => patch({ month: v })}
+                options={monthOptions}
+                onChange={(v) =>
+                  patch(
+                    activeTab === 'bcWeek'
+                      ? patchMonthForBcWeek(filters, v)
+                      : { month: v },
+                  )
+                }
+              />
+            </FilterField>
+          )}
+          {has('week') && (
+            <FilterField label="Tuần">
+              <FilterSelect
+                label="Tuần"
+                value={filters.week}
+                options={weekOptions}
+                onChange={(v) => patch({ week: v })}
               />
             </FilterField>
           )}

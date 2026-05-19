@@ -103,7 +103,7 @@ export function DetailView({ type, item, period, formula, canViewFinancial, orde
         </Button>
         <div className="h-6 w-px bg-border" />
         <div>
-          <h2 className="text-xl font-semibold">{item.name}</h2>
+          <h2 className="text-xl font-medium">{item.name}</h2>
           <p className="text-sm text-muted-foreground">
             Chi tiết {typeLabels[type].toLowerCase()} theo {period === 'week' ? 'tuần' : 'tháng'}
           </p>

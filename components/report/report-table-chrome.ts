@@ -55,7 +55,7 @@ export const TABLE_CENTER_COL = 'whitespace-nowrap text-center'
 
 export const TABLE_COL_STATUS = `${TABLE_CENTER_COL} min-w-[7.5rem]`
 
-export const TABLE_COL_ACTION = `${TABLE_CENTER_COL} min-w-[4.5rem]`
+export const TABLE_COL_ACTION = `${TABLE_CENTER_COL} min-w-[7rem]`
 
 /** Bảng CP: 13 cột, tiêu đề dài — cần scroll ngang */
 export const REPORT_TABLE_MIN_WIDTH_CP = 'min-w-[88rem]'

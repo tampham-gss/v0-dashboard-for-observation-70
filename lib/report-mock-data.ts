@@ -105,6 +105,33 @@ export const MONTHS = [
   '12/26',
 ] as const
 
+/** Tuần thuộc năm (nhãn dạng `Tuần 01/26`). */
+export function weeksForYear(year: number): string[] {
+  const yy = String(year).slice(-2)
+  return WEEKS.filter((w) => w.endsWith(`/${yy}`))
+}
+
+/** Tháng thuộc năm (nhãn dạng `04/26`). */
+export function monthsForYear(year: number): string[] {
+  const yy = String(year).slice(-2)
+  return MONTHS.filter((m) => m.endsWith(`/${yy}`))
+}
+
+/** Bốn tuần trong tháng lịch (dùng cho bộ lọc BC tuần). */
+export function bcWeekOptionsForMonth(year: number, month: string): string[] {
+  const yy = String(year).slice(-2)
+  if (!month.endsWith(`/${yy}`)) return []
+
+  const monthNum = Number(month.slice(0, 2))
+  if (!Number.isFinite(monthNum) || monthNum < 1 || monthNum > 12) return []
+
+  const startWeek = (monthNum - 1) * 4 + 1
+  return Array.from({ length: 4 }, (_, i) => {
+    const n = startWeek + i
+    return `Tuần ${String(n).padStart(2, '0')}/${yy}`
+  })
+}
+
 export const DEFAULT_FILTERS: ReportFilters = {
   periodType: 'week',
   year: 2026,
@@ -122,12 +149,17 @@ export const DEFAULT_FILTERS: ReportFilters = {
 }
 
 /** Dòng phụ đề hiển thị phạm vi kỳ / chi nhánh đang áp dụng (đã lọc). */
-export function appliedFiltersCaption(filters: ReportFilters): string {
-  const period =
-    filters.periodType === 'week'
-      ? `${filters.week} · ${filters.year}`
-      : `Tháng ${filters.month} · ${filters.year}`
+export function appliedFiltersCaption(
+  filters: ReportFilters,
+  opts?: { showBcWeekMonth?: boolean },
+): string {
   const branch = filters.branch === 'all' ? 'Tất cả chi nhánh' : filters.branch
+  const period =
+    opts?.showBcWeekMonth && filters.periodType === 'week'
+      ? `Tháng ${filters.month} · ${filters.week} · ${filters.year}`
+      : filters.periodType === 'week'
+        ? `${filters.week} · ${filters.year}`
+        : `Tháng ${filters.month} · ${filters.year}`
   return `${period} · ${branch}`
 }
 

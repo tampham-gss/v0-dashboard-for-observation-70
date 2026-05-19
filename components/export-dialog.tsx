@@ -165,7 +165,7 @@ export function ExportDialog({ open, onOpenChange, filters, orders, formula, can
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-success/10 mb-4">
               <CheckCircle2 className="h-6 w-6 text-success" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">Xuất dữ liệu thành công!</h3>
+            <h3 className="text-lg font-medium mb-1">Xuất dữ liệu thành công!</h3>
             <p className="text-sm text-muted-foreground">
               File báo cáo đã được tải xuống máy tính của bạn.
             </p>

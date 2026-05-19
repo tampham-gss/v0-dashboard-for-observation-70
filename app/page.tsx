@@ -10,7 +10,7 @@ import {
   type ReportFilters,
   type SLRecord,
 } from '@/lib/report-mock-data'
-import { sanitizeFiltersForTab } from '@/lib/report-filter-config'
+import { syncFiltersForTab } from '@/lib/report-filter-config'
 import { ReportFilterPanel } from '@/components/report/report-filter-panel'
 import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
 import { ReportLayout } from '@/components/report/report-layout'
@@ -49,13 +49,14 @@ export default function ReportPage() {
   }
 
   const handleSearch = () => {
-    runLoading(() => setAppliedFilters({ ...draftFilters }))
+    runLoading(() => setAppliedFilters(syncFiltersForTab(draftFilters, activeTab)))
   }
 
   const handleRefresh = () => {
     runLoading(() => {
-      setDraftFilters({ ...DEFAULT_FILTERS })
-      setAppliedFilters({ ...DEFAULT_FILTERS })
+      const reset = syncFiltersForTab({ ...DEFAULT_FILTERS }, activeTab)
+      setDraftFilters(reset)
+      setAppliedFilters(reset)
     })
   }
 
@@ -75,7 +76,9 @@ export default function ReportPage() {
     cpModalState.open()
   }
 
-  const subtitle = appliedFiltersCaption(appliedFilters)
+  const subtitle = appliedFiltersCaption(appliedFilters, {
+    showBcWeekMonth: activeTab === 'bcWeek',
+  })
 
   return (
     <ReportLayout>
@@ -95,10 +98,8 @@ export default function ReportPage() {
         value={activeTab}
         onValueChange={(tab) => {
           setActiveTab(tab)
-          const nextDraft = sanitizeFiltersForTab(draftFilters, tab)
-          const nextApplied = sanitizeFiltersForTab(appliedFilters, tab)
-          setDraftFilters(nextDraft)
-          setAppliedFilters(nextApplied)
+          setDraftFilters(syncFiltersForTab(draftFilters, tab))
+          setAppliedFilters(syncFiltersForTab(appliedFilters, tab))
         }}
       />
 
@@ -120,8 +121,20 @@ export default function ReportPage() {
           isLoading={isLoading}
         />
       )}
-      {activeTab === 'bc' && (
+      {activeTab === 'bcWeek' && (
         <BcTab
+          periodType="week"
+          title="BC tuần"
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+          onViewSl={openSLDetail}
+          onViewCp={openCPDetail}
+        />
+      )}
+      {activeTab === 'bcMonth' && (
+        <BcTab
+          periodType="month"
+          title="BC tháng"
           appliedFilters={appliedFilters}
           isLoading={isLoading}
           onViewSl={openSLDetail}

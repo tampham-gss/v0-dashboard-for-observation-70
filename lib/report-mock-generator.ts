@@ -1,4 +1,4 @@
-export const MOCK_DATA_ROW_COUNT = 500
+export const MOCK_DATA_ROW_COUNT = 1000
 
 type PeriodType = 'week' | 'month'
 type BranchCode = 'HCM' | 'HPH' | 'CLO' | 'DAN' | 'GLS'
@@ -58,7 +58,22 @@ const WEEKS_25 = Array.from({ length: 52 }, (_, i) => `Tuần ${String(i + 1).pa
 /** 104 tuần — khớp `WEEKS` trong report-mock-data */
 const ALL_WEEKS = [...WEEKS_26, ...WEEKS_25] as const
 
+/** 17 tháng — khớp `MONTHS` trong report-mock-data */
+const ALL_MONTHS = [
+  '08/25', '09/25', '10/25', '11/25', '12/25',
+  '01/26', '02/26', '03/26', '04/26', '05/26',
+  '06/26', '07/26', '08/26', '09/26', '10/26',
+  '11/26', '12/26',
+] as const
+
 const TARGET_CP_PER_CONT = 150_000
+
+/** Chia `count` thành `slots` phần, phần dư +1 cho các slot đầu. */
+function distributeEvenly(count: number, slots: number): number[] {
+  const base = Math.floor(count / slots)
+  const extra = count % slots
+  return Array.from({ length: slots }, (_, i) => base + (i < extra ? 1 : 0))
+}
 
 function computeSLStatus(slContKH: number, slContTH: number): SLStatus {
   if (slContKH <= 0 || slContTH <= 0) return 'Cần kiểm tra'
@@ -88,6 +103,14 @@ function seededUnit(index: number, salt: number): number {
 
 function yearFromWeekLabel(week: string): number {
   return 2000 + Number(week.slice(-2))
+}
+
+function yearFromMonthLabel(month: string): number {
+  return 2000 + Number(month.slice(-2))
+}
+
+function monthIndexFromLabel(month: string): number {
+  return Math.max(0, Number(month.slice(0, 2)) - 1)
 }
 
 function formatCpDate(year: number, monthIndex: number, day: number): string {
@@ -167,7 +190,10 @@ function buildCpRecord(index: number, sl: SLRecord): CPRecord {
     year: sl.year,
     week: sl.week,
     month: sl.month,
-    date: formatCpDate(sl.year, index % 12, (index % 27) + 1),
+    date:
+      sl.periodType === 'month' && sl.month
+        ? formatCpDate(sl.year, monthIndexFromLabel(sl.month), (index % 27) + 1)
+        : formatCpDate(sl.year, index % 12, (index % 27) + 1),
     branch: sl.branch,
     nhanCong: sl.nsGiaoNhan,
     cpGNGLSPerCont,
@@ -183,51 +209,127 @@ function buildCpRecord(index: number, sl: SLRecord): CPRecord {
   }
 }
 
-function pinDefaultFilterSamples(slRecords: SLRecord[], cpRecords: CPRecord[]) {
-  const branches: BranchCode[] = ['HCM', 'HPH', 'CLO', 'DAN', 'GLS']
+function applyPinnedWeekSample(
+  sl: SLRecord,
+  cp: CPRecord,
+  branch: BranchCode,
+  idx: number,
+) {
+  sl.periodType = 'week'
+  sl.year = 2026
+  sl.week = 'Tuần 15/26'
+  sl.month = undefined
+  sl.branch = branch
+  sl.slContKH = 900 + idx * 80
+  sl.slContTH = Math.round(sl.slContKH * (idx === 3 ? 1.02 : 0.88 + idx * 0.03))
+  sl.slContGLS = Math.round(sl.slContTH * 0.72)
+  sl.slContLX = Math.round(sl.slContTH * 0.12)
+  sl.slContVendor = Math.max(0, sl.slContTH - sl.slContGLS - sl.slContLX)
+  sl.status = computeSLStatus(sl.slContKH, sl.slContTH)
 
-  branches.forEach((branch, idx) => {
-    const sl = slRecords[idx]
-    const cp = cpRecords[idx]
-    if (!sl || !cp) return
+  cp.periodType = 'week'
+  cp.year = 2026
+  cp.week = 'Tuần 15/26'
+  cp.month = undefined
+  cp.date = `0${idx + 8}/04/26`
+  cp.branch = branch
+  cp.nhanCong = sl.nsGiaoNhan
+  cp.contGNGLSKD = sl.slContGLS
+  cp.contLaiXeKD = sl.slContLX
+  cp.contVendorKD = sl.slContVendor
+  cp.tongCPGNGLS = Math.round(130_000 * cp.contGNGLSKD)
+  cp.tongCPLaiXeKD = Math.round(12_000_000 + idx * 2_000_000)
+  cp.tongCPVendor = Math.round(5_000_000 + idx * 1_500_000)
+  cp.tongChiPhi = cp.tongCPGNGLS + cp.tongCPLaiXeKD + cp.tongCPVendor
+  cp.cpTBPerCont = sl.slContTH > 0 ? Math.round(cp.tongChiPhi / sl.slContTH) : 0
+  cp.cpGNGLSPerCont = cp.contGNGLSKD > 0 ? Math.round(cp.tongCPGNGLS / cp.contGNGLSKD) : 0
+  if (idx === 2) {
+    cp.cpTBPerCont = TARGET_CP_PER_CONT + 25_000
+    cp.tongChiPhi = cp.cpTBPerCont * sl.slContTH
+  }
+  cp.status = computeCPStatus(cp.tongChiPhi, cp.cpTBPerCont, sl.slContTH, false)
+}
 
-    sl.periodType = 'week'
-    sl.year = 2026
-    sl.week = 'Tuần 15/26'
-    sl.month = undefined
-    sl.branch = branch
-    sl.slContKH = 900 + idx * 80
-    sl.slContTH = Math.round(sl.slContKH * (idx === 3 ? 1.02 : 0.88 + idx * 0.03))
-    sl.slContGLS = Math.round(sl.slContTH * 0.72)
-    sl.slContLX = Math.round(sl.slContTH * 0.12)
-    sl.slContVendor = Math.max(0, sl.slContTH - sl.slContGLS - sl.slContLX)
-    sl.status = computeSLStatus(sl.slContKH, sl.slContTH)
+function applyPinnedMonthSample(
+  sl: SLRecord,
+  cp: CPRecord,
+  branch: BranchCode,
+  idx: number,
+) {
+  sl.periodType = 'month'
+  sl.year = 2026
+  sl.week = undefined
+  sl.month = '04/26'
+  sl.branch = branch
+  sl.slContKH = 820 + idx * 75
+  sl.slContTH = Math.round(sl.slContKH * (0.9 + idx * 0.025))
+  sl.slContGLS = Math.round(sl.slContTH * 0.7)
+  sl.slContLX = Math.round(sl.slContTH * 0.14)
+  sl.slContVendor = Math.max(0, sl.slContTH - sl.slContGLS - sl.slContLX)
+  sl.status = computeSLStatus(sl.slContKH, sl.slContTH)
 
-    cp.periodType = 'week'
-    cp.year = 2026
-    cp.week = 'Tuần 15/26'
-    cp.month = undefined
-    cp.date = `0${idx + 8}/04/26`
-    cp.branch = branch
-    cp.nhanCong = sl.nsGiaoNhan
-    cp.contGNGLSKD = sl.slContGLS
-    cp.contLaiXeKD = sl.slContLX
-    cp.contVendorKD = sl.slContVendor
-    cp.tongCPGNGLS = Math.round(130_000 * cp.contGNGLSKD)
-    cp.tongCPLaiXeKD = Math.round(12_000_000 + idx * 2_000_000)
-    cp.tongCPVendor = Math.round(5_000_000 + idx * 1_500_000)
-    cp.tongChiPhi = cp.tongCPGNGLS + cp.tongCPLaiXeKD + cp.tongCPVendor
-    cp.cpTBPerCont = sl.slContTH > 0 ? Math.round(cp.tongChiPhi / sl.slContTH) : 0
-    cp.cpGNGLSPerCont = cp.contGNGLSKD > 0 ? Math.round(cp.tongCPGNGLS / cp.contGNGLSKD) : 0
-    if (idx === 2) {
-      cp.cpTBPerCont = TARGET_CP_PER_CONT + 25_000
-      cp.tongChiPhi = cp.cpTBPerCont * sl.slContTH
-    }
-    cp.status = computeCPStatus(cp.tongChiPhi, cp.cpTBPerCont, sl.slContTH, false)
+  cp.periodType = 'month'
+  cp.year = 2026
+  cp.week = undefined
+  cp.month = '04/26'
+  cp.date = `0${idx + 10}/04/26`
+  cp.branch = branch
+  cp.nhanCong = sl.nsGiaoNhan
+  cp.contGNGLSKD = sl.slContGLS
+  cp.contLaiXeKD = sl.slContLX
+  cp.contVendorKD = sl.slContVendor
+  cp.tongCPGNGLS = Math.round(128_000 * cp.contGNGLSKD)
+  cp.tongCPLaiXeKD = Math.round(11_000_000 + idx * 1_800_000)
+  cp.tongCPVendor = Math.round(4_800_000 + idx * 1_200_000)
+  cp.tongChiPhi = cp.tongCPGNGLS + cp.tongCPLaiXeKD + cp.tongCPVendor
+  cp.cpTBPerCont = sl.slContTH > 0 ? Math.round(cp.tongChiPhi / sl.slContTH) : 0
+  cp.cpGNGLSPerCont = cp.contGNGLSKD > 0 ? Math.round(cp.tongCPGNGLS / cp.contGNGLSKD) : 0
+  cp.status = computeCPStatus(cp.tongChiPhi, cp.cpTBPerCont, sl.slContTH, false)
+}
+
+function pinDefaultFilterSamples(
+  slRecords: SLRecord[],
+  cpRecords: CPRecord[],
+  monthBlockStart: number,
+) {
+  BRANCHES.forEach((branch, idx) => {
+    const weekSl = slRecords[idx]
+    const weekCp = cpRecords[idx]
+    if (weekSl && weekCp) applyPinnedWeekSample(weekSl, weekCp, branch, idx)
+
+    const monthIdx = monthBlockStart + idx
+    const monthSl = slRecords[monthIdx]
+    const monthCp = cpRecords[monthIdx]
+    if (monthSl && monthCp) applyPinnedMonthSample(monthSl, monthCp, branch, idx)
   })
 }
 
-/** Sinh `count` cặp SL + CP, phân bổ đều theo tuần (và luân phiên chi nhánh). */
+function appendPeriodRows(
+  slRecords: SLRecord[],
+  cpRecords: CPRecord[],
+  periodType: PeriodType,
+  keys: readonly string[],
+  rowsPerKey: number[],
+  startIndex: number,
+): number {
+  let index = startIndex
+  for (let k = 0; k < keys.length; k++) {
+    const key = keys[k]
+    const year = periodType === 'week' ? yearFromWeekLabel(key) : yearFromMonthLabel(key)
+    const rows = rowsPerKey[k]
+
+    for (let j = 0; j < rows; j++) {
+      const branch = BRANCHES[j % BRANCHES.length]
+      const sl = buildSlRecord(index, periodType, year, branch, key)
+      slRecords.push(sl)
+      cpRecords.push(buildCpRecord(index, sl))
+      index++
+    }
+  }
+  return index
+}
+
+/** Sinh `count` cặp SL + CP — ~50% tuần, ~50% tháng, trải đều mọi kỳ × luân phiên chi nhánh. */
 export function createMockRecords(count: number): {
   slRecords: SLRecord[]
   cpRecords: CPRecord[]
@@ -235,26 +337,16 @@ export function createMockRecords(count: number): {
   const slRecords: SLRecord[] = []
   const cpRecords: CPRecord[] = []
 
-  const weekCount = ALL_WEEKS.length
-  const basePerWeek = Math.floor(count / weekCount)
-  const extraWeekSlots = count % weekCount
+  const monthQuota = Math.floor(count / 2)
+  const weekQuota = count - monthQuota
 
-  let index = 0
-  for (let w = 0; w < weekCount; w++) {
-    const week = ALL_WEEKS[w]
-    const year = yearFromWeekLabel(week)
-    const rowsThisWeek = basePerWeek + (w < extraWeekSlots ? 1 : 0)
+  const rowsPerWeek = distributeEvenly(weekQuota, ALL_WEEKS.length)
+  const monthBlockStart = appendPeriodRows(slRecords, cpRecords, 'week', ALL_WEEKS, rowsPerWeek, 0)
 
-    for (let j = 0; j < rowsThisWeek; j++) {
-      const branch = BRANCHES[j % BRANCHES.length]
-      const sl = buildSlRecord(index, 'week', year, branch, week)
-      slRecords.push(sl)
-      cpRecords.push(buildCpRecord(index, sl))
-      index++
-    }
-  }
+  const rowsPerMonth = distributeEvenly(monthQuota, ALL_MONTHS.length)
+  appendPeriodRows(slRecords, cpRecords, 'month', ALL_MONTHS, rowsPerMonth, monthBlockStart)
 
-  pinDefaultFilterSamples(slRecords, cpRecords)
+  pinDefaultFilterSamples(slRecords, cpRecords, monthBlockStart)
 
   return { slRecords, cpRecords }
 }

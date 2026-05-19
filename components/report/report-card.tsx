@@ -141,7 +141,7 @@ export function ReportSectionCard({
     <Card className={REPORT_CARD_CLASS}>
       <div className="flex flex-col gap-0.5 px-5 pt-2 pb-0 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="text-base font-semibold leading-tight text-gray-900">{title}</h3>
+          <h3 className="text-base font-medium leading-tight text-gray-900">{title}</h3>
           {description ? <p className="mt-0.5 text-sm leading-snug text-gray-500">{description}</p> : null}
         </div>
         {action}

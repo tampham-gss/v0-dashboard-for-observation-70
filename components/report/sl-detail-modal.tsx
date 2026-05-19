@@ -93,7 +93,7 @@ export function SLDetailModal({
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="mb-2 text-sm font-semibold text-gray-900">{title}</h3>
+      <h3 className="mb-2 text-sm font-medium text-gray-900">{title}</h3>
       <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3">{children}</div>
     </section>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Button, EmptyState, Skeleton, Table } from '@heroui/react'
+import { EmptyState, Skeleton, Table } from '@heroui/react'
 import type { BcReportRow } from '@/lib/bc-report'
 import { filterBcRowsForPeriodType } from '@/lib/bc-report'
 import {
@@ -22,8 +22,8 @@ import {
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
 } from './report-table-chrome'
-import { reportButtonClass } from './report-button-chrome'
 import { ReportDataTable } from './report-data-table'
+import { ReportTableLabelAction } from './report-table-actions'
 import { ReportPaginationFooter } from './report-pagination-footer'
 import { ReportTablePanel } from './report-table-panel'
 import { CPStatusChip } from './status-chip'
@@ -99,7 +99,7 @@ function BcSourceTable({
               <Table.Cell className={`${TABLE_COL_WIDE} font-medium`}>
                 {periodLabel(row.sl)}
               </Table.Cell>
-              <Table.Cell className={`${TABLE_COL_WIDE} font-semibold`}>{row.sl.branch}</Table.Cell>
+              <Table.Cell className={`${TABLE_COL_WIDE} font-medium`}>{row.sl.branch}</Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.sl.nsGiaoNhan)}</Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.sl.slContKH)}</Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.sl.slContTH)}</Table.Cell>
@@ -127,24 +127,13 @@ function BcSourceTable({
                 </div>
               </Table.Cell>
               <Table.Cell className={TABLE_COL_ACTION}>
-                <div className="flex justify-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={reportButtonClass('h-8 px-2 text-xs text-gray-600')}
-                    onPress={() => onViewSl(row.sl)}
-                  >
-                    SL
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                <div className="flex justify-center gap-1.5">
+                  <ReportTableLabelAction label="SL" onPress={() => onViewSl(row.sl)} />
+                  <ReportTableLabelAction
+                    label="CP"
                     isDisabled={!row.cp}
-                    className={reportButtonClass('h-8 px-2 text-xs text-gray-600')}
                     onPress={() => row.cp && onViewCp(row.cp)}
-                  >
-                    CP
-                  </Button>
+                  />
                 </div>
               </Table.Cell>
             </Table.Row>
@@ -161,48 +150,37 @@ function BcSourceTable({
 }
 
 export function BcTab({
+  periodType,
+  title,
   appliedFilters,
   isLoading,
   onViewSl,
   onViewCp,
 }: {
+  periodType: 'week' | 'month'
+  title: string
   appliedFilters: ReportFilters
   isLoading: boolean
   onViewSl: (row: SLRecord) => void
   onViewCp: (row: CPRecord) => void
 }) {
-  const weekRows = useMemo(
-    () => filterBcRowsForPeriodType(appliedFilters, 'week'),
-    [appliedFilters],
-  )
-  const monthRows = useMemo(
-    () => filterBcRowsForPeriodType(appliedFilters, 'month'),
-    [appliedFilters],
+  const rows = useMemo(
+    () => filterBcRowsForPeriodType(appliedFilters, periodType),
+    [appliedFilters, periodType],
   )
 
-  const caption = appliedFiltersCaption(appliedFilters)
+  const caption = appliedFiltersCaption(appliedFilters, {
+    showBcWeekMonth: periodType === 'week',
+  })
 
   return (
-    <div className="space-y-6">
-      
-
-      <BcSourceTable
-        title="BC tuần"
-        subtitle={`${caption}`}
-        rows={weekRows}
-        isLoading={isLoading}
-        onViewSl={onViewSl}
-        onViewCp={onViewCp}
-      />
-
-      <BcSourceTable
-        title="BC tháng"
-        subtitle={`${caption}`}
-        rows={monthRows}
-        isLoading={isLoading}
-        onViewSl={onViewSl}
-        onViewCp={onViewCp}
-      />
-    </div>
+    <BcSourceTable
+      title={title}
+      subtitle={caption}
+      rows={rows}
+      isLoading={isLoading}
+      onViewSl={onViewSl}
+      onViewCp={onViewCp}
+    />
   )
 }

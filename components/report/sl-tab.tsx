@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Button, EmptyState, Skeleton, Table } from '@heroui/react'
-import { Boxes, ClipboardList, Eye, Package, Percent, ShoppingBag, Truck, Users } from 'lucide-react'
+import { EmptyState, Skeleton, Table } from '@heroui/react'
+import { Boxes, ClipboardList, Package, Percent, ShoppingBag, Truck, Users } from 'lucide-react'
 import {
   appliedFiltersCaption,
   computeSLSummary,
@@ -23,8 +23,8 @@ import {
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
 } from './report-table-chrome'
-import { reportButtonClass } from './report-button-chrome'
 import { ReportDataTable } from './report-data-table'
+import { ReportTableViewAction } from './report-table-actions'
 import { MetricKpiStrip } from './metric-kpi-strip'
 import { ReportPaginationFooter } from './report-pagination-footer'
 import { ReportTablePanel } from './report-table-panel'
@@ -118,7 +118,7 @@ export function SLTab({
               <Table.Cell className={`${TABLE_COL_WIDE} font-medium text-gray-900`}>
                 {periodLabel(row)}
               </Table.Cell>
-              <Table.Cell className={`${TABLE_COL_WIDE} font-semibold text-gray-900`}>
+              <Table.Cell className={`${TABLE_COL_WIDE} font-medium text-gray-900`}>
                 {row.branch}
               </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.nsGiaoNhan)}</Table.Cell>
@@ -149,16 +149,7 @@ export function SLTab({
               </Table.Cell>
               <Table.Cell className={TABLE_COL_ACTION}>
                 <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    isIconOnly
-                    aria-label="Xem chi tiết"
-                    className={reportButtonClass('h-8 w-8 min-w-8 text-gray-600')}
-                    onPress={() => onViewDetail(row)}
-                  >
-                    <Eye className="size-4 shrink-0" strokeWidth={1.75} />
-                  </Button>
+                  <ReportTableViewAction onPress={() => onViewDetail(row)} />
                 </div>
               </Table.Cell>
             </Table.Row>

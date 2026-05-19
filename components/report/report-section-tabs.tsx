@@ -1,1 +1,1 @@
-export type ReportSectionTabId = 'overview' | 'bc' | 'sl' | 'cp'
+export type ReportSectionTabId = 'overview' | 'bcWeek' | 'bcMonth' | 'sl' | 'cp'

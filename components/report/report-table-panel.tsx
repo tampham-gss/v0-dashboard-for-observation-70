@@ -26,7 +26,7 @@ export function ReportTablePanel({
       style={{ boxShadow: 'none' }}
     >
       <div className="px-5 pt-4 pb-2 sm:px-6">
-        <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+        <h2 className="text-base font-medium text-gray-900">{title}</h2>
         {subtitle ? <p className="mt-1 text-sm text-gray-500">{subtitle}</p> : null}
       </div>
       <div className={cn('pb-3 sm:pb-4', REPORT_TABLE_CARD_INSET_X)}>

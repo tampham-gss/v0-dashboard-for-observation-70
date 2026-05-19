@@ -9,7 +9,8 @@ import type { ReportSectionTabId } from './report-section-tabs'
 
 const TABS: { id: ReportSectionTabId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'bc', label: 'BC tuần/tháng', icon: FileSpreadsheet },
+  { id: 'bcWeek', label: 'BC tuần', icon: FileSpreadsheet },
+  { id: 'bcMonth', label: 'BC tháng', icon: FileSpreadsheet },
   { id: 'sl', label: 'Sản lượng', icon: Package },
   { id: 'cp', label: 'Chi phí', icon: Receipt },
 ]
@@ -39,7 +40,7 @@ export function ReportSectionTabBar({
               variant={active ? 'primary' : 'ghost'}
               size="sm"
               className={reportButtonClass(
-                'min-h-5 min-w-[5.75rem] flex-1 gap-1.5 px-3.5 py-0 text-xs sm:min-w-[6.25rem] sm:flex-none',
+                'min-h-5 min-w-[5rem] flex-1 gap-1.5 px-2.5 py-0 text-xs sm:min-w-[5.5rem] sm:flex-none',
                 active &&
                   'border-blue-600 bg-blue-600 text-white shadow-none hover:bg-blue-700 data-[hover=true]:bg-blue-700',
                 !active && 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
