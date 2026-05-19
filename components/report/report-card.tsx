@@ -17,7 +17,7 @@ export const REPORT_CARD_CLASS =
 
 export type KpiStatTone = 'default' | 'primary' | 'success' | 'danger' | 'warning'
 
-const KPI_TONE_STYLES: Record<KpiStatTone, { icon: string; value: string }> = {
+export const KPI_TONE_STYLES: Record<KpiStatTone, { icon: string; value: string }> = {
   default: { icon: 'text-blue-500', value: 'text-gray-900' },
   primary: { icon: 'text-blue-500', value: 'text-gray-900' },
   success: { icon: 'text-green-600', value: 'text-green-600' },
@@ -63,6 +63,7 @@ export function KpiStatCard({
   valueSize = 'md',
   isLoading,
   compact = false,
+  className,
 }: {
   title: string
   value: string
@@ -74,6 +75,7 @@ export function KpiStatCard({
   valueSize?: 'md' | 'sm'
   isLoading?: boolean
   compact?: boolean
+  className?: string
 }) {
   const styles = KPI_TONE_STYLES[tone]
   const valueClass = cn(
@@ -113,6 +115,7 @@ export function KpiStatCard({
       valueClass={valueClass}
       iconClass={iconClass}
       compact={compact}
+      className={className}
     />
   )
 }

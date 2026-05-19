@@ -2,25 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { toast, useOverlayState } from '@heroui/react'
-import { ReportFilterPanel } from '@/components/report/report-filter-panel'
-import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
-import { ReportLayout } from '@/components/report/report-layout'
-import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
-import { ReportSectionTabBar } from '@/components/report/report-section-tab-bar'
-import { OverviewTab } from '@/components/report/overview-tab'
-import { SLTab } from '@/components/report/sl-tab'
-import { CPTab } from '@/components/report/cp-tab'
-import { EfficiencyTab } from '@/components/report/efficiency-tab'
-import { SLDetailModal } from '@/components/report/sl-detail-modal'
-import { CPDetailModal } from '@/components/report/cp-detail-modal'
-import { OperationalDetailModal } from '@/components/report/operational-detail-modal'
-import { ReportExportDialog } from '@/components/report/report-export-dialog'
-import {
-  filterOperationalRows,
-  getScopedData,
-  type EfficiencyRow,
-  type OperationalRow,
-} from '@/lib/report-dashboard-mock'
+import { getBcScopedData } from '@/lib/bc-report'
 import {
   DEFAULT_FILTERS,
   appliedFiltersCaption,
@@ -29,8 +11,19 @@ import {
   type SLRecord,
 } from '@/lib/report-mock-data'
 import { sanitizeFiltersForTab } from '@/lib/report-filter-config'
-
-const EFFICIENCY_CONFIGURED = true
+import { ReportFilterPanel } from '@/components/report/report-filter-panel'
+import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
+import { ReportLayout } from '@/components/report/report-layout'
+import { ReportNoticeBanner } from '@/components/report/report-notice-banner'
+import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
+import { ReportSectionTabBar } from '@/components/report/report-section-tab-bar'
+import { OverviewTab } from '@/components/report/overview-tab'
+import { SLTab } from '@/components/report/sl-tab'
+import { BcTab } from '@/components/report/bc-tab'
+import { CPTab } from '@/components/report/cp-tab'
+import { SLDetailModal } from '@/components/report/sl-detail-modal'
+import { CPDetailModal } from '@/components/report/cp-detail-modal'
+import { ReportExportDialog } from '@/components/report/report-export-dialog'
 
 export default function ReportPage() {
   const [draftFilters, setDraftFilters] = useState<ReportFilters>(DEFAULT_FILTERS)
@@ -39,15 +32,15 @@ export default function ReportPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [slDetail, setSlDetail] = useState<SLRecord | null>(null)
   const [cpDetail, setCpDetail] = useState<CPRecord | null>(null)
-  const [opDetail, setOpDetail] = useState<OperationalRow | null>(null)
 
   const slModalState = useOverlayState()
   const cpModalState = useOverlayState()
-  const opModalState = useOverlayState()
   const exportModalState = useOverlayState()
 
-  const { slRows, cpRows } = useMemo(() => getScopedData(appliedFilters), [appliedFilters])
-  const opRows = useMemo(() => filterOperationalRows(appliedFilters), [appliedFilters])
+  const { slRows, cpRows, sourceSheet } = useMemo(
+    () => getBcScopedData(appliedFilters),
+    [appliedFilters],
+  )
 
   const runLoading = (fn: () => void) => {
     setIsLoading(true)
@@ -68,7 +61,7 @@ export default function ReportPage() {
 
   const handleExportConfirm = (type: 'week' | 'month') => {
     toast.success(
-      `Đã mô phỏng xuất báo cáo ${type === 'week' ? 'tuần' : 'tháng'} (sheet SL + CP) theo bộ lọc.`,
+      `Đã mô phỏng xuất ${type === 'week' ? 'BC tuần' : 'BC tháng'} theo bộ lọc hiện tại.`,
     )
   }
 
@@ -82,18 +75,12 @@ export default function ReportPage() {
     cpModalState.open()
   }
 
-  const openOperationalDetail = (row: OperationalRow | EfficiencyRow) => {
-    const op = opRows.find((r) => r.id === row.id) ?? null
-    setOpDetail(op)
-    if (op) opModalState.open()
-  }
-
   const subtitle = appliedFiltersCaption(appliedFilters)
 
   return (
     <ReportLayout>
       <ReportPageHeader
-        title="Quan sát sản lượng, doanh thu, hiệu quả"
+        title="Báo cáo sản lượng & chi phí kiểm đếm"
         subtitle={subtitle}
         actions={
           <ReportHeaderActions
@@ -102,6 +89,7 @@ export default function ReportPage() {
           />
         }
       />
+
 
       <ReportSectionTabBar
         value={activeTab}
@@ -127,49 +115,41 @@ export default function ReportPage() {
         <OverviewTab
           slRows={slRows}
           cpRows={cpRows}
-          opRows={opRows}
-          isLoading={isLoading}
+          sourceSheet={sourceSheet}
           appliedFilters={appliedFilters}
-          canViewFinancial
-          efficiencyConfigured={EFFICIENCY_CONFIGURED}
+          isLoading={isLoading}
+        />
+      )}
+      {activeTab === 'bc' && (
+        <BcTab
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+          onViewSl={openSLDetail}
+          onViewCp={openCPDetail}
         />
       )}
       {activeTab === 'sl' && (
         <SLTab
           rows={slRows}
-          opRows={opRows}
+          sourceSheet={sourceSheet}
           appliedFilters={appliedFilters}
           isLoading={isLoading}
           onViewDetail={openSLDetail}
-          onViewOperational={openOperationalDetail}
         />
       )}
       {activeTab === 'cp' && (
         <CPTab
           rows={cpRows}
           slRows={slRows}
-          opRows={opRows}
+          sourceSheet={sourceSheet}
           appliedFilters={appliedFilters}
           isLoading={isLoading}
-          canViewFinancial
           onViewDetail={openCPDetail}
-          onViewOperational={openOperationalDetail}
-        />
-      )}
-      {activeTab === 'efficiency' && (
-        <EfficiencyTab
-          opRows={opRows}
-          appliedFilters={appliedFilters}
-          isLoading={isLoading}
-          canViewFinancial
-          efficiencyConfigured={EFFICIENCY_CONFIGURED}
-          onViewDetail={openOperationalDetail}
         />
       )}
 
       <SLDetailModal state={slModalState} record={slDetail} />
       <CPDetailModal state={cpModalState} record={cpDetail} />
-      <OperationalDetailModal state={opModalState} row={opDetail} />
       <ReportExportDialog
         state={exportModalState}
         filters={appliedFilters}

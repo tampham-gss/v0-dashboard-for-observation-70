@@ -1,1 +1,1 @@
-export type ReportSectionTabId = 'overview' | 'sl' | 'cp' | 'efficiency'
+export type ReportSectionTabId = 'overview' | 'bc' | 'sl' | 'cp'

@@ -17,6 +17,53 @@ export const KPI_CARD_INNER_CLASS = `${KPI_CARD_INNER_X} ${KPI_CARD_INNER_Y}`
 
 export const KPI_CARD_INNER_COMPACT_CLASS = `${KPI_CARD_INNER_X} ${KPI_CARD_INNER_Y_COMPACT}`
 
+/** Một dòng KPI trong widget — không bọc card (dạng list). */
+export function KpiMetricListRow({
+  label,
+  value,
+  icon: Icon,
+  valueClass = 'text-gray-900',
+  iconClass = 'text-blue-500',
+  valueSize = 'md',
+  sub,
+  className,
+}: {
+  label: string
+  value: string | number
+  icon: ElementType
+  valueClass?: string
+  iconClass?: string
+  valueSize?: 'md' | 'sm'
+  sub?: string
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        'grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-0.5 py-2',
+        className,
+      )}
+    >
+      <Icon className={cn('h-5 w-5 shrink-0 stroke-[1.75]', iconClass)} aria-hidden />
+      <div className="min-w-0">
+        <p className="truncate text-sm leading-snug text-gray-700">{label}</p>
+        {sub ? (
+          <p className="truncate text-[11px] leading-snug text-gray-500">{sub}</p>
+        ) : null}
+      </div>
+      <p
+        className={cn(
+          'shrink-0 text-right font-bold leading-none tabular-nums whitespace-nowrap',
+          valueSize === 'sm' ? 'text-base' : 'text-lg',
+          valueClass,
+        )}
+      >
+        {value}
+      </p>
+    </div>
+  )
+}
+
 /** KPI tile — style tham chiếu MasterData (HeroUI Card + body compact). */
 export function MasterDataKpiCard({
   label,

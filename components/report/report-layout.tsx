@@ -10,7 +10,7 @@ export function ReportLayout({ children }: { children: ReactNode }) {
         <nav className="space-y-1 p-3" aria-label="Điều hướng báo cáo">
           <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-gray-500">Báo cáo</p>
           <div className="rounded-lg bg-blue-50 px-3 py-2.5 text-sm font-medium text-blue-600">
-            Quan sát Sản lượng · Doanh Thu · Chi Phí
+            Sản lượng &amp; Chi phí
           </div>
         </nav>
       </aside>

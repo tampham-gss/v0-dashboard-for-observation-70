@@ -24,10 +24,7 @@ export function ReportExportDialog({
               <Modal.CloseTrigger />
             </Modal.Header>
             <Modal.Body className="space-y-3 text-sm text-gray-700">
-              <p>
-                File gồm 2 sheet <strong>SL</strong> và <strong>CP</strong> theo bộ lọc hiện tại (mô
-                phỏng prototype).
-              </p>
+        
               <p className="rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-600">
                 {appliedFiltersCaption(filters)}
               </p>

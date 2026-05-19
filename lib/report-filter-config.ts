@@ -2,16 +2,12 @@ import type { ReportSectionTabId } from '@/components/report/report-section-tabs
 import type { CPStatus, FilterStatus, ReportFilters, SLStatus } from './report-mock-data'
 
 export type FilterFieldKey =
-  | 'dateFrom'
-  | 'dateTo'
   | 'periodType'
   | 'year'
   | 'periodValue'
+  | 'week'
+  | 'month'
   | 'branch'
-  | 'warehouse'
-  | 'route'
-  | 'staff'
-  | 'opsCs'
   | 'status'
   | 'keyword'
 
@@ -24,40 +20,41 @@ const CP_STATUSES: CPStatus[] = [
   'Thiếu dữ liệu',
 ]
 
-export type EfficiencyFilterStatus = 'has_revenue' | 'no_revenue' | 'anomaly'
+const OVERVIEW_STATUSES: FilterStatus[] = [
+  'all',
+  ...SL_STATUSES,
+  ...CP_STATUSES,
+]
 
-/** Bộ lọc mặc định: kỳ, khu vực, kho, tuyến, nhân sự giao nhận, trạng thái, CS/OPS phụ trách. */
+/** Bộ lọc bám Excel BC: kỳ, chi nhánh, trạng thái, từ khóa. */
 export const DEFAULT_FILTER_FIELD_KEYS: FilterFieldKey[] = [
   'periodType',
   'year',
   'periodValue',
   'branch',
-  'warehouse',
-  'route',
-  'staff',
   'status',
-  'opsCs',
+  'keyword',
 ]
 
 const TAB_FIELDS: Record<ReportSectionTabId, FilterFieldKey[]> = {
   overview: DEFAULT_FILTER_FIELD_KEYS,
+  bc: ['year', 'week', 'month', 'branch', 'status', 'keyword'],
   sl: DEFAULT_FILTER_FIELD_KEYS,
   cp: DEFAULT_FILTER_FIELD_KEYS,
-  efficiency: DEFAULT_FILTER_FIELD_KEYS,
 }
 
 const TAB_LABELS: Record<ReportSectionTabId, string> = {
   overview: 'Tổng quan',
+  bc: 'BC tuần/tháng',
   sl: 'Sản lượng',
   cp: 'Chi phí',
-  efficiency: 'Hiệu quả',
 }
 
 const TAB_SEARCH_PLACEHOLDER: Record<ReportSectionTabId, string> = {
-  overview: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
-  sl: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
-  cp: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
-  efficiency: 'Kỳ, khu vực, kho, tuyến, nhân sự giao nhận…',
+  overview: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
+  bc: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
+  sl: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
+  cp: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
 }
 
 export function getFilterFieldsForTab(tab: ReportSectionTabId): FilterFieldKey[] {
@@ -81,14 +78,11 @@ export function getStatusOptionsForTab(
       return [all, ...SL_STATUSES.map((s) => ({ id: s, label: s }))]
     case 'cp':
       return [all, ...CP_STATUSES.map((s) => ({ id: s, label: s }))]
-    case 'efficiency':
     case 'overview':
-      return [
-        all,
-        { id: 'has_revenue' as FilterStatus, label: 'Có doanh thu' },
-        { id: 'no_revenue' as FilterStatus, label: 'Chưa có doanh thu' },
-        { id: 'anomaly' as FilterStatus, label: 'Dữ liệu bất thường' },
-      ]
+    case 'bc':
+      return OVERVIEW_STATUSES.map((id) =>
+        id === 'all' ? all : { id, label: id },
+      )
     default:
       return []
   }
@@ -102,16 +96,6 @@ export function isCpStatus(status: FilterStatus): status is CPStatus {
   return status === 'all' || CP_STATUSES.includes(status as CPStatus)
 }
 
-export function isOperationalFilterStatus(
-  status: FilterStatus,
-): status is EfficiencyFilterStatus | 'all' {
-  return status === 'all' || status === 'has_revenue' || status === 'no_revenue' || status === 'anomaly'
-}
-
-export function isEfficiencyStatus(status: FilterStatus): status is EfficiencyFilterStatus | 'all' {
-  return isOperationalFilterStatus(status)
-}
-
 export function sanitizeFiltersForTab(filters: ReportFilters, tab: ReportSectionTabId): ReportFilters {
   const resetStatus = { ...filters, status: 'all' as FilterStatus }
 
@@ -122,9 +106,9 @@ export function sanitizeFiltersForTab(filters: ReportFilters, tab: ReportSection
     return resetStatus
   }
   if (
-    (tab === 'efficiency' || tab === 'overview') &&
+    (tab === 'overview' || tab === 'bc') &&
     filters.status !== 'all' &&
-    !isOperationalFilterStatus(filters.status)
+    !OVERVIEW_STATUSES.includes(filters.status)
   ) {
     return resetStatus
   }

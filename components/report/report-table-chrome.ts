@@ -2,7 +2,14 @@
 export const REPORT_TABLE_PANEL_CLASS =
   'report-table-panel min-w-0 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-none ring-0'
 
-/** Bảng báo cáo HeroUI — full width, sát mép card, nền trắng */
+/** Lùi bảng 16px so với mép trái/phải card */
+export const REPORT_TABLE_CARD_INSET_X = 'px-4'
+
+/** Viền bao quanh bảng */
+export const REPORT_TABLE_BORDER_CLASS =
+  'overflow-hidden rounded-md border border-gray-200 bg-white'
+
+/** Bảng báo cáo HeroUI — full width, nền trắng */
 export const REPORT_TABLE_SHELL_CLASS = [
   '!shadow-none [&_*]:!shadow-none [&_*]:shadow-none',
   '[&_.table-root]:!m-0 [&_.table-root]:!rounded-none [&_.table-root]:!border-0 [&_.table-root]:!bg-white [&_.table-root]:!p-0 [&_.table-root]:!shadow-none [&_.table-root]:!ring-0',
@@ -17,14 +24,14 @@ export const REPORT_TABLE_SHELL_CLASS = [
   '[&_[data-slot=table-cell]]:!text-sm [&_[data-slot=table-cell]]:!text-gray-900 [&_[data-slot=table-cell]]:!px-4 [&_[data-slot=table-cell]]:!py-2.5 [&_[data-slot=table-cell]]:!align-middle',
   '[& tbody tr]:border-b [& tbody tr]:border-gray-100',
   '[& tbody tr:last-child]:border-b-0',
-  '[&_table]:!w-full [&_table]:!min-w-full [&_table]:!table-fixed [&_table]:!bg-white [&_table]:border-0 [&_table]:border-collapse',
+  '[&_table]:!w-max [&_table]:!min-w-full [&_table]:!table-auto [&_table]:!bg-white [&_table]:border-0 [&_table]:border-collapse',
   '[&_tbody]:!bg-white',
 ].join(' ')
 
 export const REPORT_TABLE_ROOT_CLASS = 'h-fit min-h-0 max-h-none w-full'
 
 export const REPORT_TABLE_SCROLL_CLASS =
-  'w-full min-w-0 overflow-x-auto rounded-none border-0 bg-white !shadow-none ring-0'
+  'w-full min-w-0 overflow-x-auto bg-white !shadow-none ring-0'
 
 /** HeroUI Table: bắt buộc có ít nhất một cột `isRowHeader` trong Table.Header */
 export const TABLE_ROW_HEADER_PROP = { isRowHeader: true as const }
@@ -33,14 +40,22 @@ export const TABLE_ROW_HEADER_PROP = { isRowHeader: true as const }
 export const TABLE_TEXT_COL = 'whitespace-nowrap text-left'
 
 /** Cột chữ rộng hơn (kỳ, chi nhánh, tên) */
-export const TABLE_COL_WIDE = `${TABLE_TEXT_COL} w-[11%] min-w-[6.5rem]`
+export const TABLE_COL_WIDE = `${TABLE_TEXT_COL} min-w-[6.5rem]`
 
 /** Cột số căn phải */
-export const TABLE_NUM_COL = 'whitespace-nowrap text-end tabular-nums'
+const TABLE_NUM_COL_BASE = 'whitespace-nowrap text-end tabular-nums'
+
+export const TABLE_NUM_COL = `${TABLE_NUM_COL_BASE} min-w-[5.25rem]`
+
+/** Cột số có tiêu đề dài (CP, SL) */
+export const TABLE_NUM_COL_WIDE = `${TABLE_NUM_COL_BASE} min-w-[7.75rem]`
 
 /** Cột căn giữa (badge, thao tác) */
 export const TABLE_CENTER_COL = 'whitespace-nowrap text-center'
 
-export const TABLE_COL_STATUS = `${TABLE_CENTER_COL} w-[9%] min-w-[7.5rem]`
+export const TABLE_COL_STATUS = `${TABLE_CENTER_COL} min-w-[7.5rem]`
 
-export const TABLE_COL_ACTION = `${TABLE_CENTER_COL} w-[4.5rem] min-w-[4.5rem]`
+export const TABLE_COL_ACTION = `${TABLE_CENTER_COL} min-w-[4.5rem]`
+
+/** Bảng CP: 13 cột, tiêu đề dài — cần scroll ngang */
+export const REPORT_TABLE_MIN_WIDTH_CP = 'min-w-[88rem]'

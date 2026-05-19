@@ -79,7 +79,7 @@ export function KPICards({
           {
             title: 'Cảnh báo dữ liệu',
             value: 'Cần kiểm tra',
-            description: 'Có bản ghi doanh thu/chi phí âm theo quy tắc AMR',
+            description: 'Có bản ghi doanh thu/chi phí âm theo quy tắc',
             icon: AlertCircle,
             tone: 'danger' as const,
           },

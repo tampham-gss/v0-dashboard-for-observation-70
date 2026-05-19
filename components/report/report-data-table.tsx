@@ -4,6 +4,7 @@ import { Table } from '@heroui/react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import {
+  REPORT_TABLE_BORDER_CLASS,
   REPORT_TABLE_ROOT_CLASS,
   REPORT_TABLE_SCROLL_CLASS,
   REPORT_TABLE_SHELL_CLASS,
@@ -13,10 +14,13 @@ export function ReportDataTable({
   'aria-label': ariaLabel,
   children,
   className,
+  framed = true,
 }: {
   'aria-label': string
   children: ReactNode
   className?: string
+  /** false khi bảng nằm trong ReportTablePanel (panel đã có viền) */
+  framed?: boolean
 }) {
   return (
     <Table
@@ -28,7 +32,13 @@ export function ReportDataTable({
       )}
       style={{ boxShadow: 'none' }}
     >
-      <Table.ScrollContainer className={REPORT_TABLE_SCROLL_CLASS}>
+      <Table.ScrollContainer
+        className={cn(
+          REPORT_TABLE_SCROLL_CLASS,
+          framed && REPORT_TABLE_BORDER_CLASS,
+          !framed && 'rounded-none border-0',
+        )}
+      >
         <Table.Content aria-label={ariaLabel} className="w-full">
           {children}
         </Table.Content>

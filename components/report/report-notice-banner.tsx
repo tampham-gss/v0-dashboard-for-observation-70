@@ -1,8 +1,9 @@
 'use client'
 
 import { Info } from 'lucide-react'
+import type { BcSourceSheet } from '@/lib/bc-report'
 
-export function ReportNoticeBanner() {
+export function ReportNoticeBanner({ sourceSheet }: { sourceSheet: BcSourceSheet }) {
   return (
     <div
       role="note"
@@ -10,12 +11,9 @@ export function ReportNoticeBanner() {
     >
       <Info className="mt-0.5 size-5 shrink-0 text-blue-600" aria-hidden />
       <div className="min-w-0 space-y-1">
-        <p className="font-medium">STT 70 — Quan sát sản lượng, doanh thu, hiệu quả</p>
-        <p className="leading-relaxed text-blue-800/90">
-          Không phân tích theo Khách hàng và Hub theo yêu cầu khách hàng. Layout tham chiếu BC
-          Tuần / BC Tháng (Excel); dữ liệu demo trên dashboard, không dùng Excel làm nguồn import.
-        </p>
+       
       </div>
     </div>
   )
 }
+  

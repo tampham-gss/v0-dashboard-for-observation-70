@@ -2,16 +2,16 @@
 
 import { Button } from '@heroui/react'
 import { ReportSurfaceCard } from './report-card'
-import { Gauge, LayoutDashboard, Package, Receipt } from 'lucide-react'
+import { FileSpreadsheet, LayoutDashboard, Package, Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { reportButtonClass } from './report-button-chrome'
 import type { ReportSectionTabId } from './report-section-tabs'
 
 const TABS: { id: ReportSectionTabId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
+  { id: 'bc', label: 'BC tuần/tháng', icon: FileSpreadsheet },
   { id: 'sl', label: 'Sản lượng', icon: Package },
   { id: 'cp', label: 'Chi phí', icon: Receipt },
-  { id: 'efficiency', label: 'Hiệu quả', icon: Gauge },
 ]
 
 export function ReportSectionTabBar({
