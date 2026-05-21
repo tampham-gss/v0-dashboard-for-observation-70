@@ -12,6 +12,7 @@ import {
   type PeriodType,
   type ReportFilters,
 } from '@/lib/report-mock-data'
+import { FilterMonthPicker, FilterYearPicker } from './filter-period-pickers'
 import {
   getFilterFieldsForTab,
   getFilterPanelTitle,
@@ -31,7 +32,9 @@ const PERIOD_OPTIONS: { id: PeriodType; label: string }[] = [
   { id: 'month', label: 'Tháng' },
 ]
 
-const YEAR_OPTIONS = YEARS.map((y) => ({ id: String(y), label: String(y) }))
+const MIN_YEAR = YEARS[0]!
+const MAX_YEAR = YEARS[YEARS.length - 1]!
+
 const BRANCH_OPTIONS: { id: BranchCode | 'all'; label: string }[] = [
   { id: 'all', label: 'Tất cả' },
   ...BRANCHES.map((b) => ({ id: b, label: b })),
@@ -67,10 +70,7 @@ export function ReportFilterPanel({
     return weeks.map((w) => ({ id: w, label: w }))
   }, [activeTab, filters.year, filters.month])
 
-  const monthOptions = useMemo(
-    () => monthsForYear(filters.year).map((m) => ({ id: m, label: m })),
-    [filters.year],
-  )
+  const monthLabels = useMemo(() => monthsForYear(filters.year), [filters.year])
 
   const periodWeekOptions = useMemo(
     () => WEEKS.filter((w) => w.endsWith(`/${String(filters.year).slice(-2)}`)).map((w) => ({ id: w, label: w })),
@@ -107,11 +107,12 @@ export function ReportFilterPanel({
           )}
           {has('year') && (
             <FilterField label="Năm">
-              <FilterSelect
+              <FilterYearPicker
                 label="Năm"
-                value={String(filters.year)}
-                options={YEAR_OPTIONS}
-                onChange={handleYearChange}
+                value={filters.year}
+                minYear={MIN_YEAR}
+                maxYear={MAX_YEAR}
+                onChange={(year) => handleYearChange(String(year))}
               />
             </FilterField>
           )}
@@ -127,20 +128,20 @@ export function ReportFilterPanel({
               </FilterField>
             ) : (
               <FilterField label="Tháng">
-                <FilterSelect
+                <FilterMonthPicker
                   label="Tháng"
                   value={filters.month}
-                  options={periodMonthOptions}
+                  months={periodMonthOptions.map((o) => o.id)}
                   onChange={(v) => patch({ month: v })}
                 />
               </FilterField>
             ))}
           {has('month') && (
             <FilterField label="Tháng">
-              <FilterSelect
+              <FilterMonthPicker
                 label="Tháng"
                 value={filters.month}
-                options={monthOptions}
+                months={monthLabels}
                 onChange={(v) =>
                   patch(
                     activeTab === 'bcWeek'

@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import {
   Boxes,
   ClipboardList,
@@ -9,36 +10,65 @@ import {
   Package,
   Percent,
 } from 'lucide-react'
+import { toast } from '@heroui/react'
 import {
   appliedFiltersCaption,
   computeOverviewSummary,
+  cpRecords,
   formatCurrency,
   formatNumber,
   formatPercent,
+  slRecords,
   TARGET_CP_PER_CONT,
+  type BranchCode,
   type CPRecord,
   type ReportFilters,
   type SLRecord,
 } from '@/lib/report-mock-data'
 import type { BcSourceSheet } from '@/lib/bc-report'
+import {
+  buildBranchCompare,
+  buildBranchRanking,
+  buildTrendSeries,
+} from '@/lib/report-overview-analytics'
+import { buildInspectionOrdersForScope } from '@/lib/report-inspection-orders'
 import { REPORT_CARD_CLASS } from './report-card'
 import { SummaryCardGrid } from './summary-card-grid'
+import { ReportTrendSection } from './report-trend-section'
+import { ReportBranchRanking } from './report-branch-ranking'
+import { ReportSlEfficiencyCompare } from './report-sl-efficiency-compare'
+import { ReportInspectionOrdersTable } from './report-inspection-orders-table'
 import { cn } from '@/lib/utils'
 
 export function OverviewTab({
   slRows,
   cpRows,
-  sourceSheet,
   appliedFilters,
   isLoading,
 }: {
   slRows: SLRecord[]
   cpRows: CPRecord[]
-  sourceSheet: BcSourceSheet
+  sourceSheet?: BcSourceSheet
   appliedFilters: ReportFilters
   isLoading: boolean
 }) {
+  const [selectedBranch, setSelectedBranch] = useState<BranchCode | null>(null)
+
   const summary = computeOverviewSummary(slRows, cpRows)
+
+  const trendData = useMemo(
+    () => buildTrendSeries(appliedFilters, slRecords, cpRecords),
+    [appliedFilters],
+  )
+
+  const ranking = useMemo(() => buildBranchRanking(slRows, cpRows), [slRows, cpRows])
+
+  const compareData = useMemo(() => buildBranchCompare(slRows, cpRows), [slRows, cpRows])
+
+  const orders = useMemo(
+    () => buildInspectionOrdersForScope(appliedFilters, slRows, cpRows),
+    [appliedFilters, slRows, cpRows],
+  )
 
   const cards = [
     {
@@ -101,12 +131,28 @@ export function OverviewTab({
 
   return (
     <div className="space-y-5">
-  
-
       <SummaryCardGrid
         items={cards}
         isLoading={isLoading}
         columns="sm:grid-cols-2 lg:grid-cols-4"
+      />
+
+      <ReportTrendSection filters={appliedFilters} data={trendData} isLoading={isLoading} />
+
+      <div className="grid min-w-0 grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
+        <ReportBranchRanking
+          rows={ranking}
+          isLoading={isLoading}
+          selectedBranch={selectedBranch}
+          onSelectBranch={setSelectedBranch}
+        />
+        <ReportSlEfficiencyCompare data={compareData} isLoading={isLoading} />
+      </div>
+
+      <ReportInspectionOrdersTable
+        orders={orders}
+        isLoading={isLoading}
+        branchFilter={selectedBranch}
       />
 
       <div
@@ -115,7 +161,7 @@ export function OverviewTab({
       >
         <p className="text-sm leading-relaxed text-gray-600">
           Doanh thu và hiệu quả chưa được tính do chưa có nguồn doanh thu chính thức hoặc công thức
-         phê duyệt. Hệ thống không tự tính các chỉ tiêu này.
+          phê duyệt. Hệ thống không tự tính các chỉ tiêu này.
         </p>
         <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">
           Phạm vi đang xem · {appliedFiltersCaption(appliedFilters)}

@@ -129,6 +129,7 @@ export function ReportSectionCard({
   action,
   isLoading,
   bodyClassName,
+  fillHeight,
 }: {
   title: string
   description?: string
@@ -136,17 +137,25 @@ export function ReportSectionCard({
   action?: ReactNode
   isLoading?: boolean
   bodyClassName?: string
+  /** Căn full chiều cao ô lưới (vd. cạnh biểu đồ 300px). */
+  fillHeight?: boolean
 }) {
   return (
-    <Card className={REPORT_CARD_CLASS}>
-      <div className="flex flex-col gap-0.5 px-5 pt-2 pb-0 sm:flex-row sm:items-start sm:justify-between">
+    <Card className={cn(REPORT_CARD_CLASS, fillHeight && 'flex h-full flex-col')}>
+      <div className="flex shrink-0 flex-col gap-0.5 px-5 pt-2 pb-0 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h3 className="text-base font-medium leading-tight text-gray-900">{title}</h3>
           {description ? <p className="mt-0.5 text-sm leading-snug text-gray-500">{description}</p> : null}
         </div>
         {action}
       </div>
-      <div className={cn('px-5 pb-2 pt-1 sm:pb-2.5', bodyClassName)}>
+      <div
+        className={cn(
+          'px-5 pt-1',
+          fillHeight ? 'flex min-h-0 flex-1 flex-col pb-2' : 'pb-2 sm:pb-2.5',
+          bodyClassName,
+        )}
+      >
         {isLoading ? <Skeleton className="h-[280px] w-full rounded-lg" /> : children}
       </div>
     </Card>

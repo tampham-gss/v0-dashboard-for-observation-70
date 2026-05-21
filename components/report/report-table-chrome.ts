@@ -30,6 +30,12 @@ export const REPORT_TABLE_SHELL_CLASS = [
 
 export const REPORT_TABLE_ROOT_CLASS = 'h-fit min-h-0 max-h-none w-full'
 
+/** Bảng ít dòng — tăng padding ô để lấp chiều cao card cạnh biểu đồ. */
+export const REPORT_TABLE_TALL_ROWS_CLASS = [
+  '[&_[data-slot=table-cell]]:!py-4 [&_[data-slot=table-column]]:!py-3',
+  '[&_[data-slot=table-header]]:!py-3',
+].join(' ')
+
 export const REPORT_TABLE_SCROLL_CLASS =
   'w-full min-w-0 overflow-x-auto bg-white !shadow-none ring-0'
 
