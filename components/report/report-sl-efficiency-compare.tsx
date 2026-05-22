@@ -12,12 +12,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { REPORT_CHART_MARGIN, formatChartLabelShort } from '@/lib/report-chart-format'
 import {
   TARGET_CP_PER_CONT,
   formatCurrency,
   formatNumber,
 } from '@/lib/report-mock-data'
 import type { BranchComparePoint } from '@/lib/report-overview-analytics'
+import { chartBarTopLabel } from './report-chart-labels'
 import { ReportSectionCard } from './report-card'
 
 export function ReportSlEfficiencyCompare({
@@ -40,7 +42,6 @@ export function ReportSlEfficiencyCompare({
       title="So sánh sản lượng và hiệu quả"
       description="Phát hiện chi nhánh SL cao nhưng CP TB/Cont vượt định mức (proxy hiệu quả giai đoạn 1)"
       isLoading={isLoading}
-      fillHeight
       bodyClassName="pb-3"
     >
       {data.length === 0 ? (
@@ -61,21 +62,21 @@ export function ReportSlEfficiencyCompare({
             </ReportInlineNotice>
           )}
 
-          <div className="h-[300px] w-full">
+          <div className="report-chart-host h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+              <BarChart data={chartData} margin={REPORT_CHART_MARGIN} barCategoryGap="20%">
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="branch" tick={{ fill: '#6b7280', fontSize: 12 }} />
                 <YAxis
                   yAxisId="sl"
                   tick={{ fill: '#6b7280', fontSize: 11 }}
-                  tickFormatter={(v) => formatNumber(v)}
+                  tickFormatter={(v) => formatChartLabelShort(v)}
                 />
                 <YAxis
                   yAxisId="cp"
                   orientation="right"
                   tick={{ fill: '#6b7280', fontSize: 11 }}
-                  tickFormatter={(v) => `${Math.round(v / 1000)}k`}
+                  tickFormatter={(v) => formatChartLabelShort(v)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -88,13 +89,15 @@ export function ReportSlEfficiencyCompare({
                     return [formatCurrency(value), 'CP TB/Cont']
                   }}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12, color: '#374151' }} />
                 <Bar
                   yAxisId="sl"
                   dataKey="slContTH"
                   name="SL cont TH"
                   fill="#3b82f6"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
+                  label={chartBarTopLabel()}
                 />
                 <Bar
                   yAxisId="cp"
@@ -102,6 +105,8 @@ export function ReportSlEfficiencyCompare({
                   name="CP TB/Cont"
                   fill="#f59e0b"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
+                  label={chartBarTopLabel()}
                 />
               </BarChart>
             </ResponsiveContainer>

@@ -1,7 +1,7 @@
 import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
 import {
-  bcWeekOptionsForMonth,
   monthsForYear,
+  weeksForYear,
   type CPStatus,
   type FilterStatus,
   type ReportFilters,
@@ -11,12 +11,29 @@ import {
 export type FilterFieldKey =
   | 'periodType'
   | 'year'
-  | 'periodValue'
   | 'week'
   | 'month'
   | 'branch'
+  | 'warehouse'
+  | 'route'
+  | 'staff'
+  | 'opsCs'
   | 'status'
   | 'keyword'
+
+/** Kỳ, khu vực, kho, tuyến, giao nhận, CS/OPS (không Hub / Khách hàng). */
+const REPORT_MAIN_FILTER_FIELD_KEYS: FilterFieldKey[] = [
+  'periodType',
+  'year',
+  'week',
+  'month',
+  'branch',
+  'warehouse',
+  'route',
+  'staff',
+  'opsCs',
+  'status',
+]
 
 const SL_STATUSES: SLStatus[] = ['Đạt kế hoạch', 'Gần đạt', 'Chưa đạt', 'Cần kiểm tra']
 const CP_STATUSES: CPStatus[] = [
@@ -33,22 +50,20 @@ const OVERVIEW_STATUSES: FilterStatus[] = [
   ...CP_STATUSES,
 ]
 
-/** Bộ lọc bám Excel BC: kỳ, chi nhánh, trạng thái, từ khóa. */
-export const DEFAULT_FILTER_FIELD_KEYS: FilterFieldKey[] = [
-  'periodType',
+/** Bộ lọc BC tuần/tháng: kỳ theo tháng, chi nhánh, trạng thái. */
+const BC_TAB_FILTER_FIELD_KEYS: FilterFieldKey[] = [
   'year',
-  'periodValue',
+  'month',
   'branch',
   'status',
-  'keyword',
 ]
 
 const TAB_FIELDS: Record<ReportSectionTabId, FilterFieldKey[]> = {
-  overview: DEFAULT_FILTER_FIELD_KEYS,
-  bcWeek: ['year', 'month', 'week', 'branch', 'status', 'keyword'],
-  bcMonth: ['year', 'month', 'branch', 'status', 'keyword'],
-  sl: DEFAULT_FILTER_FIELD_KEYS,
-  cp: DEFAULT_FILTER_FIELD_KEYS,
+  overview: REPORT_MAIN_FILTER_FIELD_KEYS,
+  bcWeek: BC_TAB_FILTER_FIELD_KEYS,
+  bcMonth: BC_TAB_FILTER_FIELD_KEYS,
+  sl: REPORT_MAIN_FILTER_FIELD_KEYS,
+  cp: REPORT_MAIN_FILTER_FIELD_KEYS,
 }
 
 const TAB_LABELS: Record<ReportSectionTabId, string> = {
@@ -61,7 +76,7 @@ const TAB_LABELS: Record<ReportSectionTabId, string> = {
 
 const TAB_SEARCH_PLACEHOLDER: Record<ReportSectionTabId, string> = {
   overview: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
-  bcWeek: 'Tìm theo tháng, tuần hoặc chi nhánh…',
+  bcWeek: 'Tìm theo tháng hoặc chi nhánh…',
   bcMonth: 'Tìm theo tháng hoặc chi nhánh…',
   sl: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
   cp: 'Tìm theo kỳ báo cáo hoặc chi nhánh…',
@@ -134,15 +149,23 @@ export function syncFiltersForTab(filters: ReportFilters, tab: ReportSectionTabI
   if (tab === 'bcWeek') {
     const months = monthsForYear(next.year)
     const month = months.includes(next.month) ? next.month : (months[0] ?? next.month)
-    const weeks = bcWeekOptionsForMonth(next.year, month)
-    const week = weeks.includes(next.week) ? next.week : (weeks[0] ?? next.week)
-    next = { ...next, periodType: 'week', month, week }
+    next = { ...next, periodType: 'week', month, bcWeekByMonth: true }
   }
 
   if (tab === 'bcMonth') {
     const months = monthsForYear(next.year)
     const month = months.includes(next.month) ? next.month : (months[0] ?? next.month)
-    next = { ...next, periodType: 'month', month }
+    next = { ...next, periodType: 'month', month, bcWeekByMonth: false }
+  }
+
+  if (tab === 'overview' || tab === 'sl' || tab === 'cp') {
+    const months = monthsForYear(next.year)
+    const month = months.includes(next.month) ? next.month : (months[0] ?? next.month)
+    next = {
+      ...next,
+      month,
+      bcWeekByMonth: next.periodType === 'week',
+    }
   }
 
   return next
@@ -158,32 +181,26 @@ export function patchYearForBcTab(
 
   if (tab === 'bcWeek') {
     const months = monthsForYear(year)
-    const month = months.includes(filters.month) ? filters.month : (months[0] ?? filters.month)
-    patch.month = month
-    const weeks = bcWeekOptionsForMonth(year, month)
-    if (!weeks.includes(filters.week)) {
-      patch.week = weeks[0] ?? filters.week
-    }
+    patch.month = months.includes(filters.month) ? filters.month : (months[0] ?? filters.month)
+    patch.bcWeekByMonth = true
   }
 
-  if (tab === 'bcMonth') {
+  if (tab === 'bcMonth' || tab === 'overview' || tab === 'sl' || tab === 'cp') {
     const months = monthsForYear(year)
     if (!months.includes(filters.month)) {
       patch.month = months[0] ?? filters.month
     }
   }
 
+  if ((tab === 'overview' || tab === 'sl' || tab === 'cp') && filters.periodType === 'week') {
+    const weeks = weeksForYear(year)
+    patch.week = weeks.includes(filters.week) ? filters.week : (weeks[0] ?? filters.week)
+  }
+
   return patch
 }
 
-/** Khi đổi tháng trên tab BC tuần — giữ tuần trong 4 tuần của tháng. */
-export function patchMonthForBcWeek(
-  filters: ReportFilters,
-  month: string,
-): Partial<ReportFilters> {
-  const weeks = bcWeekOptionsForMonth(filters.year, month)
-  return {
-    month,
-    week: weeks.includes(filters.week) ? filters.week : (weeks[0] ?? filters.week),
-  }
+/** Khi đổi tháng trên tab BC tuần. */
+export function patchMonthForBcWeek(month: string): Partial<ReportFilters> {
+  return { month }
 }

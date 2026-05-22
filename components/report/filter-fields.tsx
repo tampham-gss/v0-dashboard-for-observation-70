@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Input, Label, SearchField } from '@heroui/react'
+import { formatAppDate, toIsoDateString } from '@/lib/date-format'
 import { cn } from '@/lib/utils'
 import { FILTER_CONTROL_TRIGGER_CLASS } from './filter-select'
 
@@ -30,22 +32,45 @@ export function FilterDateInput({
   onChange,
 }: {
   label: string
+  /** Giá trị lưu `yyyy-MM-dd`. */
   value: string
   onChange: (value: string) => void
 }) {
+  const [text, setText] = useState(() => formatAppDate(value))
+
+  useEffect(() => {
+    setText(formatAppDate(value))
+  }, [value])
+
+  const commit = () => {
+    const iso = toIsoDateString(text)
+    if (iso) {
+      onChange(iso)
+      setText(formatAppDate(iso))
+      return
+    }
+    setText(formatAppDate(value))
+  }
+
   return (
     <FilterField label={label}>
       <Input
-        type="date"
+        type="text"
+        inputMode="numeric"
         aria-label={label}
+        placeholder="dd/mm/yyyy"
         fullWidth
         variant="secondary"
         className={cn(
           FILTER_CONTROL_TRIGGER_CLASS,
           '[&_input]:!flex [&_input]:!h-8 [&_input]:!min-h-0 [&_input]:!items-center [&_input]:!border-0 [&_input]:!bg-transparent [&_input]:!py-0 [&_input]:!shadow-none [&_input]:!leading-normal',
         )}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit()
+        }}
       />
     </FilterField>
   )

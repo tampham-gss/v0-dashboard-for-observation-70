@@ -18,17 +18,18 @@ import {
   YAxis,
 } from 'recharts'
 import {
-  formatCurrency,
-  formatNumber,
-  type ReportFilters,
-} from '@/lib/report-mock-data'
+  REPORT_CHART_MARGIN,
+  REPORT_CHART_MARGIN_COMBINED,
+  REPORT_CHART_X_TICK_ANGLED,
+  formatChartLabelShort,
+} from '@/lib/report-chart-format'
+import { formatCurrency, type ReportFilters } from '@/lib/report-mock-data'
 import type { TrendPoint } from '@/lib/report-overview-analytics'
+import { chartBarTopLabel, chartBarTopLabelAngled, chartLineTopLabel } from './report-chart-labels'
 import { ReportSectionCard } from './report-card'
 
-function formatChartValue(value: number) {
-  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} tỷ`
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)} tr`
-  return value.toLocaleString('vi-VN')
+function formatChartAxisValue(value: number) {
+  return formatChartLabelShort(value)
 }
 
 function ChartTooltip({
@@ -46,7 +47,7 @@ function ChartTooltip({
       <p className="mb-2 text-sm font-medium text-gray-900">{label}</p>
       {payload.map((entry, i) => (
         <p key={i} className="text-sm text-gray-700" style={{ color: entry.color }}>
-          {entry.name}: {formatChartValue(entry.value)}
+          {entry.name}: {formatChartLabelShort(entry.value)}
         </p>
       ))}
     </div>
@@ -92,7 +93,7 @@ export function ReportTrendSection({
       title="Biểu đồ xu hướng"
       description={`Sản lượng và chi phí theo ${periodLabel} · năm ${filters.year}`}
       isLoading={isLoading}
-      bodyClassName="pb-5"
+      bodyClassName="!pb-2"
     >
       {data.length === 0 ? (
         <EmptyState className="py-10">
@@ -118,31 +119,44 @@ export function ReportTrendSection({
           </div>
 
           {chartTab === 'combined' && (
-              <div className="h-[300px] w-full">
+              <div className="report-chart-host h-[340px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+                  <BarChart data={chartData} margin={REPORT_CHART_MARGIN_COMBINED} barCategoryGap="18%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="period" tick={{ fill: '#6b7280', fontSize: 11 }} />
+                    <XAxis
+                      dataKey="period"
+                      angle={-45}
+                      textAnchor="end"
+                      height={44}
+                      interval={0}
+                      tick={REPORT_CHART_X_TICK_ANGLED}
+                    />
                     <YAxis
                       yAxisId="sl"
                       orientation="left"
                       tick={{ fill: '#6b7280', fontSize: 11 }}
-                      tickFormatter={(v) => formatNumber(v)}
+                      tickFormatter={(v) => formatChartLabelShort(v)}
                     />
                     <YAxis
                       yAxisId="cp"
                       orientation="right"
                       tick={{ fill: '#6b7280', fontSize: 11 }}
-                      tickFormatter={formatChartValue}
+                      tickFormatter={formatChartAxisValue}
                     />
                     <Tooltip content={<ChartTooltip />} />
-                    <Legend />
+                    <Legend
+                      wrapperStyle={{ fontSize: 12, color: '#374151', paddingBottom: 0 }}
+                      iconSize={10}
+                      height={28}
+                    />
                     <Bar
                       yAxisId="sl"
                       dataKey="slContTH"
                       name="SL cont TH"
                       fill="#3b82f6"
                       radius={[4, 4, 0, 0]}
+                      isAnimationActive={false}
+                      label={chartBarTopLabelAngled()}
                     />
                     <Bar
                       yAxisId="cp"
@@ -150,6 +164,8 @@ export function ReportTrendSection({
                       name="Tổng chi phí"
                       fill="#f59e0b"
                       radius={[4, 4, 0, 0]}
+                      isAnimationActive={false}
+                      label={chartBarTopLabelAngled()}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -157,14 +173,14 @@ export function ReportTrendSection({
           )}
 
           {chartTab === 'sanluong' && (
-              <div className="h-[300px] w-full">
+              <div className="report-chart-host h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+                  <LineChart data={chartData} margin={REPORT_CHART_MARGIN}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis dataKey="period" tick={{ fill: '#6b7280', fontSize: 11 }} />
-                    <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} tickFormatter={(v) => formatNumber(v)} />
+                    <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} tickFormatter={formatChartAxisValue} />
                     <Tooltip content={<ChartTooltip />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#374151' }} />
                     <Line
                       type="monotone"
                       dataKey="slContTH"
@@ -172,6 +188,8 @@ export function ReportTrendSection({
                       stroke="#3b82f6"
                       strokeWidth={2}
                       dot={{ fill: '#3b82f6', r: 3 }}
+                      isAnimationActive={false}
+                      label={chartLineTopLabel()}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -179,17 +197,17 @@ export function ReportTrendSection({
           )}
 
           {chartTab === 'chiphi' && (
-              <div className="h-[300px] w-full">
+              <div className="report-chart-host h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+                  <LineChart data={chartData} margin={REPORT_CHART_MARGIN}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis dataKey="period" tick={{ fill: '#6b7280', fontSize: 11 }} />
-                    <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} tickFormatter={formatChartValue} />
+                    <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} tickFormatter={formatChartAxisValue} />
                     <Tooltip
                       content={<ChartTooltip />}
                       formatter={(value: number) => [formatCurrency(value), 'Tổng chi phí']}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#374151' }} />
                     <Line
                       type="monotone"
                       dataKey="tongChiPhi"
@@ -197,6 +215,8 @@ export function ReportTrendSection({
                       stroke="#f59e0b"
                       strokeWidth={2}
                       dot={{ fill: '#f59e0b', r: 3 }}
+                      isAnimationActive={false}
+                      label={chartLineTopLabel()}
                     />
                   </LineChart>
                 </ResponsiveContainer>

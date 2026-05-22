@@ -12,6 +12,7 @@ import {
 } from '@/components/report/report-table-chrome'
 import { ReportDataTable } from '@/components/report/report-data-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatAppDate, parseAppDate } from '@/lib/date-format'
 import { 
   formatCurrency, 
   formatNumber,
@@ -72,7 +73,13 @@ export function DetailView({ type, item, period, formula, canViewFinancial, orde
 
   const comparisonMap = new Map<string, { sanLuong: number; doanhThu: number; chiPhi: number; hasMissingRevenue: boolean }>()
   scopedOrders.forEach((order) => {
-    const key = period === 'week' ? order.ngay : order.ngay.slice(3)
+    const d = parseAppDate(order.ngay)
+    const key =
+      period === 'week'
+        ? formatAppDate(order.ngay)
+        : d
+          ? `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+          : order.ngay
     const current = comparisonMap.get(key) || { sanLuong: 0, doanhThu: 0, chiPhi: 0, hasMissingRevenue: false }
     current.sanLuong += order.sanLuong
     current.chiPhi += order.chiPhi
@@ -303,7 +310,7 @@ export function DetailView({ type, item, period, formula, canViewFinancial, orde
                     {(order) => (
                       <Table.Row id={order.id}>
                         <Table.Cell className={`${TABLE_TEXT_COL} font-mono text-sm`}>{order.maLenh}</Table.Cell>
-                        <Table.Cell className={TABLE_TEXT_COL}>{order.ngay}</Table.Cell>
+                        <Table.Cell className={TABLE_TEXT_COL}>{formatAppDate(order.ngay)}</Table.Cell>
                         <Table.Cell className={TABLE_TEXT_COL}>
                           <div className="flex flex-col">
                             <span className="text-sm">{order.hub}</span>

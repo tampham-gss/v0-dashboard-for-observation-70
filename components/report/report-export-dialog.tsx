@@ -4,6 +4,11 @@ import { Button, Modal } from '@heroui/react'
 import type { UseOverlayStateReturn } from '@heroui/react'
 import { appliedFiltersCaption, type ReportFilters } from '@/lib/report-mock-data'
 import { reportButtonClass } from './report-button-chrome'
+import {
+  REPORT_MODAL_HEADER_CLASS,
+  REPORT_MODAL_HEADING_CLASS,
+  ReportModalCloseTrigger,
+} from './report-modal-close'
 
 export function ReportExportDialog({
   state,
@@ -19,9 +24,9 @@ export function ReportExportDialog({
       <Modal.Backdrop>
         <Modal.Container size="md">
           <Modal.Dialog>
-            <Modal.Header>
-              <Modal.Heading>Xuất báo cáo Excel</Modal.Heading>
-              <Modal.CloseTrigger />
+            <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
+              <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>Xuất báo cáo Excel</Modal.Heading>
+              <ReportModalCloseTrigger />
             </Modal.Header>
             <Modal.Body className="space-y-3 text-sm text-gray-700">
         

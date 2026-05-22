@@ -1,4 +1,11 @@
-import type { BranchCode, CPRecord, PeriodType, ReportFilters, SLRecord } from './report-mock-data'
+import {
+  REPORT_DELIVERERS,
+  REPORT_OPS_CS,
+  REPORT_ROUTES,
+  REPORT_WAREHOUSES,
+} from './report-filter-options'
+import type { BranchCode } from './report-constants'
+import type { CPRecord, PeriodType, ReportFilters, SLRecord } from './report-mock-data'
 
 export type InspectionOrderStatus = 'da_chot' | 'cho_duyet' | 'dang_xu_ly'
 
@@ -10,6 +17,7 @@ export interface InspectionOrder {
   kho: string
   tuyen: string
   nhanSu: string
+  opsCs: string
   slCont: number
   tongChiPhi: number
   trangThai: InspectionOrderStatus
@@ -18,9 +26,6 @@ export interface InspectionOrder {
   week?: string
   month?: string
 }
-
-const WAREHOUSES = ['Kho GLS', 'Kho LX', 'Kho Vendor', 'Kho trung chuyển', 'Kho ngoại quan']
-const ROUTES = ['Tuyến nội địa', 'Tuyến xuất', 'Tuyến nhập', 'Tuyến liên vùng']
 const STATUSES: InspectionOrderStatus[] = ['da_chot', 'cho_duyet', 'dang_xu_ly']
 
 function hashId(seed: string): number {
@@ -73,9 +78,10 @@ export function buildInspectionOrdersForScope(
         maLenh: `KD-${sl.branch}-${yy}${monthPart}${day}-${String(i + 1).padStart(3, '0')}`,
         ngay: `${sl.year}-${monthPart}-${day}`,
         branch: sl.branch,
-        kho: WAREHOUSES[h % WAREHOUSES.length]!,
-        tuyen: ROUTES[(h + i) % ROUTES.length]!,
-        nhanSu: `NS-${sl.branch}-${(h % 90) + 10}`,
+        kho: REPORT_WAREHOUSES[h % REPORT_WAREHOUSES.length]!,
+        tuyen: REPORT_ROUTES[(h + i) % REPORT_ROUTES.length]!,
+        nhanSu: REPORT_DELIVERERS[h % REPORT_DELIVERERS.length]!,
+        opsCs: REPORT_OPS_CS[(h + i) % REPORT_OPS_CS.length]!,
         slCont,
         tongChiPhi: chiPhi,
         trangThai: STATUSES[h % STATUSES.length]!,
@@ -90,8 +96,12 @@ export function buildInspectionOrdersForScope(
   const kw = filters.keyword.trim().toLowerCase()
   return orders.filter((o) => {
     if (filters.branch !== 'all' && o.branch !== filters.branch) return false
+    if (filters.warehouse !== 'all' && o.kho !== filters.warehouse) return false
+    if (filters.route !== 'all' && o.tuyen !== filters.route) return false
+    if (filters.staff !== 'all' && o.nhanSu !== filters.staff) return false
+    if (filters.opsCs !== 'all' && o.opsCs !== filters.opsCs) return false
     if (!kw) return true
-    const text = `${o.maLenh} ${o.branch} ${o.kho} ${o.tuyen} ${o.nhanSu} ${statusLabel(o.trangThai)}`
+    const text = `${o.maLenh} ${o.branch} ${o.kho} ${o.tuyen} ${o.nhanSu} ${o.opsCs} ${statusLabel(o.trangThai)}`
     return text.toLowerCase().includes(kw)
   })
 }

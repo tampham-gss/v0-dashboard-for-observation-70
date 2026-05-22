@@ -1,4 +1,4 @@
-/** Quyền xem chỉ tiêu tài chính (FSD — giai đoạn sau khi có nguồn doanh thu). */
+/** Quyền xem chỉ tiêu tài chính (giai đoạn sau khi có nguồn doanh thu). */
 export type UserRole = 'admin' | 'manager' | 'ops' | 'accountant'
 
 export function canViewFinancial(role: UserRole): boolean {

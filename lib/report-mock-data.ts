@@ -1,5 +1,15 @@
+import {
+  BRANCHES,
+  TARGET_CP_PER_CONT,
+  YEARS,
+  type BranchCode,
+} from './report-constants'
+import { getDimensionBranchSet } from './report-filter-dimensions'
+import { formatWeekFilterLabel } from './report-week-range'
+
 export type PeriodType = 'week' | 'month'
-export type BranchCode = 'HCM' | 'HPH' | 'CLO' | 'DAN' | 'GLS'
+export type { BranchCode }
+export { BRANCHES, TARGET_CP_PER_CONT, YEARS }
 
 export type SLStatus =
   | 'Đạt kế hoạch'
@@ -75,11 +85,10 @@ export interface ReportFilters {
   opsCs: string | 'all'
   status: FilterStatus
   keyword: string
+  /** Tab BC tuần: lọc theo tháng (mọi tuần trong tháng), không theo một tuần. */
+  bcWeekByMonth?: boolean
 }
 
-export const TARGET_CP_PER_CONT = 150_000
-export const BRANCHES: BranchCode[] = ['HCM', 'HPH', 'CLO', 'DAN', 'GLS']
-export const YEARS = [2025, 2026] as const
 const WEEKS_26 = Array.from({ length: 52 }, (_, i) => `Tuần ${String(i + 1).padStart(2, '0')}/26`)
 const WEEKS_25 = Array.from({ length: 52 }, (_, i) => `Tuần ${String(i + 1).padStart(2, '0')}/25`)
 
@@ -156,11 +165,17 @@ export function appliedFiltersCaption(
   const branch = filters.branch === 'all' ? 'Tất cả chi nhánh' : filters.branch
   const period =
     opts?.showBcWeekMonth && filters.periodType === 'week'
-      ? `Tháng ${filters.month} · ${filters.week} · ${filters.year}`
+      ? `Tháng ${filters.month} · ${filters.year}`
       : filters.periodType === 'week'
-        ? `${filters.week} · ${filters.year}`
+        ? `${formatWeekFilterLabel(filters.week, filters.year, filters.month)} · ${filters.year}`
         : `Tháng ${filters.month} · ${filters.year}`
-  return `${period} · ${branch}`
+  const dims: string[] = []
+  if (filters.warehouse !== 'all') dims.push(filters.warehouse)
+  if (filters.route !== 'all') dims.push(filters.route)
+  if (filters.staff !== 'all') dims.push(filters.staff)
+  if (filters.opsCs !== 'all') dims.push(filters.opsCs)
+  const dimPart = dims.length > 0 ? ` · ${dims.join(' · ')}` : ''
+  return `${period} · ${branch}${dimPart}`
 }
 
 function periodLabel(r: { periodType: PeriodType; week?: string; month?: string }): string {
@@ -265,13 +280,49 @@ function matchesKeyword(text: string, keyword: string): boolean {
   return text.toLowerCase().includes(k)
 }
 
+function matchesWeekPeriod(filters: ReportFilters, week?: string): boolean {
+  if (!week) return false
+  if (filters.bcWeekByMonth) {
+    return bcWeekOptionsForMonth(filters.year, filters.month).includes(week)
+  }
+  return week === filters.week
+}
+
+function matchesSlPeriodScope(r: SLRecord, filters: ReportFilters): boolean {
+  if (r.periodType !== filters.periodType) return false
+  if (r.year !== filters.year) return false
+  if (filters.periodType === 'week' && !matchesWeekPeriod(filters, r.week)) return false
+  if (filters.periodType === 'month' && r.month !== filters.month) return false
+  if (filters.branch !== 'all' && r.branch !== filters.branch) return false
+  const label = `${periodLabel(r)} ${r.branch}`
+  return matchesKeyword(label, filters.keyword)
+}
+
+function matchesCpPeriodScope(r: CPRecord, filters: ReportFilters): boolean {
+  if (r.periodType !== filters.periodType) return false
+  if (r.year !== filters.year) return false
+  if (filters.periodType === 'week' && !matchesWeekPeriod(filters, r.week)) return false
+  if (filters.periodType === 'month' && r.month !== filters.month) return false
+  if (filters.branch !== 'all' && r.branch !== filters.branch) return false
+  const label = `${periodLabel(r)} ${r.branch}`
+  return matchesKeyword(label, filters.keyword)
+}
+
+function applyDimensionBranchFilter<T extends { branch: BranchCode }>(
+  items: T[],
+  filters: ReportFilters,
+  slScoped: SLRecord[],
+  cpScoped: CPRecord[],
+): T[] {
+  const branchSet = getDimensionBranchSet(filters, slScoped, cpScoped)
+  if (!branchSet) return items
+  return items.filter((r) => branchSet.has(r.branch))
+}
+
 export function filterSLRecords(filters: ReportFilters, rows = slRecords): SLRecord[] {
-  return rows.filter((r) => {
-    if (r.periodType !== filters.periodType) return false
-    if (r.year !== filters.year) return false
-    if (filters.periodType === 'week' && r.week !== filters.week) return false
-    if (filters.periodType === 'month' && r.month !== filters.month) return false
-    if (filters.branch !== 'all' && r.branch !== filters.branch) return false
+  const slScoped = rows.filter((r) => matchesSlPeriodScope(r, filters))
+  const cpScoped = cpRecords.filter((r) => matchesCpPeriodScope(r, filters))
+  const matched = slScoped.filter((r) => {
     if (
       filters.status !== 'all' &&
       (filters.status === 'Đạt kế hoạch' ||
@@ -282,19 +333,15 @@ export function filterSLRecords(filters: ReportFilters, rows = slRecords): SLRec
     ) {
       return false
     }
-    const label = `${periodLabel(r)} ${r.branch}`
-    if (!matchesKeyword(label, filters.keyword)) return false
     return true
   })
+  return applyDimensionBranchFilter(matched, filters, slScoped, cpScoped)
 }
 
 export function filterCPRecords(filters: ReportFilters, rows = cpRecords): CPRecord[] {
-  return rows.filter((r) => {
-    if (r.periodType !== filters.periodType) return false
-    if (r.year !== filters.year) return false
-    if (filters.periodType === 'week' && r.week !== filters.week) return false
-    if (filters.periodType === 'month' && r.month !== filters.month) return false
-    if (filters.branch !== 'all' && r.branch !== filters.branch) return false
+  const slScoped = slRecords.filter((r) => matchesSlPeriodScope(r, filters))
+  const cpScoped = rows.filter((r) => matchesCpPeriodScope(r, filters))
+  const matched = cpScoped.filter((r) => {
     if (
       filters.status !== 'all' &&
       (filters.status === 'Trong định mức' ||
@@ -306,10 +353,9 @@ export function filterCPRecords(filters: ReportFilters, rows = cpRecords): CPRec
     ) {
       return false
     }
-    const label = `${periodLabel(r)} ${r.branch}`
-    if (!matchesKeyword(label, filters.keyword)) return false
     return true
   })
+  return applyDimensionBranchFilter(matched, filters, slScoped, cpScoped)
 }
 
 export function findMatchingSLForCP(cp: CPRecord): SLRecord | undefined {

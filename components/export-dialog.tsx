@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { formatAppDate } from '@/lib/date-format'
 import type { DashboardFilters, EfficiencyFormula, OrderDetail } from '@/lib/mock-data'
 import { getEfficiencyFormulaLabel, regions } from '@/lib/mock-data'
 
@@ -98,7 +99,7 @@ export function ExportDialog({ open, onOpenChange, filters, orders, formula, can
             : String(revenue - order.chiPhi)
       const base = [
         order.maLenh,
-        order.ngay,
+        formatAppDate(order.ngay),
         order.hub,
         order.kho,
         order.tuyen,

@@ -41,7 +41,6 @@ export function ReportBranchRanking({
       title="Xếp hạng theo chi nhánh"
       description="Sản lượng và chi phí theo chi nhánh vận hành · kỳ đang lọc"
       isLoading={isLoading}
-      fillHeight
       bodyClassName="gap-2"
       action={
         selectedBranch ? (

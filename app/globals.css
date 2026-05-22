@@ -140,9 +140,66 @@
     line-height: 1.25rem;
   }
 
+  /* Dropdown filter — bo góc md, không pill (kể cả popover portal ra body) */
+  .report-filter-select-popover,
+  .report-filter-panel [data-slot='popover'],
+  .report-filter-panel [data-slot='popover-content'],
+  .report-filter-panel [role='listbox'] {
+    border-radius: 0.375rem !important;
+  }
+
+  .report-filter-select-popover [data-slot='listbox-item'],
+  .report-filter-panel [data-slot='listbox-item'],
+  .report-filter-panel [role='option'] {
+    border-radius: 0.25rem !important;
+  }
+
+  .report-filter-panel .filter-panel-row {
+    width: 100%;
+  }
+
+  .report-filter-panel .filter-panel-cell {
+    min-width: 0;
+    overflow: hidden;
+  }
+
   /* Bo góc nút báo cáo — khớp ô lọc (rounded-md) */
   .report-page button:not([data-slot='select-trigger']),
   [data-slot='modal'] button:not([data-slot='select-trigger']) {
     border-radius: 0.375rem !important;
+  }
+
+  /* Nút X modal — luôn hiển thị rõ (HeroUI CloseTrigger mặc định dễ bị chìm) */
+  [data-slot='modal'] [aria-label='Đóng'] {
+    color: #374151 !important;
+    opacity: 1 !important;
+    background-color: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05) !important;
+  }
+
+  [data-slot='modal'] [aria-label='Đóng'] svg {
+    color: #374151 !important;
+    opacity: 1 !important;
+    stroke: currentColor !important;
+  }
+
+  /* Ẩn indicator mặc định nếu không có icon lucide */
+  [data-slot='modal'] [data-slot='close-trigger']:not(:has(svg)) {
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  /* Nhãn số trên biểu đồ Recharts — không bị cắt bởi overflow */
+  .report-chart-host .recharts-wrapper,
+  .report-chart-host .recharts-surface {
+    overflow: visible !important;
+  }
+
+  .report-chart-host .recharts-label,
+  .report-chart-host .recharts-text {
+    fill: #374151 !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
   }
 }

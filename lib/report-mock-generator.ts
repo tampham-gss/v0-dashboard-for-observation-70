@@ -1,4 +1,7 @@
-export const MOCK_DATA_ROW_COUNT = 1000
+import { formatAppDate } from './date-format'
+import { MOCK_DATA_ROW_COUNT, distributeEvenly, seededUnit } from './mock-seed'
+
+export { MOCK_DATA_ROW_COUNT }
 
 type PeriodType = 'week' | 'month'
 type BranchCode = 'HCM' | 'HPH' | 'CLO' | 'DAN' | 'GLS'
@@ -68,13 +71,6 @@ const ALL_MONTHS = [
 
 const TARGET_CP_PER_CONT = 150_000
 
-/** Chia `count` thành `slots` phần, phần dư +1 cho các slot đầu. */
-function distributeEvenly(count: number, slots: number): number[] {
-  const base = Math.floor(count / slots)
-  const extra = count % slots
-  return Array.from({ length: slots }, (_, i) => base + (i < extra ? 1 : 0))
-}
-
 function computeSLStatus(slContKH: number, slContTH: number): SLStatus {
   if (slContKH <= 0 || slContTH <= 0) return 'Cần kiểm tra'
   const ratio = (slContTH / slContKH) * 100
@@ -96,11 +92,6 @@ function computeCPStatus(
   return 'Vượt định mức'
 }
 
-function seededUnit(index: number, salt: number): number {
-  const x = Math.sin(index * 12.9898 + salt * 78.233) * 43758.5453
-  return x - Math.floor(x)
-}
-
 function yearFromWeekLabel(week: string): number {
   return 2000 + Number(week.slice(-2))
 }
@@ -114,10 +105,8 @@ function monthIndexFromLabel(month: string): number {
 }
 
 function formatCpDate(year: number, monthIndex: number, day: number): string {
-  const mm = String((monthIndex % 12) + 1).padStart(2, '0')
-  const dd = String(Math.min(28, Math.max(1, day))).padStart(2, '0')
-  const yy = String(year).slice(-2)
-  return `${dd}/${mm}/20${yy}`
+  const d = new Date(year, monthIndex % 12, Math.min(28, Math.max(1, day)))
+  return formatAppDate(d)
 }
 
 function buildSlRecord(

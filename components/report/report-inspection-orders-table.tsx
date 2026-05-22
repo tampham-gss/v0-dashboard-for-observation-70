@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Chip, EmptyState, Table, toast } from '@heroui/react'
+import { Chip, EmptyState, Table } from '@heroui/react'
+import { formatAppDate } from '@/lib/date-format'
 import {
   formatCurrency,
   formatNumber,
@@ -12,15 +13,10 @@ import {
   type InspectionOrder,
   type InspectionOrderStatus,
 } from '@/lib/report-inspection-orders'
-import {
-  TABLE_COL_ACTION,
-  TABLE_NUM_COL,
-  TABLE_TEXT_COL,
-} from './report-table-chrome'
+import { TABLE_NUM_COL, TABLE_TEXT_COL } from './report-table-chrome'
 import { ReportDataTable } from './report-data-table'
 import { ReportSectionCard } from './report-card'
 import { ReportPaginationFooter } from './report-pagination-footer'
-import { ReportTableViewAction } from './report-table-actions'
 
 const PAGE_SIZE = 8
 
@@ -90,7 +86,6 @@ export function ReportInspectionOrdersTable({
               <Table.Column className={TABLE_NUM_COL}>SL cont</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>Tổng CP</Table.Column>
               <Table.Column className={TABLE_TEXT_COL}>Trạng thái</Table.Column>
-              <Table.Column className={TABLE_COL_ACTION}> </Table.Column>
             </Table.Header>
             <Table.Body items={pageItems}>
               {(row) => (
@@ -98,7 +93,7 @@ export function ReportInspectionOrdersTable({
                   <Table.Cell className={`${TABLE_TEXT_COL} font-medium text-gray-900`}>
                     {row.maLenh}
                   </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>{row.ngay}</Table.Cell>
+                  <Table.Cell className={TABLE_TEXT_COL}>{formatAppDate(row.ngay)}</Table.Cell>
                   <Table.Cell className={TABLE_TEXT_COL}>{row.branch}</Table.Cell>
                   <Table.Cell className={TABLE_TEXT_COL}>{row.kho}</Table.Cell>
                   <Table.Cell className={TABLE_TEXT_COL}>{row.tuyen}</Table.Cell>
@@ -109,16 +104,6 @@ export function ReportInspectionOrdersTable({
                     <Chip color={orderStatusColor(row.trangThai)} size="sm" variant="soft">
                       <Chip.Label>{inspectionOrderStatusLabel(row.trangThai)}</Chip.Label>
                     </Chip>
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_COL_ACTION}>
-                    <div className="flex justify-center">
-                      <ReportTableViewAction
-                        label="Chi tiết"
-                        onPress={() =>
-                          toast.info(`Lệnh ${row.maLenh} · ${row.branch} — chi tiết SL/CP tổng hợp sẽ mở ở bước sau.`)
-                        }
-                      />
-                    </div>
                   </Table.Cell>
                 </Table.Row>
               )}

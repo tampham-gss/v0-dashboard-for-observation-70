@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { Button, Modal } from '@heroui/react'
 import { reportButtonClass } from './report-button-chrome'
 import type { UseOverlayStateReturn } from '@heroui/react'
+import { formatAppDate } from '@/lib/date-format'
 import {
   TARGET_CP_PER_CONT,
   formatCurrency,
@@ -12,6 +13,11 @@ import {
   type CPRecord,
 } from '@/lib/report-mock-data'
 import { CPStatusChip } from './status-chip'
+import {
+  REPORT_MODAL_HEADER_CLASS,
+  REPORT_MODAL_HEADING_CLASS,
+  ReportModalCloseTrigger,
+} from './report-modal-close'
 
 export function CPDetailModal({
   state,
@@ -27,15 +33,15 @@ export function CPDetailModal({
       <Modal.Backdrop>
         <Modal.Container size="lg" scroll="inside" className="max-w-3xl">
           <Modal.Dialog className="w-full">
-            <Modal.Header>
-              <Modal.Heading>Chi tiết chi phí</Modal.Heading>
-              <Modal.CloseTrigger />
+            <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
+              <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>Chi tiết chi phí</Modal.Heading>
+              <ReportModalCloseTrigger />
             </Modal.Header>
             <Modal.Body className="space-y-6 text-sm">
               <DetailSection title="Thông tin kỳ báo cáo">
                 <DetailRow label="Kỳ" value={periodLabel(record)} />
                 <DetailRow label="Tháng" value={record.month ?? '—'} />
-                <DetailRow label="Ngày" value={record.date} />
+                <DetailRow label="Ngày" value={formatAppDate(record.date)} />
                 <DetailRow label="Chi nhánh" value={record.branch} />
                 <DetailRow label="Nhân công" value={formatNumber(record.nhanCong)} />
                 <DetailRow label="Trạng thái" value={<CPStatusChip status={record.status} />} />

@@ -1,3 +1,5 @@
+import { parseAppDate } from './date-format'
+
 // Types
 export interface KPIData {
   sanLuong: number | null
@@ -235,8 +237,7 @@ const getRegionIdByHub = (hubName: string): string => {
 }
 
 const parseVNDate = (date: string): Date => {
-  const [day, month, year] = date.split('/').map(Number)
-  return new Date(year, month - 1, day)
+  return parseAppDate(date) ?? new Date(NaN)
 }
 
 const getWeekNumber = (date: Date): number => {

@@ -1,6 +1,7 @@
 import {
   BRANCHES,
   TARGET_CP_PER_CONT,
+  computeSLStatus,
   slCompareRatio,
   type BranchCode,
   type CPRecord,
@@ -141,25 +142,53 @@ export function buildBranchRanking(
   slRows: SLRecord[],
   cpRows: CPRecord[],
 ): BranchRankingRow[] {
-  const cpByBranch = new Map(cpRows.map((c) => [c.branch, c]))
+  const slByBranch = new Map<BranchCode, SLRecord[]>()
+  for (const r of slRows) {
+    const list = slByBranch.get(r.branch) ?? []
+    list.push(r)
+    slByBranch.set(r.branch, list)
+  }
+
+  const cpByBranch = new Map<BranchCode, CPRecord[]>()
+  for (const r of cpRows) {
+    const list = cpByBranch.get(r.branch) ?? []
+    list.push(r)
+    cpByBranch.set(r.branch, list)
+  }
 
   const rows: BranchRankingRow[] = BRANCHES.map((branch) => {
-    const sl = slRows.find((r) => r.branch === branch)
-    const cp = cpByBranch.get(branch) ?? null
-    const slContTH = sl?.slContTH ?? 0
-    const slContKH = sl?.slContKH ?? 0
-    const cpTB = cp?.cpTBPerCont ?? null
+    const slList = slByBranch.get(branch) ?? []
+    const cpList = cpByBranch.get(branch) ?? []
+
+    const slContKH = slList.reduce((s, r) => s + r.slContKH, 0)
+    const slContTH = slList.reduce((s, r) => s + r.slContTH, 0)
+    const tongChiPhi = cpList.reduce((s, r) => s + r.tongChiPhi, 0)
+    const contTotal = cpList.reduce(
+      (s, r) => s + r.contGNGLSKD + r.contLaiXeKD + r.contVendorKD,
+      0,
+    )
+    const cpTB = contTotal > 0 ? tongChiPhi / contTotal : null
+
+    const slStatus =
+      slList.length === 0
+        ? ('Cần kiểm tra' as const)
+        : slList.length === 1
+          ? slList[0]!.status
+          : computeSLStatus(slContKH, slContTH)
+
+    const cpStatus = cpList.length === 1 ? cpList[0]!.status : cpList[0]?.status ?? null
+
     return {
       branch,
       slContTH,
       slContKH,
       thKhRatio: slCompareRatio(slContKH, slContTH),
-      tongChiPhi: cp?.tongChiPhi ?? 0,
+      tongChiPhi,
       cpTBPerCont: cpTB,
       overTargetCp: cpTB != null && cpTB > TARGET_CP_PER_CONT,
       needsReview: false,
-      slStatus: sl?.status ?? 'Cần kiểm tra',
-      cpStatus: cp?.status ?? null,
+      slStatus,
+      cpStatus: cpList.length > 0 ? cpStatus : null,
     }
   })
 

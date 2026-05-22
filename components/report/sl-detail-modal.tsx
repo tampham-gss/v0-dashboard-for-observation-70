@@ -15,6 +15,11 @@ import {
   type SLRecord,
 } from '@/lib/report-mock-data'
 import { SLStatusChip } from './status-chip'
+import {
+  REPORT_MODAL_HEADER_CLASS,
+  REPORT_MODAL_HEADING_CLASS,
+  ReportModalCloseTrigger,
+} from './report-modal-close'
 
 export function SLDetailModal({
   state,
@@ -30,9 +35,9 @@ export function SLDetailModal({
       <Modal.Backdrop>
         <Modal.Container size="lg" scroll="inside" className="max-w-3xl">
           <Modal.Dialog className="w-full">
-            <Modal.Header>
-              <Modal.Heading>Chi tiết sản lượng</Modal.Heading>
-              <Modal.CloseTrigger />
+            <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
+              <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>Chi tiết sản lượng</Modal.Heading>
+              <ReportModalCloseTrigger />
             </Modal.Header>
             <Modal.Body className="space-y-6 text-sm">
               <DetailSection title="Thông tin kỳ báo cáo">
