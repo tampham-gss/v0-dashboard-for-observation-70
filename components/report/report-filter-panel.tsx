@@ -6,13 +6,10 @@ import { ReportSurfaceCard } from './report-card'
 import {
   BRANCHES,
   YEARS,
-  bcWeekOptionsForMonth,
-  weeksForYear,
   type BranchCode,
   type PeriodType,
   type ReportFilters,
 } from '@/lib/report-mock-data'
-import { formatWeekFilterLabel, formatWeekFilterShort } from '@/lib/report-week-range'
 import { FilterMonthPicker, FilterYearPicker } from './filter-period-pickers'
 import {
   getFilterFieldsForTab,
@@ -61,7 +58,6 @@ const OPS_CS_OPTIONS = reportFilterSelectOptions('Tất cả CS/OPS', REPORT_OPS
 const FILTER_ROW1_KEYS: FilterFieldKey[] = [
   'periodType',
   'year',
-  'week',
   'month',
   'branch',
 ]
@@ -137,48 +133,15 @@ export function ReportFilterPanel({
   const statusOptions = getStatusOptionsForTab(activeTab)
   const has = (key: FilterFieldKey) => fields.includes(key)
   const isBcCompactTab = BC_COMPACT_TABS.includes(activeTab)
-  const showWeekPicker =
-    has('week') && filters.periodType === 'week' && !filters.bcWeekByMonth
-
   const monthLabels = useMemo(() => monthsForYear(filters.year), [filters.year])
-
-  const weekIds = useMemo(() => {
-    if (!showWeekPicker) return []
-    if (has('month') && filters.month) {
-      const inMonth = bcWeekOptionsForMonth(filters.year, filters.month)
-      if (inMonth.length > 0) return inMonth
-    }
-    return weeksForYear(filters.year)
-  }, [showWeekPicker, filters.year, filters.month, fields])
-
-  const weekOptions = useMemo(
-    () =>
-      weekIds.map((w) => ({
-        id: w,
-        label: formatWeekFilterLabel(w, filters.year, filters.month),
-      })),
-    [weekIds, filters.year, filters.month],
-  )
-
-  const selectedWeekShort = useMemo(
-    () => formatWeekFilterShort(filters.week),
-    [filters.week],
-  )
-
-  const selectedWeekTitle = useMemo(
-    () => formatWeekFilterLabel(filters.week, filters.year, filters.month),
-    [filters.week, filters.year, filters.month],
-  )
 
   const row1Count = useMemo(() => {
     let n = 0
     for (const key of FILTER_ROW1_KEYS) {
-      if (!has(key)) continue
-      if (key === 'week' && !showWeekPicker) continue
-      n++
+      if (has(key)) n++
     }
     return n
-  }, [fields, showWeekPicker])
+  }, [fields])
 
   const row2Count = useMemo(() => {
     let n = 0
@@ -193,11 +156,9 @@ export function ReportFilterPanel({
   }
 
   const handlePeriodTypeChange = (periodType: PeriodType) => {
-    const weeks = weeksForYear(filters.year)
     patch({
       periodType,
-      bcWeekByMonth: periodType === 'week' && activeTab === 'bcWeek',
-      week: weeks.includes(filters.week) ? filters.week : (weeks[0] ?? filters.week),
+      bcWeekByMonth: periodType === 'week',
     })
   }
 
@@ -228,21 +189,6 @@ export function ReportFilterPanel({
             />
           </FilterField>
         )
-      case 'week':
-        if (!showWeekPicker) return null
-        return (
-          <FilterField key={key} label="Tuần" className="min-w-0">
-            <FilterSelect
-              label="Tuần"
-              value={filters.week}
-              options={weekOptions}
-              displayValue={selectedWeekShort}
-              triggerTitle={selectedWeekTitle}
-              popoverClassName="!min-w-[17rem]"
-              onChange={(week) => patch({ week })}
-            />
-          </FilterField>
-        )
       case 'month':
         if (!has('month')) return null
         return (
@@ -252,13 +198,9 @@ export function ReportFilterPanel({
               value={filters.month}
               months={monthLabels}
               onChange={(month) => {
-                const monthsWeeks = bcWeekOptionsForMonth(filters.year, month)
                 patch({
                   ...patchMonthForBcWeek(month),
                   month,
-                  week: monthsWeeks.includes(filters.week)
-                    ? filters.week
-                    : (monthsWeeks[0] ?? filters.week),
                 })
               }}
             />

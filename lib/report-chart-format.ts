@@ -27,8 +27,15 @@ function compactUnit(n: number): string {
 /** Lề trên rộng hơn để chứa nhãn trên đỉnh cột/điểm. */
 export const REPORT_CHART_MARGIN = { top: 36, right: 24, left: 8, bottom: 4 } as const
 
-/** Biểu đồ Tổng hợp — nhãn trục X / số nghiêng 45°. */
-export const REPORT_CHART_MARGIN_COMBINED = { top: 40, right: 24, left: 8, bottom: 36 } as const
+/** Biểu đồ Tổng hợp — nhãn trục X nghiêng + chú thích. */
+export const REPORT_CHART_MARGIN_COMBINED = { top: 40, right: 24, left: 8, bottom: 52 } as const
+
+/** Khoảng cách chú thích (Legend) với nhãn trục X / cột. */
+export const REPORT_CHART_LEGEND_WRAPPER_STYLE = {
+  fontSize: 12,
+  color: '#374151',
+  paddingTop: 16,
+} as const
 
 export const REPORT_CHART_X_TICK_ANGLED = {
   fill: '#6b7280',

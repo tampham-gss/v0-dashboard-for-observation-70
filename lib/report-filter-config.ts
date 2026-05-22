@@ -1,7 +1,6 @@
 import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
 import {
   monthsForYear,
-  weeksForYear,
   type CPStatus,
   type FilterStatus,
   type ReportFilters,
@@ -25,7 +24,6 @@ export type FilterFieldKey =
 const REPORT_MAIN_FILTER_FIELD_KEYS: FilterFieldKey[] = [
   'periodType',
   'year',
-  'week',
   'month',
   'branch',
   'warehouse',
@@ -190,11 +188,6 @@ export function patchYearForBcTab(
     if (!months.includes(filters.month)) {
       patch.month = months[0] ?? filters.month
     }
-  }
-
-  if ((tab === 'overview' || tab === 'sl' || tab === 'cp') && filters.periodType === 'week') {
-    const weeks = weeksForYear(year)
-    patch.week = weeks.includes(filters.week) ? filters.week : (weeks[0] ?? filters.week)
   }
 
   return patch

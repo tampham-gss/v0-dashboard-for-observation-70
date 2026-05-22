@@ -18,6 +18,7 @@ import {
   YAxis,
 } from 'recharts'
 import {
+  REPORT_CHART_LEGEND_WRAPPER_STYLE,
   REPORT_CHART_MARGIN,
   REPORT_CHART_MARGIN_COMBINED,
   REPORT_CHART_X_TICK_ANGLED,
@@ -93,7 +94,7 @@ export function ReportTrendSection({
       title="Biểu đồ xu hướng"
       description={`Sản lượng và chi phí theo ${periodLabel} · năm ${filters.year}`}
       isLoading={isLoading}
-      bodyClassName="!pb-2"
+      bodyClassName="!pb-1"
     >
       {data.length === 0 ? (
         <EmptyState className="py-10">
@@ -119,7 +120,7 @@ export function ReportTrendSection({
           </div>
 
           {chartTab === 'combined' && (
-              <div className="report-chart-host h-[340px] w-full">
+              <div className="report-chart-host h-[334px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={REPORT_CHART_MARGIN_COMBINED} barCategoryGap="18%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -145,7 +146,8 @@ export function ReportTrendSection({
                     />
                     <Tooltip content={<ChartTooltip />} />
                     <Legend
-                      wrapperStyle={{ fontSize: 12, color: '#374151', paddingBottom: 0 }}
+                      verticalAlign="bottom"
+                      wrapperStyle={REPORT_CHART_LEGEND_WRAPPER_STYLE}
                       iconSize={10}
                       height={28}
                     />
