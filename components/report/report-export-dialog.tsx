@@ -25,7 +25,7 @@ export function ReportExportDialog({
         <Modal.Container size="md">
           <Modal.Dialog>
             <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
-              <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>Xuất báo cáo Excel</Modal.Heading>
+              <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>Xuất PDF</Modal.Heading>
               <ReportModalCloseTrigger />
             </Modal.Header>
             <Modal.Body className="space-y-3 text-sm text-gray-700">
@@ -46,7 +46,7 @@ export function ReportExportDialog({
                   state.close()
                 }}
               >
-                Xuất báo cáo {filters.periodType === 'week' ? 'tuần' : 'tháng'}
+                Xuất PDF {filters.periodType === 'week' ? 'tuần' : 'tháng'}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>

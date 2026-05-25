@@ -39,7 +39,7 @@ export function FilterPanelActions({
           className={cn(COMPACT_BTN_CLASS, FILTER_CONTROL_SURFACE_CLASS, 'hover:bg-gray-50')}
           onPress={onExport}
         >
-          Xuất báo cáo
+          Xuất PDF
         </Button>
       </div>
     )
@@ -73,7 +73,7 @@ export function FilterPanelActions({
         )}
         onPress={onExport}
       >
-        Xuất báo cáo
+        Xuất PDF
       </Button>
     </div>
   )

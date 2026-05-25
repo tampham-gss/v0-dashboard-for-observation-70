@@ -87,7 +87,7 @@ export default function GlsCompetitorPage() {
             <Modal.Dialog>
               <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
                 <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>
-                  Xuất báo cáo GLS vs đối thủ
+                  Xuất PDF GLS vs đối thủ
                 </Modal.Heading>
                 <ReportModalCloseTrigger />
               </Modal.Header>
@@ -109,7 +109,7 @@ export default function GlsCompetitorPage() {
                   Hủy
                 </Button>
                 <Button variant="primary" className={reportButtonClass()} onPress={handleExport}>
-                  Xuất Excel
+                  Xuất PDF
                 </Button>
               </Modal.Footer>
             </Modal.Dialog>

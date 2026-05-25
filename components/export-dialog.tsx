@@ -313,7 +313,7 @@ export function ExportDialog({ open, onOpenChange, filters, orders, formula, can
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Xuất Excel
+                    Xuất PDF
                   </>
                 )}
               </Button>

@@ -96,7 +96,7 @@ export default function OperatingCostPage() {
             <Modal.Dialog>
               <Modal.Header className={REPORT_MODAL_HEADER_CLASS}>
                 <Modal.Heading className={REPORT_MODAL_HEADING_CLASS}>
-                  Xuất báo cáo chi phí vận hành
+                  Xuất PDF chi phí vận hành
                 </Modal.Heading>
                 <ReportModalCloseTrigger />
               </Modal.Header>
@@ -126,7 +126,7 @@ export default function OperatingCostPage() {
                     exportModalState.close()
                   }}
                 >
-                  Xuất Excel
+                  Xuất PDF
                 </Button>
               </Modal.Footer>
             </Modal.Dialog>

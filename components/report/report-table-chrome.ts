@@ -1,13 +1,13 @@
 /** Card bọc bảng — không shadow */
 export const REPORT_TABLE_PANEL_CLASS =
-  'report-table-panel min-w-0 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-none ring-0'
+  'report-table-panel min-w-0 overflow-hidden rounded-sm border border-gray-200 bg-white shadow-none ring-0'
 
 /** Lùi bảng 16px so với mép trái/phải card */
 export const REPORT_TABLE_CARD_INSET_X = 'px-4'
 
 /** Viền bao quanh bảng */
 export const REPORT_TABLE_BORDER_CLASS =
-  'overflow-hidden rounded-lg border border-gray-200 bg-white shadow-none ring-0'
+  'overflow-hidden rounded-sm border border-gray-200 bg-white shadow-none ring-0'
 
 /** Bảng báo cáo HeroUI — full width, nền trắng */
 export const REPORT_TABLE_SHELL_CLASS = [

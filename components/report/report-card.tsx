@@ -12,7 +12,7 @@ import {
 } from './master-data-kpi-card'
 
 /** Bo góc card / panel báo cáo */
-export const REPORT_CARD_RADIUS_CLASS = 'rounded-lg'
+export const REPORT_CARD_RADIUS_CLASS = 'rounded-sm'
 
 /** Viền + nền thống nhất cho card báo cáo (filter, chart, bảng). */
 export const REPORT_CARD_CLASS = `overflow-hidden ${REPORT_CARD_RADIUS_CLASS} border border-gray-200 bg-white shadow-none ring-0`
@@ -88,7 +88,7 @@ export function KpiStatCard({
 
   if (isLoading) {
     return (
-      <Card className={cn('!rounded-lg border border-gray-200 bg-white !shadow-none ring-0', REPORT_CARD_RADIUS_CLASS)}>
+      <Card className={cn('!rounded-sm border border-gray-200 bg-white !shadow-none ring-0', REPORT_CARD_RADIUS_CLASS)}>
         <Card.Content className="!gap-0 !p-0">
           <div
             className={cn(
@@ -156,7 +156,7 @@ export function ReportSectionCard({
           bodyClassName,
         )}
       >
-        {isLoading ? <Skeleton className="h-[280px] w-full rounded-lg" /> : children}
+        {isLoading ? <Skeleton className="h-[280px] w-full rounded-sm" /> : children}
       </div>
     </Card>
   )

@@ -71,7 +71,7 @@ export function OperatingCostKpiSection({
           : totals.cpPerCont != null
             ? '***'
             : '—',
-      description: 'Khi AMR chốt công thức & có SL',
+      description: 'Khi chốt công thức & có SL',
       icon: Percent,
       tone: 'warning' as const,
     },

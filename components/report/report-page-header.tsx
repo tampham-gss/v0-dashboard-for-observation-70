@@ -60,7 +60,7 @@ export function ReportHeaderActions({
         onPress={onExport}
       >
         <FileSpreadsheet className="size-4 shrink-0 text-gray-500" aria-hidden />
-        Xuất báo cáo
+        Xuất PDF
       </Button>
     </>
   )
