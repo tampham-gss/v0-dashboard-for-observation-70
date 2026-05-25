@@ -13,7 +13,7 @@ import {
   type InspectionOrder,
   type InspectionOrderStatus,
 } from '@/lib/report-inspection-orders'
-import { TABLE_NUM_COL, TABLE_TEXT_COL } from './report-table-chrome'
+import { TABLE_MONEY_TEXT_CLASS, TABLE_NUM_COL, TABLE_TEXT_COL } from './report-table-chrome'
 import { ReportDataTable } from './report-data-table'
 import { ReportSectionCard } from './report-card'
 import { ReportPaginationFooter } from './report-pagination-footer'
@@ -99,7 +99,9 @@ export function ReportInspectionOrdersTable({
                   <Table.Cell className={TABLE_TEXT_COL}>{row.tuyen}</Table.Cell>
                   <Table.Cell className={TABLE_TEXT_COL}>{row.nhanSu}</Table.Cell>
                   <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.slCont)}</Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>{formatCurrency(row.tongChiPhi)}</Table.Cell>
+                  <Table.Cell className={TABLE_NUM_COL}>
+                    <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongChiPhi)}</span>
+                  </Table.Cell>
                   <Table.Cell className={TABLE_TEXT_COL}>
                     <Chip color={orderStatusColor(row.trangThai)} size="sm" variant="soft">
                       <Chip.Label>{inspectionOrderStatusLabel(row.trangThai)}</Chip.Label>

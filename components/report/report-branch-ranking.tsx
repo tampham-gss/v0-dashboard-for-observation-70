@@ -14,6 +14,7 @@ import {
   REPORT_TABLE_TALL_ROWS_CLASS,
   TABLE_COL_ACTION,
   TABLE_CENTER_COL,
+  TABLE_MONEY_TEXT_CLASS,
   TABLE_NUM_COL,
   TABLE_TEXT_COL,
 } from './report-table-chrome'
@@ -101,16 +102,12 @@ export function ReportBranchRanking({
                   {formatNumber(row.slContTH)}
                 </Table.Cell>
                 <Table.Cell className={TABLE_NUM_COL}>{formatPercent(row.thKhRatio)}</Table.Cell>
-                <Table.Cell className={TABLE_NUM_COL}>{formatCurrency(row.tongChiPhi)}</Table.Cell>
+                <Table.Cell className={TABLE_NUM_COL}>
+                  <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongChiPhi)}</span>
+                </Table.Cell>
                 <Table.Cell className={TABLE_NUM_COL}>
                   {row.cpTBPerCont != null ? (
-                    <span
-                      className={
-                        row.overTargetCp ? 'font-medium text-amber-700' : 'text-gray-900'
-                      }
-                    >
-                      {formatCurrency(row.cpTBPerCont)}
-                    </span>
+                    formatCurrency(row.cpTBPerCont)
                   ) : (
                     '—'
                   )}

@@ -18,6 +18,7 @@ import {
   REPORT_TABLE_MIN_WIDTH_CP,
   TABLE_COL_ACTION,
   TABLE_COL_STATUS,
+  TABLE_MONEY_TEXT_CLASS,
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
   TABLE_NUM_COL_WIDE,
@@ -143,17 +144,27 @@ export function CPTab({
                 {row.branch}
               </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.nhanCong)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatCurrency(row.cpGNGLSPerCont)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatCurrency(row.tongCPGNGLS)}</Table.Cell>
+              <Table.Cell className={TABLE_NUM_COL_WIDE}>
+                {formatCurrency(row.cpGNGLSPerCont)}
+              </Table.Cell>
+              <Table.Cell className={TABLE_NUM_COL_WIDE}>
+                <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongCPGNGLS)}</span>
+              </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatNumber(row.contGNGLSKD)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatCurrency(row.tongCPLaiXeKD)}</Table.Cell>
+              <Table.Cell className={TABLE_NUM_COL_WIDE}>
+                <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongCPLaiXeKD)}</span>
+              </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatNumber(row.contLaiXeKD)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatCurrency(row.tongCPVendor)}</Table.Cell>
+              <Table.Cell className={TABLE_NUM_COL_WIDE}>
+                <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongCPVendor)}</span>
+              </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatNumber(row.contVendorKD)}</Table.Cell>
               <Table.Cell className={`${TABLE_NUM_COL_WIDE} font-medium`}>
-                {formatCurrency(row.tongChiPhi)}
+                <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.tongChiPhi)}</span>
               </Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL_WIDE}>{formatCurrency(row.cpTBPerCont)}</Table.Cell>
+              <Table.Cell className={TABLE_NUM_COL_WIDE}>
+                {formatCurrency(row.cpTBPerCont)}
+              </Table.Cell>
               <Table.Cell className={TABLE_COL_STATUS}>
                 <div className="flex justify-center">
                   <CPStatusChip status={row.status} />

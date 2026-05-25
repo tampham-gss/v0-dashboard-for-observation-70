@@ -56,6 +56,9 @@ export const TABLE_NUM_COL = `${TABLE_NUM_COL_BASE} min-w-[5.25rem]`
 /** Cột số có tiêu đề dài (CP, SL) */
 export const TABLE_NUM_COL_WIDE = `${TABLE_NUM_COL_BASE} min-w-[7.75rem]`
 
+/** Giá trị tiền trong bảng — màu success */
+export const TABLE_MONEY_TEXT_CLASS = 'font-medium text-green-600'
+
 /** Cột căn giữa (badge, thao tác) */
 export const TABLE_CENTER_COL = 'whitespace-nowrap text-center'
 

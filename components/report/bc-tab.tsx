@@ -19,6 +19,7 @@ import {
 import {
   TABLE_COL_ACTION,
   TABLE_COL_STATUS,
+  TABLE_MONEY_TEXT_CLASS,
   TABLE_COL_WIDE,
   TABLE_NUM_COL,
 } from './report-table-chrome'
@@ -111,10 +112,18 @@ function BcSourceTable({
                 {formatPercent(slRatioGLS(row.sl.slContGLS, row.sl.slContTH))}
               </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>
-                {row.cp ? formatCurrency(row.cp.tongChiPhi) : '—'}
+                {row.cp ? (
+                  <span className={TABLE_MONEY_TEXT_CLASS}>{formatCurrency(row.cp.tongChiPhi)}</span>
+                ) : (
+                  '—'
+                )}
               </Table.Cell>
               <Table.Cell className={TABLE_NUM_COL}>
-                {row.cp ? formatCurrency(row.cp.cpTBPerCont) : '—'}
+                {row.cp ? (
+                  formatCurrency(row.cp.cpTBPerCont)
+                ) : (
+                  '—'
+                )}
               </Table.Cell>
               <Table.Cell className={TABLE_COL_STATUS}>
                 <div className="flex justify-center">

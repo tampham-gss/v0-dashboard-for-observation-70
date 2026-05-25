@@ -11,7 +11,7 @@ import {
   type OperatingCostRecord,
 } from '@/lib/operating-cost-mock-data'
 import type { OpCostBreakdownRow } from '@/lib/operating-cost-analytics'
-import { TABLE_NUM_COL, TABLE_TEXT_COL } from './report-table-chrome'
+import { TABLE_MONEY_TEXT_CLASS, TABLE_NUM_COL, TABLE_TEXT_COL } from './report-table-chrome'
 import { ReportDataTable } from './report-data-table'
 import { ReportSectionCard } from './report-card'
 import { ReportPaginationFooter } from './report-pagination-footer'
@@ -21,6 +21,11 @@ import { cn } from '@/lib/utils'
 const PAGE_SIZE = 10
 
 type DrillField = 'deliverer' | 'customer' | 'region' | null
+
+function MoneyValue({ value }: { value: string }) {
+  if (value === '—' || value === '***') return <span>{value}</span>
+  return <span className={TABLE_MONEY_TEXT_CLASS}>{value}</span>
+}
 
 function BreakdownSummaryRow({
   rows,
@@ -40,7 +45,7 @@ function BreakdownSummaryRow({
         Tổng phạm vi lọc
       </Table.Cell>
       <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
-        {formatOpCostAmount(totalChiPhi, canViewAmounts)}
+        <MoneyValue value={formatOpCostAmount(totalChiPhi, canViewAmounts)} />
       </Table.Cell>
       <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
         {formatNumber(totalSlCont)}
@@ -127,7 +132,7 @@ function DetailSummaryRow({
         {formatOpCostAmount(totals.boiDuong, canViewAmounts)}
       </Table.Cell>
       <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
-        {formatOpCostAmount(totals.tongChiPhi, canViewAmounts)}
+        <MoneyValue value={formatOpCostAmount(totals.tongChiPhi, canViewAmounts)} />
       </Table.Cell>
       <Table.Cell className={TABLE_TEXT_COL}>
         <span className="text-gray-400">—</span>
@@ -225,7 +230,7 @@ export function OperatingCostBreakdownTabs({
                   {item.row.label}
                 </Table.Cell>
                 <Table.Cell className={TABLE_NUM_COL}>
-                  {formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)}
+                  <MoneyValue value={formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)} />
                 </Table.Cell>
                 <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.slCont)}</Table.Cell>
                 <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.km)}</Table.Cell>
@@ -370,7 +375,7 @@ export function OperatingCostDetailTable({
                       )}
                     </Table.Cell>
                     <Table.Cell className={`${TABLE_NUM_COL} font-medium`}>
-                      {formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)}
+                      <MoneyValue value={formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)} />
                     </Table.Cell>
                     <Table.Cell className={TABLE_TEXT_COL}>
                       <LockChip status={item.row.lockStatus} dataError={item.row.dataError} />
