@@ -25,9 +25,9 @@ import {
 import { monthsForYear, weeksForYear } from '@/lib/report-mock-data'
 
 const PERIOD_OPTIONS: { id: OpCostPeriodType; label: string }[] = [
-  { id: 'day', label: 'Ngày (BC ngày)' },
-  { id: 'week', label: 'Tuần (BC tuần)' },
-  { id: 'month', label: 'Tháng (BC tháng)' },
+  { id: 'day', label: 'Ngày (Báo cáo ngày)' },
+  { id: 'week', label: 'Tuần (Báo cáo tuần)' },
+  { id: 'month', label: 'Tháng (Báo cáo tháng)' },
 ]
 
 const LOCK_OPTIONS: { id: OpCostLockStatus | 'all'; label: string }[] = [

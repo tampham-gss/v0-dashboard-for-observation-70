@@ -10,16 +10,16 @@ import {
   type BranchCode,
 } from './report-mock-data'
 
-/** Kỳ báo cáo — tham chiếu BC tuần/tháng + BC ngày */
+/** Kỳ báo cáo — tham chiếu Báo cáo tuần/tháng + Báo cáo ngày */
 export type OpCostPeriodType = 'day' | 'week' | 'month'
 
 export type OpCostRegionCode = BranchCode
 
 export type OpCostLockStatus = 'tam_tinh' | 'da_khoa' | 'can_kiem_tra'
 
-export type OpCostDataSource = 'BC ngày' | 'BC tuần' | 'BC tháng' | 'Điều động/chấm công'
+export type OpCostDataSource = 'Báo cáo ngày' | 'Báo cáo tuần' | 'Báo cáo tháng' | 'Điều động/chấm công'
 
-/** Bản ghi chi phí vận hành theo lệnh/ngày (grain BC ngày + tổng hợp tuần/tháng) */
+/** Bản ghi chi phí vận hành theo lệnh/ngày (grain Báo cáo ngày + tổng hợp tuần/tháng) */
 export interface OperatingCostRecord {
   id: string
   periodType: OpCostPeriodType
@@ -188,7 +188,7 @@ function buildRecord(index: number): OperatingCostRecord {
     cppsChuyen: null as null,
     boiDuongPhatSinh,
     lockStatus,
-    dataSource: 'BC ngày' as OpCostDataSource,
+    dataSource: 'Báo cáo ngày' as OpCostDataSource,
     regionRuleNote: regionMeta.rule,
     dataError: hasError,
   }

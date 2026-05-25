@@ -1,5 +1,5 @@
 /**
- * BC tuần / BC tháng là nguồn dữ liệu; SL và CP là hai nhóm chỉ tiêu trên cùng grain (kỳ × chi nhánh).
+ * Báo cáo tuần / Báo cáo tháng là nguồn dữ liệu; SL và CP là hai nhóm chỉ tiêu trên cùng grain (kỳ × chi nhánh).
  */
 import {
   cpRecords,
@@ -12,10 +12,10 @@ import {
   type SLRecord,
 } from './report-mock-data'
 
-export type BcSourceSheet = 'BC tuần' | 'BC tháng'
+export type BcSourceSheet = 'Báo cáo tuần' | 'Báo cáo tháng'
 
 export function bcSourceSheetForPeriod(periodType: PeriodType): BcSourceSheet {
-  return periodType === 'week' ? 'BC tuần' : 'BC tháng'
+  return periodType === 'week' ? 'Báo cáo tuần' : 'Báo cáo tháng'
 }
 
 /** Một dòng báo cáo BC = SL + CP cùng khóa kỳ/chi nhánh. */
@@ -41,7 +41,7 @@ function findCpForSl(sl: SLRecord): CPRecord | undefined {
   )
 }
 
-/** Toàn bộ dòng BC (mock ghép từ SL + CP — tương đương sheet BC tuần/tháng). */
+/** Toàn bộ dòng BC (mock ghép từ SL + CP — tương đương sheet Báo cáo tuần/tháng). */
 export function buildBcReportRows(): BcReportRow[] {
   return slRecords.map((sl) => ({
     id: `bc-${bcRowKey(sl)}`,

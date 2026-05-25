@@ -166,19 +166,6 @@ export function OverviewTab({
         isLoading={isLoading}
         branchFilter={selectedBranch}
       />
-
-      <div
-        className={cn(REPORT_CARD_CLASS, 'px-5 py-4')}
-        style={{ boxShadow: 'none' }}
-      >
-        <p className="text-sm leading-relaxed text-gray-600">
-          Doanh thu và hiệu quả chưa được tính do chưa có nguồn doanh thu chính thức hoặc công thức
-          phê duyệt. Hệ thống không tự tính các chỉ tiêu này.
-        </p>
-        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">
-          Phạm vi đang xem · {appliedFiltersCaption(appliedFilters)}
-        </p>
-      </div>
     </div>
   )
 }

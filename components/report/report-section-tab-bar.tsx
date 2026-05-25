@@ -9,8 +9,8 @@ import type { ReportSectionTabId } from './report-section-tabs'
 
 const TABS: { id: ReportSectionTabId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-  { id: 'bcWeek', label: 'BC tuần', icon: FileSpreadsheet },
-  { id: 'bcMonth', label: 'BC tháng', icon: FileSpreadsheet },
+  { id: 'bcWeek', label: 'Báo cáo tuần', icon: FileSpreadsheet },
+  { id: 'bcMonth', label: 'Báo cáo tháng', icon: FileSpreadsheet },
   { id: 'sl', label: 'Sản lượng', icon: Package },
   { id: 'cp', label: 'Chi phí', icon: Receipt },
 ]

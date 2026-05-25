@@ -133,6 +133,10 @@ export function OperatingCostContent({
   }, [scopedRows, drillField, drillKey])
 
   const canView = appliedFilters.canViewAmounts
+  const configReviewCount = useMemo(
+    () => scopedRows.filter((row) => row.lockStatus === 'can_kiem_tra' && !row.dataError).length,
+    [scopedRows],
+  )
 
   const handleDrill = (field: typeof drillField, key: string | null) => {
     setDrillField(field)
@@ -147,10 +151,20 @@ export function OperatingCostContent({
         </ReportInlineNotice>
       ) : null}
 
-      {(totals.dataErrorCount > 0) && (
+      {(totals.dataErrorCount > 0 || configReviewCount > 0) && (
         <ReportInlineNotice tone="warning" title="Lỗi / thiếu cấu hình">
-          {totals.dataErrorCount} bản ghi có km hoặc chi phí âm — không cộng vào tổng. Thiếu barem
-          vùng: hiển thị cảnh báo, không tự tính.
+          {totals.dataErrorCount > 0 ? (
+            <>
+              {totals.dataErrorCount} bản ghi có km hoặc chi phí âm — không cộng vào tổng.
+              {configReviewCount > 0 ? ' ' : ''}
+            </>
+          ) : null}
+          {configReviewCount > 0 ? (
+            <>
+              {configReviewCount} bản ghi đang ở trạng thái cần kiểm tra barem/công thức vùng; hệ
+              thống chỉ cảnh báo, không tự tính bổ sung ngoài dữ liệu nguồn.
+            </>
+          ) : null}
         </ReportInlineNotice>
       )}
 
@@ -207,17 +221,7 @@ export function OperatingCostContent({
         onViewDetail={onViewDetail}
       />
 
-      <div className={cn(REPORT_CARD_CLASS, 'px-5 py-4')} style={{ boxShadow: 'none' }}>
-        <p className="text-sm leading-relaxed text-gray-600">
-          Dữ liệu mock tham chiếu sheet <strong className="font-medium text-gray-800">CP</strong>,{' '}
-          <strong className="font-medium text-gray-800">BC tuần/tháng</strong> và{' '}
-          <strong className="font-medium text-gray-800">BC ngày</strong>. Payroll nhận một chiều sau
-          khi chuyến khóa — không chỉnh ngược TMS.
-        </p>
-        <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">
-          Phạm vi · {appliedOperatingCostCaption(appliedFilters)}
-        </p>
-      </div>
+      
     </div>
   )
 }

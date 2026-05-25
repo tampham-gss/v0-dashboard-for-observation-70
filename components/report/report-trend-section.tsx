@@ -103,9 +103,7 @@ export function ReportTrendSection({
         </EmptyState>
       ) : (
         <div className="space-y-3">
-          <ReportInlineNotice title="Doanh thu & hiệu quả" tone="warning">
-            Chưa có nguồn doanh thu chính thức — biểu đồ chỉ hiển thị sản lượng và chi phí vận hành.
-          </ReportInlineNotice>
+       
 
           <div
             role="tablist"

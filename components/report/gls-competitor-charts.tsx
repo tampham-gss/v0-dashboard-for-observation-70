@@ -51,7 +51,7 @@ export function GlsCompetitorBarChart({
           </p>
         </EmptyState>
       ) : (
-        <div className="report-chart-host h-[300px] w-full">
+        <div className="report-chart-host h-[360px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
@@ -64,7 +64,7 @@ export function GlsCompetitorBarChart({
                 tick={REPORT_CHART_X_TICK_ANGLED}
                 angle={-35}
                 textAnchor="end"
-                height={56}
+                height={60}
                 interval={0}
               />
               <YAxis
@@ -127,7 +127,7 @@ export function GlsCompetitorShareChart({
           </p>
         </EmptyState>
       ) : (
-        <div className="report-chart-host h-[300px] w-full">
+        <div className="report-chart-host h-[360px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={REPORT_CHART_MARGIN}>
               <Pie
@@ -136,7 +136,7 @@ export function GlsCompetitorShareChart({
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
+                outerRadius={118}
                 label={({ name, percent }) =>
                   percent > 0.04 ? `${name} ${(percent * 100).toFixed(0)}%` : ''
                 }

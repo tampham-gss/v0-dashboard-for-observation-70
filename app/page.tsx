@@ -62,7 +62,7 @@ export default function ReportPage() {
 
   const handleExportConfirm = (type: 'week' | 'month') => {
     toast.success(
-      `Đã mô phỏng xuất ${type === 'week' ? 'BC tuần' : 'BC tháng'} theo bộ lọc hiện tại.`,
+      `Đã mô phỏng xuất ${type === 'week' ? 'Báo cáo tuần' : 'Báo cáo tháng'} theo bộ lọc hiện tại.`,
     )
   }
 
@@ -140,7 +140,7 @@ export default function ReportPage() {
       {activeTab === 'bcWeek' && (
         <BcTab
           periodType="week"
-          title="BC tuần"
+          title="Báo cáo tuần"
           appliedFilters={appliedFilters}
           isLoading={isLoading}
           onViewSl={openSLDetail}
@@ -150,7 +150,7 @@ export default function ReportPage() {
       {activeTab === 'bcMonth' && (
         <BcTab
           periodType="month"
-          title="BC tháng"
+          title="Báo cáo tháng"
           appliedFilters={appliedFilters}
           isLoading={isLoading}
           onViewSl={openSLDetail}

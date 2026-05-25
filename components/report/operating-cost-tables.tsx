@@ -22,6 +22,126 @@ const PAGE_SIZE = 10
 
 type DrillField = 'deliverer' | 'customer' | 'region' | null
 
+function BreakdownSummaryRow({
+  rows,
+  canViewAmounts,
+}: {
+  rows: OpCostBreakdownRow[]
+  canViewAmounts: boolean
+}) {
+  const totalChiPhi = rows.reduce((sum, row) => sum + row.tongChiPhi, 0)
+  const totalSlCont = rows.reduce((sum, row) => sum + row.slCont, 0)
+  const totalKm = rows.reduce((sum, row) => sum + row.km, 0)
+  const totalRecords = rows.reduce((sum, row) => sum + row.recordCount, 0)
+
+  return (
+    <Table.Row id="breakdown-summary">
+      <Table.Cell className={`${TABLE_TEXT_COL} font-semibold text-gray-900`}>
+        Tổng phạm vi lọc
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totalChiPhi, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatNumber(totalSlCont)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatNumber(totalKm)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatNumber(totalRecords)}
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
+function DetailSummaryRow({
+  rows,
+  canViewAmounts,
+}: {
+  rows: OperatingCostRecord[]
+  canViewAmounts: boolean
+}) {
+  const validRows = rows.filter((row) => !row.dataError && row.km >= 0 && row.tongChiPhi >= 0)
+  const totals = validRows.reduce(
+    (acc, row) => ({
+      slCont: acc.slCont + row.slCont,
+      km: acc.km + row.km,
+      luong: acc.luong + row.luong,
+      anTc:
+        acc.anTc +
+        row.tienAnTrua +
+        row.tienTangCa +
+        row.tienAnTangCa +
+        row.tienPhongTro22h,
+      xangXe: acc.xangXe + row.tienXangVeXe,
+      boiDuong: acc.boiDuong + (row.boiDuongPhatSinh ?? 0),
+      tongChiPhi: acc.tongChiPhi + row.tongChiPhi,
+    }),
+    {
+      slCont: 0,
+      km: 0,
+      luong: 0,
+      anTc: 0,
+      xangXe: 0,
+      boiDuong: 0,
+      tongChiPhi: 0,
+    },
+  )
+
+  return (
+    <Table.Row id="detail-summary">
+      <Table.Cell className={`${TABLE_TEXT_COL} font-semibold text-gray-900`}>
+        Tổng phạm vi lọc
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>{formatNumber(totals.slCont)}</Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>{formatNumber(totals.km)}</Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totals.luong, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totals.anTc, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totals.xangXe, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totals.boiDuong, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={`${TABLE_NUM_COL} font-semibold`}>
+        {formatOpCostAmount(totals.tongChiPhi, canViewAmounts)}
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+      <Table.Cell className={TABLE_TEXT_COL}>
+        <span className="text-gray-400">—</span>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
 export function OperatingCostBreakdownTabs({
   byDeliverer,
   byCustomer,
@@ -46,6 +166,13 @@ export function OperatingCostBreakdownTabs({
     tab === 'deliverer' ? byDeliverer : tab === 'customer' ? byCustomer : byRegion
   const field: DrillField =
     tab === 'deliverer' ? 'deliverer' : tab === 'customer' ? 'customer' : 'region'
+  const tableItems = useMemo(
+    () => [
+      ...rows.map((row) => ({ key: `row-${row.key}`, kind: 'row' as const, row })),
+      { key: 'summary-breakdown', kind: 'summary' as const },
+    ],
+    [rows],
+  )
 
   const tabBtn = (id: typeof tab, label: string) => (
     <button
@@ -85,34 +212,38 @@ export function OperatingCostBreakdownTabs({
           <Table.Column className={TABLE_NUM_COL}>Bản ghi</Table.Column>
           <Table.Column className={TABLE_TEXT_COL}>Thao tác</Table.Column>
         </Table.Header>
-        <Table.Body items={rows}>
-          {(row) => (
-            <Table.Row
-              id={row.key}
-              className={cn(drillField === field && drillKey === row.key && 'bg-blue-50/80')}
-            >
-              <Table.Cell className={`${TABLE_TEXT_COL} font-medium text-gray-900`}>
-                {row.label}
-              </Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL}>
-                {formatOpCostAmount(row.tongChiPhi, canViewAmounts)}
-              </Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.slCont)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.km)}</Table.Cell>
-              <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.recordCount)}</Table.Cell>
-              <Table.Cell className={TABLE_TEXT_COL}>
-                <ReportTableLabelAction
-                  label={drillField === field && drillKey === row.key ? 'Bỏ lọc' : 'Chi tiết'}
-                  onPress={() =>
-                    onDrill(
-                      drillField === field && drillKey === row.key ? null : field,
-                      drillField === field && drillKey === row.key ? null : row.key,
-                    )
-                  }
-                />
-              </Table.Cell>
-            </Table.Row>
-          )}
+        <Table.Body items={tableItems}>
+          {(item) =>
+            item.kind === 'summary' ? (
+              <BreakdownSummaryRow rows={rows} canViewAmounts={canViewAmounts} />
+            ) : (
+              <Table.Row
+                id={item.row.key}
+                className={cn(drillField === field && drillKey === item.row.key && 'bg-blue-50/80')}
+              >
+                <Table.Cell className={`${TABLE_TEXT_COL} font-medium text-gray-900`}>
+                  {item.row.label}
+                </Table.Cell>
+                <Table.Cell className={TABLE_NUM_COL}>
+                  {formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)}
+                </Table.Cell>
+                <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.slCont)}</Table.Cell>
+                <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.km)}</Table.Cell>
+                <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.recordCount)}</Table.Cell>
+                <Table.Cell className={TABLE_TEXT_COL}>
+                  <ReportTableLabelAction
+                    label={drillField === field && drillKey === item.row.key ? 'Bỏ lọc' : 'Chi tiết'}
+                    onPress={() =>
+                      onDrill(
+                        drillField === field && drillKey === item.row.key ? null : field,
+                        drillField === field && drillKey === item.row.key ? null : item.row.key,
+                      )
+                    }
+                  />
+                </Table.Cell>
+              </Table.Row>
+            )
+          }
         </Table.Body>
       </ReportDataTable>
     </ReportSectionCard>
@@ -138,11 +269,18 @@ export function OperatingCostDetailTable({
     const start = (page - 1) * PAGE_SIZE
     return rows.slice(start, start + PAGE_SIZE)
   }, [rows, page])
+  const tableItems = useMemo(
+    () => [
+      ...pageItems.map((row) => ({ key: `row-${row.id}`, kind: 'row' as const, row })),
+      { key: 'summary-detail', kind: 'summary' as const },
+    ],
+    [pageItems],
+  )
 
   return (
     <ReportSectionCard
       title="Chi tiết lệnh / bản ghi nguồn"
-      description="BC ngày — km, thành phần chi phí, CPPS (trống), trạng thái chốt"
+      description="Báo cáo ngày — km, thành phần chi phí, CPPS (trống), trạng thái chốt"
       isLoading={isLoading}
       bodyClassName="!px-0 !pb-0"
     >
@@ -160,7 +298,7 @@ export function OperatingCostDetailTable({
           <ReportDataTable
             aria-label="Chi tiết chi phí vận hành"
             framed={false}
-            className="min-w-[88rem] border-0"
+            className="min-w-[96rem] border-0"
           >
             <Table.Header>
               <Table.Column isRowHeader className={TABLE_TEXT_COL}>
@@ -169,6 +307,7 @@ export function OperatingCostDetailTable({
               <Table.Column className={TABLE_TEXT_COL}>Giao nhận</Table.Column>
               <Table.Column className={TABLE_TEXT_COL}>KH / Kho</Table.Column>
               <Table.Column className={TABLE_TEXT_COL}>Khu vực</Table.Column>
+              <Table.Column className={TABLE_TEXT_COL}>Tuyến</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>SL</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>Km</Table.Column>
               <Table.Column className={TABLE_NUM_COL}>Lương</Table.Column>
@@ -181,62 +320,70 @@ export function OperatingCostDetailTable({
               <Table.Column className={TABLE_TEXT_COL}>Nguồn</Table.Column>
               <Table.Column className={TABLE_TEXT_COL}>Thao tác</Table.Column>
             </Table.Header>
-            <Table.Body items={pageItems}>
-              {(row) => (
-                <Table.Row id={row.id}>
-                  <Table.Cell className={TABLE_TEXT_COL}>{formatAppDate(row.statDate)}</Table.Cell>
-                  <Table.Cell className={`${TABLE_TEXT_COL} font-medium text-gray-900`}>
-                    {row.delivererName}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>
-                    <span className="block">{row.customer}</span>
-                    <span className="text-xs text-gray-500">{row.warehouse}</span>
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>{opCostRegionLabel(row.region)}</Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>{formatNumber(row.slCont)}</Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    {row.km < 0 ? (
-                      <span className="text-red-600">Lỗi</span>
-                    ) : (
-                      formatNumber(row.km)
-                    )}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    {formatOpCostAmount(row.luong, canViewAmounts)}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    {formatOpCostAmount(
-                      row.tienAnTrua + row.tienTangCa + row.tienAnTangCa + row.tienPhongTro22h,
-                      canViewAmounts,
-                    )}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    {formatOpCostAmount(row.tienXangVeXe, canViewAmounts)}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    <span className="text-gray-400">—</span>
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_NUM_COL}>
-                    {row.boiDuongPhatSinh == null ? (
-                      <span className="text-xs text-amber-700">Chưa có DL</span>
-                    ) : (
-                      formatOpCostAmount(row.boiDuongPhatSinh, canViewAmounts)
-                    )}
-                  </Table.Cell>
-                  <Table.Cell className={`${TABLE_NUM_COL} font-medium`}>
-                    {formatOpCostAmount(row.tongChiPhi, canViewAmounts)}
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>
-                    <LockChip status={row.lockStatus} dataError={row.dataError} />
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>
-                    <span className="text-xs text-gray-600">{row.dataSource}</span>
-                  </Table.Cell>
-                  <Table.Cell className={TABLE_TEXT_COL}>
-                    <ReportTableViewAction onPress={() => onViewDetail(row)} />
-                  </Table.Cell>
-                </Table.Row>
-              )}
+            <Table.Body items={tableItems}>
+              {(item) =>
+                item.kind === 'summary' ? (
+                  <DetailSummaryRow rows={rows} canViewAmounts={canViewAmounts} />
+                ) : (
+                  <Table.Row id={item.row.id}>
+                    <Table.Cell className={TABLE_TEXT_COL}>{formatAppDate(item.row.statDate)}</Table.Cell>
+                    <Table.Cell className={`${TABLE_TEXT_COL} font-medium text-gray-900`}>
+                      {item.row.delivererName}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>
+                      <span className="block">{item.row.customer}</span>
+                      <span className="text-xs text-gray-500">{item.row.warehouse}</span>
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>{opCostRegionLabel(item.row.region)}</Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>{item.row.route}</Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>{formatNumber(item.row.slCont)}</Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      {item.row.km < 0 ? (
+                        <span className="text-red-600">Lỗi</span>
+                      ) : (
+                        formatNumber(item.row.km)
+                      )}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      {formatOpCostAmount(item.row.luong, canViewAmounts)}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      {formatOpCostAmount(
+                        item.row.tienAnTrua +
+                          item.row.tienTangCa +
+                          item.row.tienAnTangCa +
+                          item.row.tienPhongTro22h,
+                        canViewAmounts,
+                      )}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      {formatOpCostAmount(item.row.tienXangVeXe, canViewAmounts)}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      <span className="text-gray-400">—</span>
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_NUM_COL}>
+                      {item.row.boiDuongPhatSinh == null ? (
+                        <span className="text-xs text-amber-700">Chưa có dữ liệu</span>
+                      ) : (
+                        formatOpCostAmount(item.row.boiDuongPhatSinh, canViewAmounts)
+                      )}
+                    </Table.Cell>
+                    <Table.Cell className={`${TABLE_NUM_COL} font-medium`}>
+                      {formatOpCostAmount(item.row.tongChiPhi, canViewAmounts)}
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>
+                      <LockChip status={item.row.lockStatus} dataError={item.row.dataError} />
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>
+                      <span className="text-xs text-gray-600">{item.row.dataSource}</span>
+                    </Table.Cell>
+                    <Table.Cell className={TABLE_TEXT_COL}>
+                      <ReportTableViewAction onPress={() => onViewDetail(item.row)} />
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              }
             </Table.Body>
           </ReportDataTable>
           <ReportPaginationFooter

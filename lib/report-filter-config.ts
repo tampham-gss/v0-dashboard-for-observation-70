@@ -48,7 +48,7 @@ const OVERVIEW_STATUSES: FilterStatus[] = [
   ...CP_STATUSES,
 ]
 
-/** Bộ lọc BC tuần/tháng: kỳ theo tháng, chi nhánh, trạng thái. */
+/** Bộ lọc Báo cáo tuần/tháng: kỳ theo tháng, chi nhánh, trạng thái. */
 const BC_TAB_FILTER_FIELD_KEYS: FilterFieldKey[] = [
   'year',
   'month',
@@ -66,8 +66,8 @@ const TAB_FIELDS: Record<ReportSectionTabId, FilterFieldKey[]> = {
 
 const TAB_LABELS: Record<ReportSectionTabId, string> = {
   overview: 'Tổng quan',
-  bcWeek: 'BC tuần',
-  bcMonth: 'BC tháng',
+  bcWeek: 'Báo cáo tuần',
+  bcMonth: 'Báo cáo tháng',
   sl: 'Sản lượng',
   cp: 'Chi phí',
 }
@@ -140,7 +140,7 @@ export function sanitizeFiltersForTab(filters: ReportFilters, tab: ReportSection
   return filters
 }
 
-/** Đồng bộ periodType và kỳ khi đổi tab (BC tuần / BC tháng). */
+/** Đồng bộ periodType và kỳ khi đổi tab (Báo cáo tuần / Báo cáo tháng). */
 export function syncFiltersForTab(filters: ReportFilters, tab: ReportSectionTabId): ReportFilters {
   let next = sanitizeFiltersForTab(filters, tab)
 
@@ -193,7 +193,7 @@ export function patchYearForBcTab(
   return patch
 }
 
-/** Khi đổi tháng trên tab BC tuần. */
+/** Khi đổi tháng trên tab Báo cáo tuần. */
 export function patchMonthForBcWeek(month: string): Partial<ReportFilters> {
   return { month }
 }

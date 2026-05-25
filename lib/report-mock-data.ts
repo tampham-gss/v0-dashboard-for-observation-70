@@ -85,7 +85,7 @@ export interface ReportFilters {
   opsCs: string | 'all'
   status: FilterStatus
   keyword: string
-  /** Tab BC tuần: lọc theo tháng (mọi tuần trong tháng), không theo một tuần. */
+  /** Tab Báo cáo tuần: lọc theo tháng (mọi tuần trong tháng), không theo một tuần. */
   bcWeekByMonth?: boolean
 }
 
@@ -126,7 +126,7 @@ export function monthsForYear(year: number): string[] {
   return MONTHS.filter((m) => m.endsWith(`/${yy}`))
 }
 
-/** Bốn tuần trong tháng lịch (dùng cho bộ lọc BC tuần). */
+/** Bốn tuần trong tháng lịch (dùng cho bộ lọc Báo cáo tuần). */
 export function bcWeekOptionsForMonth(year: number, month: string): string[] {
   const yy = String(year).slice(-2)
   if (!month.endsWith(`/${yy}`)) return []

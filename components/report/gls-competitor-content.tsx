@@ -136,17 +136,7 @@ export function GlsCompetitorContent({
     <div className="space-y-5">
       {(totals.unassignedContCount > 0 || totals.dataErrorCount > 0) && (
         <div className="space-y-2">
-          {totals.unassignedContCount > 0 ? (
-            <ReportInlineNotice tone="warning" title="Chưa gán loại cont">
-              {totals.unassignedContCount} bản ghi không tham gia tính tỷ lệ cho đến khi gán CONT_20
-              hoặc CONT_40.
-            </ReportInlineNotice>
-          ) : null}
-          {totals.dataErrorCount > 0 ? (
-            <ReportInlineNotice tone="warning" title="Lỗi dữ liệu">
-              {totals.dataErrorCount} bản ghi có sản lượng âm — đã đánh dấu, không cộng vào tỷ lệ.
-            </ReportInlineNotice>
-          ) : null}
+          
         </div>
       )}
 
@@ -196,19 +186,7 @@ export function GlsCompetitorContent({
         competitorFilter={drillCompetitor}
       />
 
-      <div
-        className={cn(REPORT_CARD_CLASS, 'px-5 py-4')}
-        style={{ boxShadow: 'none' }}
-      >
-        <p className="text-sm leading-relaxed text-gray-600">
-          Báo cáo chỉ đọc dữ liệu phản ánh hiện trường. Không chỉnh sửa bản ghi tại đây. Đối
-          thủ ngoài danh mục được gom nhóm <strong className="font-medium text-gray-800">Khác</strong>.
-        </p>
-        <p className="mt-3 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-gray-500">
-          <Users className="size-3.5 shrink-0" aria-hidden />
-          Phạm vi · {appliedGlsCompetitorCaption(appliedFilters)}
-        </p>
-      </div>
+     
     </div>
   )
 }

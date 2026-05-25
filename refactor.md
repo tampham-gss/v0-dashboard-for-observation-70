@@ -8,15 +8,15 @@ Tuy nhiên, tại thời điểm generate UI cũ, chưa có file Excel thực t�
 
 Bây giờ tôi đã có thêm:
 1. File Excel báo cáo thực tế, gồm các sheet:
-   - BC tuần
-   - BC tháng
+   - Báo cáo tuần
+   - Báo cáo tháng
    - SL
    - CP
 
 2. Lưu ý mới từ khách hàng:
    - Không phân tích theo tiêu chí Khách hàng
    - Không phân tích theo tiêu chí Hub
-   - Chỉ làm ở sheet "BC tuần" và "BC tháng"
+   - Chỉ làm ở sheet "Báo cáo tuần" và "Báo cáo tháng"
    - Kết quả cần thể hiện theo 2 nhóm đầu ra:
      - "SL" = Sản lượng
      - "CP" = Chi phí
@@ -78,7 +78,7 @@ Kiểm đếm > Báo cáo > Sản lượng & Chi phí
 ## Notice trên đầu màn hình
 Hiển thị một alert/notice rõ ràng:
 
-"Không phân tích theo Khách hàng và Hub theo yêu cầu khách hàng. Dữ liệu được tổng hợp từ BC Tuần / BC Tháng và thể hiện theo SL / CP."
+"Không phân tích theo Khách hàng và Hub theo yêu cầu khách hàng. Dữ liệu được tổng hợp từ Báo cáo tuần / Báo cáo tháng và thể hiện theo SL / CP."
 
 # NAVIGATION
 Sidebar chỉ cần có mục:

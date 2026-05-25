@@ -35,7 +35,7 @@ export function OperatingCostBarChart({
   return (
     <ReportSectionCard
       title="Chi phí theo kỳ"
-      description={`Biểu đồ cột · nhóm ${groupLabel} (tham chiếu sheet CP / BC ngày)`}
+      description={`Biểu đồ cột · nhóm ${groupLabel} (tham chiếu sheet CP / Báo cáo ngày)`}
       isLoading={isLoading}
       fillHeight
       bodyClassName="pb-3"

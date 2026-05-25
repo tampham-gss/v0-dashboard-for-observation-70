@@ -51,16 +51,7 @@ export function ReportSlEfficiencyCompare({
         </EmptyState>
       ) : (
         <div className="space-y-3">
-          {reviewCount > 0 ? (
-            <ReportInlineNotice title={`${reviewCount} chi nhánh cần xem xét`} tone="warning">
-              SL cont TH thuộc nhóm cao (≥ P75) và CP TB/Cont vượt định mức{' '}
-              {formatCurrency(TARGET_CP_PER_CONT)}/cont.
-            </ReportInlineNotice>
-          ) : (
-            <ReportInlineNotice tone="accent">
-              Chưa phát hiện nhóm SL cao kèm CP vượt định mức trong phạm vi lọc.
-            </ReportInlineNotice>
-          )}
+          
 
           <div className="report-chart-host h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">

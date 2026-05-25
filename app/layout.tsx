@@ -27,7 +27,7 @@ const jbMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Báo cáo sản lượng & chi phí kiểm đếm | Hệ thống Kiểm Đếm',
   description:
-    'Báo cáo sản lượng (SL) và chi phí (CP) theo tuần/tháng, chi nhánh — tổng hợp từ BC Tuần / BC Tháng',
+    'Báo cáo sản lượng (SL) và chi phí (CP) theo tuần/tháng, chi nhánh — tổng hợp từ Báo cáo tuần / Báo cáo tháng',
   generator: 'v0.app',
   icons: {
     icon: [
