@@ -36,35 +36,18 @@ const CHART_GROUP_LABEL: Record<OperatingCostFilters['chartGroupBy'], string> = 
   region: 'theo khu vực',
 }
 
-export function OperatingCostContent({
+export function OperatingCostKpiSection({
   appliedFilters,
   isLoading,
-  onViewDetail,
 }: {
   appliedFilters: OperatingCostFilters
   isLoading: boolean
-  onViewDetail: (row: OperatingCostRecord) => void
 }) {
-  const [drillField, setDrillField] = useState<'deliverer' | 'customer' | 'region' | null>(null)
-  const [drillKey, setDrillKey] = useState<string | null>(null)
-
   const scopedRows = useMemo(
     () => filterOperatingCostRecords(appliedFilters),
     [appliedFilters],
   )
-
   const totals = useMemo(() => computeOpCostTotals(scopedRows), [scopedRows])
-  const components = useMemo(() => computeOpCostComponents(scopedRows), [scopedRows])
-  const chartData = useMemo(
-    () => buildOpCostChartSeries(scopedRows, appliedFilters),
-    [scopedRows, appliedFilters],
-  )
-
-  const detailRows = useMemo(() => {
-    if (!drillField || !drillKey) return scopedRows
-    return filterDetailByKey(scopedRows, drillField, drillKey)
-  }, [scopedRows, drillField, drillKey])
-
   const canView = appliedFilters.canViewAmounts
 
   const cards = [
@@ -115,6 +98,42 @@ export function OperatingCostContent({
     },
   ]
 
+  return (
+    <SummaryCardGrid items={cards} isLoading={isLoading} columns="sm:grid-cols-2 lg:grid-cols-3" />
+  )
+}
+
+export function OperatingCostContent({
+  appliedFilters,
+  isLoading,
+  onViewDetail,
+}: {
+  appliedFilters: OperatingCostFilters
+  isLoading: boolean
+  onViewDetail: (row: OperatingCostRecord) => void
+}) {
+  const [drillField, setDrillField] = useState<'deliverer' | 'customer' | 'region' | null>(null)
+  const [drillKey, setDrillKey] = useState<string | null>(null)
+
+  const scopedRows = useMemo(
+    () => filterOperatingCostRecords(appliedFilters),
+    [appliedFilters],
+  )
+
+  const totals = useMemo(() => computeOpCostTotals(scopedRows), [scopedRows])
+  const components = useMemo(() => computeOpCostComponents(scopedRows), [scopedRows])
+  const chartData = useMemo(
+    () => buildOpCostChartSeries(scopedRows, appliedFilters),
+    [scopedRows, appliedFilters],
+  )
+
+  const detailRows = useMemo(() => {
+    if (!drillField || !drillKey) return scopedRows
+    return filterDetailByKey(scopedRows, drillField, drillKey)
+  }, [scopedRows, drillField, drillKey])
+
+  const canView = appliedFilters.canViewAmounts
+
   const handleDrill = (field: typeof drillField, key: string | null) => {
     setDrillField(field)
     setDrillKey(key)
@@ -127,12 +146,6 @@ export function OperatingCostContent({
           Bạn không có quyền tài chính — số tiền chi tiết hiển thị dạng ***.
         </ReportInlineNotice>
       ) : null}
-
-      <ReportInlineNotice tone="accent" title="CPPS theo chuyến">
-        Đã chốt 06/05/2026: cột CPPS theo chuyến luôn để trống — không đồng bộ ERP/Vận hành.
-      </ReportInlineNotice>
-
-      <SummaryCardGrid items={cards} isLoading={isLoading} columns="sm:grid-cols-2 lg:grid-cols-3" />
 
       {(totals.dataErrorCount > 0) && (
         <ReportInlineNotice tone="warning" title="Lỗi / thiếu cấu hình">

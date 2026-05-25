@@ -40,35 +40,16 @@ import { ReportSlEfficiencyCompare } from './report-sl-efficiency-compare'
 import { ReportInspectionOrdersTable } from './report-inspection-orders-table'
 import { cn } from '@/lib/utils'
 
-export function OverviewTab({
+export function OverviewKpiSection({
   slRows,
   cpRows,
-  appliedFilters,
   isLoading,
 }: {
   slRows: SLRecord[]
   cpRows: CPRecord[]
-  sourceSheet?: BcSourceSheet
-  appliedFilters: ReportFilters
   isLoading: boolean
 }) {
-  const [selectedBranch, setSelectedBranch] = useState<BranchCode | null>(null)
-
   const summary = computeOverviewSummary(slRows, cpRows)
-
-  const trendData = useMemo(
-    () => buildTrendSeries(appliedFilters, slRecords, cpRecords),
-    [appliedFilters],
-  )
-
-  const ranking = useMemo(() => buildBranchRanking(slRows, cpRows), [slRows, cpRows])
-
-  const compareData = useMemo(() => buildBranchCompare(slRows, cpRows), [slRows, cpRows])
-
-  const orders = useMemo(
-    () => buildInspectionOrdersForScope(appliedFilters, slRows, cpRows),
-    [appliedFilters, slRows, cpRows],
-  )
 
   const cards = [
     {
@@ -130,13 +111,44 @@ export function OverviewTab({
   ]
 
   return (
-    <div className="space-y-5">
-      <SummaryCardGrid
-        items={cards}
-        isLoading={isLoading}
-        columns="sm:grid-cols-2 lg:grid-cols-4"
-      />
+    <SummaryCardGrid
+      items={cards}
+      isLoading={isLoading}
+      columns="sm:grid-cols-2 lg:grid-cols-4"
+    />
+  )
+}
 
+export function OverviewTab({
+  slRows,
+  cpRows,
+  appliedFilters,
+  isLoading,
+}: {
+  slRows: SLRecord[]
+  cpRows: CPRecord[]
+  sourceSheet?: BcSourceSheet
+  appliedFilters: ReportFilters
+  isLoading: boolean
+}) {
+  const [selectedBranch, setSelectedBranch] = useState<BranchCode | null>(null)
+
+  const trendData = useMemo(
+    () => buildTrendSeries(appliedFilters, slRecords, cpRecords),
+    [appliedFilters],
+  )
+
+  const ranking = useMemo(() => buildBranchRanking(slRows, cpRows), [slRows, cpRows])
+
+  const compareData = useMemo(() => buildBranchCompare(slRows, cpRows), [slRows, cpRows])
+
+  const orders = useMemo(
+    () => buildInspectionOrdersForScope(appliedFilters, slRows, cpRows),
+    [appliedFilters, slRows, cpRows],
+  )
+
+  return (
+    <div className="space-y-5">
       <ReportTrendSection filters={appliedFilters} data={trendData} isLoading={isLoading} />
 
       <div className="flex min-w-0 flex-col gap-5">

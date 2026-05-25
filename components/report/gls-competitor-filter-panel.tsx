@@ -38,6 +38,9 @@ const MAX_YEAR = YEARS[YEARS.length - 1]!
 const FILTER_ROW_CLASS =
   'grid w-full min-w-0 grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 
+const FILTER_ACTION_ROW_CLASS =
+  'grid w-full min-w-0 grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(17rem,1.15fr)_auto]'
+
 export function GlsCompetitorFilterPanel({
   filters,
   onChange,
@@ -181,41 +184,39 @@ export function GlsCompetitorFilterPanel({
             </FilterField>
           </div>
 
-          {/* Hàng 3: tuyến, đối thủ, người ghi nhận + từ khóa + nút (căn phải) */}
-          <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-end xl:gap-3">
-            <div className="grid w-full min-w-0 flex-1 grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <FilterField label="Tuyến" className="min-w-0">
-                <FilterSelect
-                  label="Tuyến"
-                  value={filters.route}
-                  options={routeOptions}
-                  onChange={(route) => patch({ route })}
-                />
-              </FilterField>
-              <FilterField label="Đối thủ" className="min-w-0">
-                <FilterSelect
-                  label="Đối thủ"
-                  value={filters.competitor}
-                  options={competitorOptions}
-                  onChange={(competitor) => patch({ competitor })}
-                />
-              </FilterField>
-              <FilterField label="Người ghi nhận" className="min-w-0">
-                <FilterSelect
-                  label="Người ghi nhận"
-                  value={filters.recorder}
-                  options={recorderOptions}
-                  onChange={(recorder) => patch({ recorder })}
-                />
-              </FilterField>
-            </div>
+          {/* Hàng 3: căn đều 3 ô chọn + từ khóa + cụm nút */}
+          <div className={FILTER_ACTION_ROW_CLASS}>
+            <FilterField label="Tuyến" className="min-w-0">
+              <FilterSelect
+                label="Tuyến"
+                value={filters.route}
+                options={routeOptions}
+                onChange={(route) => patch({ route })}
+              />
+            </FilterField>
+            <FilterField label="Đối thủ" className="min-w-0">
+              <FilterSelect
+                label="Đối thủ"
+                value={filters.competitor}
+                options={competitorOptions}
+                onChange={(competitor) => patch({ competitor })}
+              />
+            </FilterField>
+            <FilterField label="Người ghi nhận" className="min-w-0">
+              <FilterSelect
+                label="Người ghi nhận"
+                value={filters.recorder}
+                options={recorderOptions}
+                onChange={(recorder) => patch({ recorder })}
+              />
+            </FilterField>
             <FilterKeywordSearch
               value={filters.keyword}
               onChange={(keyword) => patch({ keyword })}
-              placeholder="Tìm khách hàng, kho, tuyến, đối thủ, mã nguồn…"
-              className="min-w-0 w-full shrink-0 xl:max-w-xs"
+              placeholder="Tìm mã nguồn"
+              className="min-w-0 w-full"
             />
-            <div className="ml-auto flex w-full shrink-0 justify-end xl:w-auto">
+            <div className="flex w-full min-w-0 justify-start xl:justify-end">
               <FilterPanelActions
                 compact
                 onSearch={onSearch}

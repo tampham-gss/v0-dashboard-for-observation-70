@@ -5,8 +5,10 @@ import { toast, useOverlayState } from '@heroui/react'
 import { ReportLayout } from '@/components/report/report-layout'
 import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
 import { GlsCompetitorFilterPanel } from '@/components/report/gls-competitor-filter-panel'
-import { GlsCompetitorContent } from '@/components/report/gls-competitor-content'
-import { ReportInlineNotice } from '@/components/report/report-inline-notice'
+import {
+  GlsCompetitorContent,
+  GlsCompetitorKpiSection,
+} from '@/components/report/gls-competitor-content'
 import {
   DEFAULT_GLS_COMPETITOR_FILTERS,
   appliedGlsCompetitorCaption,
@@ -65,10 +67,9 @@ export default function GlsCompetitorPage() {
         }
       />
 
-      <ReportInlineNotice tone="accent" title="Web kiểm đếm">
-        Quan sát thị phần GLS tại hiện trường theo ngày/tuần, khu vực và loại cont (CONT_20 /
-        CONT_40). Báo cáo chỉ đọc dữ liệu nhập liệu hiện trường, không sửa bản ghi nguồn.
-      </ReportInlineNotice>
+      <div className="mb-4">
+        <GlsCompetitorKpiSection appliedFilters={appliedFilters} isLoading={isLoading} />
+      </div>
 
       <GlsCompetitorFilterPanel
         filters={draftFilters}

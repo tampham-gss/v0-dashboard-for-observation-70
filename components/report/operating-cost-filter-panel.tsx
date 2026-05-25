@@ -187,16 +187,6 @@ export function OperatingCostFilterPanel({
           </FilterField>
         </div>
 
-        <div className="flex items-center gap-3 rounded-md border border-gray-100 bg-gray-50/80 px-4 py-3">
-          <Switch
-            isSelected={filters.canViewAmounts}
-            onChange={(canViewAmounts) => patch({ canViewAmounts })}
-            aria-label="Quyền xem số tiền chi tiết"
-          >
-            <span className="text-sm text-gray-800">Quyền tài chính — hiển thị số tiền chi tiết</span>
-          </Switch>
-        </div>
-
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:gap-3">
           <FilterKeywordSearch
             value={filters.keyword}

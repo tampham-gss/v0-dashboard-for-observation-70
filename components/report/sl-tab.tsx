@@ -32,23 +32,13 @@ import { SLStatusChip } from './status-chip'
 
 const PAGE_SIZE = 10
 
-export function SLTab({
+export function SLKpiSection({
   rows,
-  sourceSheet,
-  appliedFilters,
   isLoading,
-  onViewDetail,
 }: {
   rows: SLRecord[]
-  sourceSheet: BcSourceSheet
-  appliedFilters: ReportFilters
   isLoading: boolean
-  onViewDetail: (row: SLRecord) => void
 }) {
-  const [page, setPage] = useState(1)
-
-  useEffect(() => setPage(1), [rows])
-
   const summary = computeSLSummary(rows)
 
   const summaryItems = [
@@ -66,6 +56,32 @@ export function SLTab({
       tone: 'primary' as const,
     },
   ]
+
+  return (
+    <MetricKpiStrip
+      items={summaryItems}
+      isLoading={isLoading}
+      columnsClassName="sm:grid-cols-2 lg:grid-cols-4"
+    />
+  )
+}
+
+export function SLTab({
+  rows,
+  sourceSheet,
+  appliedFilters,
+  isLoading,
+  onViewDetail,
+}: {
+  rows: SLRecord[]
+  sourceSheet: BcSourceSheet
+  appliedFilters: ReportFilters
+  isLoading: boolean
+  onViewDetail: (row: SLRecord) => void
+}) {
+  const [page, setPage] = useState(1)
+
+  useEffect(() => setPage(1), [rows])
 
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -160,11 +176,6 @@ export function SLTab({
 
   return (
     <div className="space-y-6">
-      <MetricKpiStrip
-        items={summaryItems}
-        isLoading={isLoading}
-        columnsClassName="sm:grid-cols-2 lg:grid-cols-4"
-      />
       <ReportTablePanel
         title="Bảng sản lượng (SL)"
         subtitle={`${sourceSheet} · ${appliedFiltersCaption(appliedFilters)}`}

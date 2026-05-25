@@ -31,6 +31,41 @@ import { CPStatusChip } from './status-chip'
 
 const PAGE_SIZE = 10
 
+export function CPKpiSection({
+  rows,
+  slRows,
+  isLoading,
+}: {
+  rows: CPRecord[]
+  slRows: SLRecord[]
+  isLoading: boolean
+}) {
+  const summary = computeCPSummary(rows, slRows)
+
+  const summaryItems = [
+    { title: 'Tổng CP GLS', value: formatCurrency(summary.totalCPGLS), icon: ClipboardList, tone: 'primary' as const },
+    { title: 'Tổng CP lái xe', value: formatCurrency(summary.totalCPLX), icon: Truck, tone: 'primary' as const },
+    { title: 'Tổng CP Vendor', value: formatCurrency(summary.totalCPVendor), icon: Boxes, tone: 'primary' as const },
+    { title: 'Tổng chi phí', value: formatCurrency(summary.totalChiPhi), icon: Coins, tone: 'warning' as const },
+    { title: 'CP TB/Cont', value: formatCurrency(summary.cpTBPerCont), icon: DollarSign, tone: 'warning' as const },
+    {
+      title: 'Target CP/Cont',
+      value: formatCurrency(summary.targetCpPerCont),
+      description: 'Định mức tham chiếu',
+      icon: Percent,
+      tone: 'primary' as const,
+    },
+  ]
+
+  return (
+    <MetricKpiStrip
+      items={summaryItems}
+      isLoading={isLoading}
+      columnsClassName="sm:grid-cols-2 lg:grid-cols-3"
+    />
+  )
+}
+
 export function CPTab({
   rows,
   slRows,
@@ -49,23 +84,6 @@ export function CPTab({
   const [page, setPage] = useState(1)
 
   useEffect(() => setPage(1), [rows])
-
-  const summary = computeCPSummary(rows, slRows)
-
-  const summaryItems = [
-    { title: 'Tổng CP GLS', value: formatCurrency(summary.totalCPGLS), icon: ClipboardList, tone: 'primary' as const },
-    { title: 'Tổng CP lái xe', value: formatCurrency(summary.totalCPLX), icon: Truck, tone: 'primary' as const },
-    { title: 'Tổng CP Vendor', value: formatCurrency(summary.totalCPVendor), icon: Boxes, tone: 'primary' as const },
-    { title: 'Tổng chi phí', value: formatCurrency(summary.totalChiPhi), icon: Coins, tone: 'warning' as const },
-    { title: 'CP TB/Cont', value: formatCurrency(summary.cpTBPerCont), icon: DollarSign, tone: 'warning' as const },
-    {
-      title: 'Target CP/Cont',
-      value: formatCurrency(summary.targetCpPerCont),
-      description: 'Định mức tham chiếu',
-      icon: Percent,
-      tone: 'primary' as const,
-    },
-  ]
 
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -154,11 +172,6 @@ export function CPTab({
 
   return (
     <div className="space-y-6">
-      <MetricKpiStrip
-        items={summaryItems}
-        isLoading={isLoading}
-        columnsClassName="sm:grid-cols-2 lg:grid-cols-3"
-      />
       <ReportTablePanel
         title="Bảng chi phí (CP)"
         subtitle={`${sourceSheet} · ${appliedFiltersCaption(appliedFilters)}`}

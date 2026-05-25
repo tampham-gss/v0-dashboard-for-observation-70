@@ -17,10 +17,10 @@ import { ReportLayout } from '@/components/report/report-layout'
 import { ReportNoticeBanner } from '@/components/report/report-notice-banner'
 import type { ReportSectionTabId } from '@/components/report/report-section-tabs'
 import { ReportSectionTabBar } from '@/components/report/report-section-tab-bar'
-import { OverviewTab } from '@/components/report/overview-tab'
-import { SLTab } from '@/components/report/sl-tab'
+import { OverviewKpiSection, OverviewTab } from '@/components/report/overview-tab'
+import { SLKpiSection, SLTab } from '@/components/report/sl-tab'
 import { BcTab } from '@/components/report/bc-tab'
-import { CPTab } from '@/components/report/cp-tab'
+import { CPKpiSection, CPTab } from '@/components/report/cp-tab'
 import { SLDetailModal } from '@/components/report/sl-detail-modal'
 import { CPDetailModal } from '@/components/report/cp-detail-modal'
 import { ReportExportDialog } from '@/components/report/report-export-dialog'
@@ -93,6 +93,22 @@ export default function ReportPage() {
         }
       />
 
+
+      {activeTab === 'overview' && (
+        <div className="mb-4">
+          <OverviewKpiSection slRows={slRows} cpRows={cpRows} isLoading={isLoading} />
+        </div>
+      )}
+      {activeTab === 'sl' && (
+        <div className="mb-4">
+          <SLKpiSection rows={slRows} isLoading={isLoading} />
+        </div>
+      )}
+      {activeTab === 'cp' && (
+        <div className="mb-4">
+          <CPKpiSection rows={cpRows} slRows={slRows} isLoading={isLoading} />
+        </div>
+      )}
 
       <ReportSectionTabBar
         value={activeTab}

@@ -34,36 +34,18 @@ const CHART_GROUP_LABEL: Record<GlsCompetitorFilters['chartGroupBy'], string> = 
   region: 'theo khu vực',
 }
 
-export function GlsCompetitorContent({
+export function GlsCompetitorKpiSection({
   appliedFilters,
   isLoading,
 }: {
   appliedFilters: GlsCompetitorFilters
   isLoading: boolean
 }) {
-  const [drillCompetitor, setDrillCompetitor] = useState<GlsCompetitorCatalogId | null>(null)
-
   const scopedRows = useMemo(
     () => filterGlsCompetitorObservations(appliedFilters),
     [appliedFilters],
   )
-
   const totals = useMemo(() => computeGlsMarketTotals(scopedRows), [scopedRows])
-  const breakdown = useMemo(() => computeCompetitorBreakdown(scopedRows), [scopedRows])
-  const chartData = useMemo(
-    () => buildGlsCompareChartSeries(scopedRows, appliedFilters),
-    [scopedRows, appliedFilters],
-  )
-  const shareSlices = useMemo(() => buildMarketShareSlices(scopedRows), [scopedRows])
-  const contBreakdown = useMemo(() => contTypeBreakdown(scopedRows), [scopedRows])
-
-  const detailRows = useMemo(() => {
-    const base = filterDetailByCompetitor(scopedRows, drillCompetitor)
-    if (appliedFilters.competitor !== 'all') {
-      return base.filter((r) => r.competitorId === appliedFilters.competitor)
-    }
-    return base
-  }, [scopedRows, drillCompetitor, appliedFilters.competitor])
 
   const cards = [
     {
@@ -111,13 +93,47 @@ export function GlsCompetitorContent({
   ]
 
   return (
-    <div className="space-y-5">
-      <SummaryCardGrid
-        items={cards}
-        isLoading={isLoading}
-        columns="sm:grid-cols-2 lg:grid-cols-3"
-      />
+    <SummaryCardGrid
+      items={cards}
+      isLoading={isLoading}
+      columns="sm:grid-cols-2 lg:grid-cols-3"
+    />
+  )
+}
 
+export function GlsCompetitorContent({
+  appliedFilters,
+  isLoading,
+}: {
+  appliedFilters: GlsCompetitorFilters
+  isLoading: boolean
+}) {
+  const [drillCompetitor, setDrillCompetitor] = useState<GlsCompetitorCatalogId | null>(null)
+
+  const scopedRows = useMemo(
+    () => filterGlsCompetitorObservations(appliedFilters),
+    [appliedFilters],
+  )
+
+  const totals = useMemo(() => computeGlsMarketTotals(scopedRows), [scopedRows])
+  const breakdown = useMemo(() => computeCompetitorBreakdown(scopedRows), [scopedRows])
+  const chartData = useMemo(
+    () => buildGlsCompareChartSeries(scopedRows, appliedFilters),
+    [scopedRows, appliedFilters],
+  )
+  const shareSlices = useMemo(() => buildMarketShareSlices(scopedRows), [scopedRows])
+  const contBreakdown = useMemo(() => contTypeBreakdown(scopedRows), [scopedRows])
+
+  const detailRows = useMemo(() => {
+    const base = filterDetailByCompetitor(scopedRows, drillCompetitor)
+    if (appliedFilters.competitor !== 'all') {
+      return base.filter((r) => r.competitorId === appliedFilters.competitor)
+    }
+    return base
+  }, [scopedRows, drillCompetitor, appliedFilters.competitor])
+
+  return (
+    <div className="space-y-5">
       {(totals.unassignedContCount > 0 || totals.dataErrorCount > 0) && (
         <div className="space-y-2">
           {totals.unassignedContCount > 0 ? (

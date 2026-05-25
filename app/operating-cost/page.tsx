@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { toast, useOverlayState, Modal, Button } from '@heroui/react'
 import { ReportLayout } from '@/components/report/report-layout'
 import { ReportHeaderActions, ReportPageHeader } from '@/components/report/report-page-header'
-import { ReportInlineNotice } from '@/components/report/report-inline-notice'
 import { OperatingCostFilterPanel } from '@/components/report/operating-cost-filter-panel'
-import { OperatingCostContent } from '@/components/report/operating-cost-content'
+import {
+  OperatingCostContent,
+  OperatingCostKpiSection,
+} from '@/components/report/operating-cost-content'
 import { OperatingCostDetailModal } from '@/components/report/operating-cost-detail-modal'
 import { reportButtonClass } from '@/components/report/report-button-chrome'
 import {
@@ -64,10 +66,9 @@ export default function OperatingCostPage() {
         }
       />
 
-      <ReportInlineNotice tone="accent" title="Web kiểm đếm">
-        Tổng hợp lương, km, xăng/xe, tăng ca, ăn… theo ngày/tuần/tháng, khu vực, giao nhận và
-        khách hàng.
-      </ReportInlineNotice>
+      <div className="mb-4">
+        <OperatingCostKpiSection appliedFilters={appliedFilters} isLoading={isLoading} />
+      </div>
 
       <OperatingCostFilterPanel
         filters={draftFilters}
